@@ -16,7 +16,7 @@ import shutil
 import numpy as np
 from PIL import Image as im
 
-sorted_fold_path="/home/aaa/Desktop/Thesis/Script/Trial/Sorted data/" #insert folder of sorted meausements files
+sorted_fold_path="/home/aaa/Desktop/Thesis2/Sorted data/" #insert folder of sorted meausements files
 allmeasurements = sorted_fold_path+"All measurements/"
 allrenamed = allmeasurements +"All renamed/"
 allmatrixes = allmeasurements + "All matrixes/"
@@ -68,30 +68,30 @@ This block creates for each measurement a file with the matrix version of the
 """
 This creates for each matrix file a corresponding picture
 """
-# max_count = 0.
-# for k in range(len(foldername)):
-#     for j in range (1,n_theta[k]+1):
-#         f = sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa"
-#         data_matrix = np.loadtxt(f)
-#         if np.amax(data_matrix)>max_count:
-#             max_count=np.amax(data_matrix)
-# for k in range(len(foldername)):
-#     pictures = sorted_fold_path+foldername[k]+"/Pictures/"
-#     if os.path.exists(pictures):
-#         shutil.rmtree(pictures)
-#     os.makedirs(pictures)
-#     rawpictures = sorted_fold_path+foldername[k]+"/Raw pictures/"
-#     if os.path.exists(rawpictures):
-#         shutil.rmtree(rawpictures)
-#     os.makedirs(rawpictures)
-#     for j in range (1,n_theta[k]+1):
-#         f = sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa"
-#         data_matrix = np.loadtxt(f)/max_count
-#         data_raw = np.loadtxt(f)
-#         image = im.fromarray((data_matrix))
-#         image.save(pictures+foldername[k]+"_"+str("%03d" % (j,))+'.tiff')
-#         imageraw = im.fromarray(data_raw)
-#         imageraw.save(rawpictures+foldername[k]+"_"+str("%03d" % (j,))+'.tiff')
+max_count = 0.
+for k in range(len(foldername)):
+    for j in range (1,n_theta[k]+1):
+        f = sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa"
+        data_matrix = np.loadtxt(f)
+        if np.amax(data_matrix)>max_count:
+            max_count=np.amax(data_matrix)
+for k in range(len(foldername)):
+    pictures = sorted_fold_path+foldername[k]+"/Pictures/"
+    if os.path.exists(pictures):
+        shutil.rmtree(pictures)
+    os.makedirs(pictures)
+    rawpictures = sorted_fold_path+foldername[k]+"/Raw pictures/"
+    if os.path.exists(rawpictures):
+        shutil.rmtree(rawpictures)
+    os.makedirs(rawpictures)
+    for j in range (1,n_theta[k]+1):
+        f = sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa"
+        data_matrix = np.loadtxt(f)/max_count
+        data_raw = np.loadtxt(f)
+        image = im.fromarray((data_matrix))
+        image.save(pictures+foldername[k]+"_"+str("%03d" % (j,))+'.tiff')
+        imageraw = im.fromarray(data_raw)
+        imageraw.save(rawpictures+foldername[k]+"_"+str("%03d" % (j,))+'.tiff')
 
 """
 This creates common folders "Renamed", "Matrixes" and "Pictures" for all measurements at all tilt angles 
@@ -100,25 +100,25 @@ This creates common folders "Renamed", "Matrixes" and "Pictures" for all measure
 # if os.path.exists(allmeasurements):
 #         shutil.rmtree(allmeasurements)
 # os.makedirs(allmeasurements)
-# if os.path.exists(allpictures):
-#         shutil.rmtree(allpictures)
-# os.makedirs(allpictures)
-# if os.path.exists(allrawpictures):
-#         shutil.rmtree(allrawpictures)
-# os.makedirs(allrawpictures)
-# if os.path.exists(allmatrixes):
-#     shutil.rmtree(allmatrixes)
-# os.makedirs(allmatrixes)
-# if os.path.exists(allrenamed):
-#     shutil.rmtree(allrenamed)
-# os.makedirs(allrenamed)
+if os.path.exists(allpictures):
+        shutil.rmtree(allpictures)
+os.makedirs(allpictures)
+if os.path.exists(allrawpictures):
+        shutil.rmtree(allrawpictures)
+os.makedirs(allrawpictures)
+if os.path.exists(allmatrixes):
+    shutil.rmtree(allmatrixes)
+os.makedirs(allmatrixes)
+if os.path.exists(allrenamed):
+    shutil.rmtree(allrenamed)
+os.makedirs(allrenamed)
 
-# for k in range(len(foldername)):
-#     for j in range (1,n_theta[k]+1):
-#         filename = foldername[k]+"_"+str("%03d" % (j,))+".mpa"
-#         picname = foldername[k]+"_"+str("%03d" % (j,))+".tiff"
-#         folder = sorted_fold_path+foldername[k]
-#         shutil.copy(folder+"/Renamed/"+filename, allrenamed+filename)
-#         shutil.copy(folder+"/Matrixes/"+filename, allmatrixes+filename)
-#         shutil.copy(folder+"/Pictures/"+picname, allpictures+picname)
-#         shutil.copy(folder+"/Raw pictures/"+picname, allrawpictures+picname)
+for k in range(len(foldername)):
+    for j in range (1,n_theta[k]+1):
+        filename = foldername[k]+"_"+str("%03d" % (j,))+".mpa"
+        picname = foldername[k]+"_"+str("%03d" % (j,))+".tiff"
+        folder = sorted_fold_path+foldername[k]
+        shutil.copy(folder+"/Renamed/"+filename, allrenamed+filename)
+        shutil.copy(folder+"/Matrixes/"+filename, allmatrixes+filename)
+        shutil.copy(folder+"/Pictures/"+picname, allpictures+picname)
+        shutil.copy(folder+"/Raw pictures/"+picname, allrawpictures+picname)

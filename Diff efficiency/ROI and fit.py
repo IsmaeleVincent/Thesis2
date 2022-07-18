@@ -14,7 +14,7 @@ from scipy.optimize import curve_fit as fit
 from scipy.stats import chisquare as cs
 import math
 
-sorted_fold_path="/home/aaa/Desktop/Thesis/Script/Trial/Sorted data/" #insert folder of sorted meausements files
+sorted_fold_path="/home/aaa/Desktop/Thesis2/Script/Trial/Sorted data/" #insert folder of sorted meausements files
 allmeasurements = sorted_fold_path+"All measurements/"
 allrenamed = allmeasurements +"All renamed/"
 allmatrixes = allmeasurements + "All matrixes/"

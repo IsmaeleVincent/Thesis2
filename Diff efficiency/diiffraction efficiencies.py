@@ -42,7 +42,7 @@ n_pixel = 16384 #number of pixels in one measurement
 This block calculates the diffraction efficiencies, first part estimates theta=0
 and second part the diff eff for each theta
 """
-plot=0
+plot=1
 def gauss(x, A, x0,sx):
       return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
 
@@ -132,8 +132,8 @@ for k in range(len(foldername)):
                 diff_eff[z][:]*=0
     if (k==6):
         diff_eff=np.delete(diff_eff, [3,4])
-    with open(data_analysis+foldername[k]+'_diff_eff.mpa', 'w') as f:
-        np.savetxt(f,diff_eff, header="theta err counts-2 err counts-1 err counts-0 err counts1 err counts1 err", fmt="%.6f")
+    # with open(data_analysis+foldername[k]+'_diff_eff.mpa', 'w') as f:
+    #     np.savetxt(f,diff_eff, header="theta err counts-2 err counts-1 err counts-0 err counts1 err counts1 err", fmt="%.6f")
 
 """
 This block calculates the diffraction efficiencies for 3 lines
@@ -389,15 +389,15 @@ This shows something inteesting but I'm not sure what to do with it yet
 # This block plots the diffraction efficiencies
 """
 
-for k in range(len(foldername)):
-    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff.mpa',skiprows=1)
-    fig = plt.figure(figsize=(15,15))
-    ax = fig.add_subplot(111)
-    ax.set_title(foldername[k])
-    for j in range(5):
-        ax.plot(diff_eff[:,0],diff_eff[:,2*j+2],'o')
-        ax.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+3],capsize=1)
+# for k in range(len(foldername)):
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff.mpa',skiprows=1)
+#     fig = plt.figure(figsize=(15,15))
+#     ax = fig.add_subplot(111)
+#     ax.set_title(foldername[k])
+#     for j in range(5):
+#         ax.plot(diff_eff[:,0],diff_eff[:,2*j+2],'o')
+#         ax.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+3],capsize=1)
     # data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
     # diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff_3lines.mpa',skiprows=1)
     # fig = plt.figure(figsize=(15,15))
