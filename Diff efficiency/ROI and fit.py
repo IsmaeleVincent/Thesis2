@@ -14,7 +14,7 @@ from scipy.optimize import curve_fit as fit
 from scipy.stats import chisquare as cs
 import math
 
-sorted_fold_path="/home/aaa/Desktop/Thesis2/Script/Trial/Sorted data/" #insert folder of sorted meausements files
+sorted_fold_path="/home/aaa/Desktop/Thesis2/Sorted data/" #insert folder of sorted meausements files
 allmeasurements = sorted_fold_path+"All measurements/"
 allrenamed = allmeasurements +"All renamed/"
 allmatrixes = allmeasurements + "All matrixes/"
@@ -39,169 +39,234 @@ n_pixel = 16384 #number of pixels in one measurement
 This block creates a 3D matrix (stack) with measurments along the x,y plane and theta along z, 
 and uses it to calculate the region of interest (ROI)
 """
-# for k in range(len(foldername)):
+# for k in range(1,len(foldername)):
 #     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-#     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
-#     stack = np.stack(matrixes,axis=2)
-#     xyzmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
-#     ymax = xyzmax[0][0]
-#     xmax = xyzmax[1][0]
-#     zmax = xyzmax[2][0]
-#     y1=0
-#     a=0.
-#     b=0.
-#     s=0.
-#     while y1<ymax and abs(a)<3:#(abs(a)<2 or abs(b)<2):
-#         s+=stack[y1,xmax,0]
-#         avg=s/(y1+1)
-#         if(y1>65):
-#             a=stack[y1+3,xmax,0]/avg
-#             b=stack[y1+4,xmax,0]/avg
+#     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)] #matrixes of measurement along theta
+#     stack = np.stack(matrixes,axis=2) #3D stack of measurements
+#     stack_proj = np.zeros((128,128)) #2D projection of the maximum values for each measurement
+#     for i in range(128):
+#         for j in range(128):
+#               stack_proj[i,j] = np.amax(stack[i,j,:])
+#     xymax = np.where(stack_proj==np.amax(stack_proj)) #coordinates of the maximum 
+#     ymax = xymax[0][0]
+#     xmax = xymax[1][0]
+#     y1=ymax-12 #first row of the ROI
+#     SN1=0. #signal to noise ratio of the pixel 
+#     SN2=0. #signal to noise ratio one pixel ahead
+#     SN3=0. #signal to noise ratio two pixels ahead
+#     while y1<ymax and (SN1<2 or SN2<2 or SN3<2):
+#         r=stack_proj[0:y1,xmax]
+#         N=sum(r)/len(r) #Average
+#         SN1=stack_proj[y1+1,xmax]/N
+#         SN2=stack_proj[y1+2,xmax]/N
+#         SN3=stack_proj[y1+3,xmax]/N
 #         y1+=1
-#     #y1-=1
-#     y2=127
-#     a=0.
-#     b=0.
-#     s=0.
-#     while y2>ymax and abs(a)<3:#(abs(a)<2 or abs(b)<2):
-#         s+=stack[y2,xmax,0]
-#         avg=s/(128-y2)
-#         if(128-y2>48):
-#             a=stack[y2-3,xmax,0]/avg
-#             b=stack[y1-4,xmax,0]/avg
+#     y1-=1
+#     y2=ymax+12
+#     SN1=0.
+#     SN2=0.
+#     SN3=0.
+#     while y2>ymax and (SN1<2 or SN2<2 or SN3<2):
+#         r=stack_proj[y2:127,xmax]
+#         N=sum(r)/len(r) #Average noise
+#         SN1=stack_proj[y2-1,xmax]/N
+#         SN2=stack_proj[y2-2,xmax]/N
+#         SN3=stack_proj[y2-3,xmax]/N
 #         y2-=1
-#     #y2+=1
-#     x1=np.zeros(y2-y1,dtype=int)
-#     x2=np.zeros(y2-y1,dtype=int)+127
+#     y2+=2
+#     x1=np.zeros(y2-y1,dtype=int)+30
+#     x2=np.zeros(y2-y1,dtype=int)+100
 #     for i in range(y2-y1):    
-#         a=0.
-#         b=0.
-#         s=0.
-#         while x1[i]<xmax and abs(a)<3:#(abs(a)<2 or abs(b)<2):
-#             s+= np.amax(stack[y1+i,x1[i],:])
-#             avg=s/(x1[i]+1)
-#             if(x1[i]>20):
-#                 a=np.amax(stack[y1+i,x1[i]+3,:])/avg
-#                 b=np.amax(stack[y1+i,x1[i]+4,:])/avg
+#         SN1=0.
+#         SN2=0.
+#         while x1[i]<xmax and (SN1<1.5 or SN2<2):
+#             r=stack_proj[y1+i,(x1[i]-5):x1[i]]
+#             N=sum(r)/len(r)
+#             SN1=stack_proj[y1+i,x1[i]+1]/N
+#             SN2=stack_proj[y1+i,x1[i]+2]/N
+#             #SN3=stack_proj[y1+i,x1[i]+3]/N
 #             x1[i]+=1
-#         #x1[i]-=1
-#         a=0.
-#         b=0.
-#         s=0.
-#         while x2[i]>xmax and abs(a)<3:#(abs(a)<2 or abs(b)<2):
-#             s+=np.amax(stack[y1+i,x2[i],:])
-#             avg=s/(128-x2[i])
-#             if(128-x2[i]>20):
-#                 a=np.amax(stack[y1+i,x2[i]-3,:])/avg
-#                 b=np.amax(stack[y1+i,x1[i]-4,:])/avg
+#         x1[i]-=2
+#         SN1=0.
+#         SN2=0.
+#         while x2[i]>xmax and (SN1<1.5 or SN2<2):
+#             r=stack_proj[y1+i,x2[i]:(x2[i]+5)]
+#             N=sum(r)/len(r)
+#             SN1=stack_proj[y1+i,x2[i]-1]/N
+#             SN2=stack_proj[y1+i,x2[i]-2]/N
+#             #SN3=stack_proj[y1+i,x1[i]-3]/N
 #             x2[i]-=1
-#         #x2[i]+=1
+#         x2[i]+=2
 #         roi= np.zeros((y2-y1,3))
-#         for i in range(y2-y1):
-#             roi[i][0] = y1+i
-#             roi[i][1]= x1[i]
-#             roi[i][2]= x2[i]
+#         roi[:,0]=range(y1,y2)
+#         roi[:,1]=x1
+#         roi[:,2]=x2
+#     s_max=np.amax(stack_proj)
+#     stack_proj[stack_proj>s_max/50]=s_max/50
+#     stack_plot=stack_proj.copy()
+#     stack_plot[0:y1,:]=0
+#     stack_plot[y2:128,:]=0
+#     for i in range(y2-y1):
+#         stack_plot[y1+i,0:x1[i]]=0
+#         stack_plot[y1+i,x2[i]:128]=0
+#     masked_array = np.ma.masked_where(stack_plot > 0, stack_plot)
+#     fig=plt.figure(figsize=(10,10))
+#     ax=fig.add_subplot(111)
+#     ax.set_title(foldername[k])
+#     ax.imshow(stack_proj,cmap='gray')
+#     ax.imshow(masked_array,cmap='Reds',alpha=0.8)
+#     #plt.axis('off')
+#     plt.tight_layout(pad=0)
 #     with open(data_analysis+foldername[k]+'_ROI.mpa', 'w') as f:
 #                 np.savetxt(f,roi, header="line x1 x2", fmt="%1.0f")
+
+"""
+This blocks allows to correct the ROI if needed
+"""
+# for k in [13]:#len(foldername)):
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)] #matrixes of measurement along theta
+#     roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI.mpa',skiprows=1).astype(int)
+#     stack = np.stack(matrixes,axis=2) #3D stack of measurements
+#     stack_proj = np.zeros((128,128)) #2D projection of the maximum values for each measurement
+#     for i in range(128):
+#         for j in range(128):
+#               stack_proj[i,j] = np.amax(stack[i,j,:])
+#     s_max=np.amax(stack_proj)
+#     stack_proj[stack_proj>s_max/50]=s_max/50
+#     y1=roi[0,0]
+#     y2=roi[-1,0]
+#     x1=roi[:,1]
+#     x2=roi[:,2]
+#     l=0 #line to check
+#     i=0 #delete first row?
+#     f=len(roi[:,0])
+#     print(y1,y2,"\n",x1[l],x2[l],"\n", roi[l,0])
+#     # x1[l]=45
+#     # x2[l]=80
+#     roi_new=roi[i:f,:]
+#     roi_new[:,1]=x1[i:f]
+#     roi_new[:,2]=x2[i:f]
+#     stack_plot=stack_proj.copy()
+#     stack_plot[0:y1,:]=0
+#     stack_plot[y2:128,:]=0
+#     for i in range(y2-y1):
+#         stack_plot[y1+i,0:x1[i]]=0
+#         stack_plot[y1+i,x2[i]:128]=0
+#     masked_array = np.ma.masked_where(stack_plot > 0, stack_plot)
+#     fig=plt.figure(figsize=(10,10))
+#     ax=fig.add_subplot(111)
+#     ax.set_title(foldername[k])
+#     ax.imshow(stack_proj,cmap='gray')
+#     ax.imshow(masked_array,cmap='Reds',alpha=0.8)
+#     ax.set_ylim([80,60])
+#     ax.set_xlim([30,90])
+#     fig1=plt.figure(figsize=(10,10))
+#     ax1=fig1.add_subplot(111)
+#     ax1.plot(stack_proj[roi_new[l,0],:])
+#     ax1.vlines(x1[l],0,np.amax(stack_proj[roi_new[l,0],:]))
+#     ax1.vlines(x2[l],0,np.amax(stack_proj[roi_new[l,0],:]))
+#     with open(data_analysis+foldername[k]+'_ROI.mpa', 'w') as f:
+#         np.savetxt(f,roi_new, header="line x1 x2", fmt="%1.0f")
 
 """
 This block checks the number of peaks of each line and puts it in the ROI file
 the plots the max points along z for each line to check if the ROI is reasonable
 """
-# for k in range(len(foldername)):
-#     print(foldername[k])
-#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-#     controlplots = data_analysis + "Control Plots/" 
-#     if os.path.exists(controlplots):
-#         shutil.rmtree(controlplots)
-#     os.makedirs(controlplots)
-#     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
-#     stack = np.stack(matrixes,axis=2)
-#     roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI.mpa',skiprows=1).astype(int)    
-#     y=np.zeros(128)
-#     npeaks=np.zeros((len(roi[:,0]),2)).astype(int)
-#     xpeaks=np.zeros((len(roi[:,0]),2)).astype(int)
-#     zmins=np.zeros((len(roi[:,0]),2)).astype(int)
-#     zmin1=0
-#     zmin2=0
-#     for i in range(len(roi[:,0])):
-#         for j in range(128):
-#             y[j]=np.amax(stack[roi[i][0],j,:])
-#         xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
-#         xabsmax = xyzabsmax[1][0]
-#         if(roi[i][1]==roi[i][2]):
-#             xmax=roi[i][1]
-#         else:
-#             xmax= np.where(y[roi[i][1]:(roi[i][2]+1)]==np.max(y[roi[i][1]:(roi[i][2]+1)]))[0][0]+roi[i][1]
-#         if(abs(xmax-roi[i][1])<5):
-#             npeaks[i][0]=0
-#             a=roi[i][1]
-#         else:
-#             a=np.where(y[roi[i][1]:(xmax-1)]==np.amax(y[roi[i][1]:(xmax-1)]))[0][0] + roi[i][1]
-#             if(abs((roi[i][1])-a)<10):
-#                 npeaks[i][0]=1
-#             else:
-#                 npeaks[i][0]=2
-#         xpeaks[i][0]=a
-#         if(abs(roi[i][2]-xmax)<5):
-#             npeaks[i][1]=0
-#             b=roi[i][2]
-#         else:
-#             b=np.where(y[(xmax+2):(roi[i][2]+1)]==np.amax(y[(xmax+2):(roi[i][2]+1)]))[0][0]+xmax+2
-#             if(abs((roi[i][2])-b)<10):
-#                 npeaks[i][1]=1
-#             else:
-#                 npeaks[i][1]=2
-#         xpeaks[i][1]=b
-#     for i in range(len(roi[:,0])):
-#         for j in range(128):
-#             y[j]=np.amax(stack[roi[i][0],j,:])
-#         xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
-#         xabsmax = xyzabsmax[1][0]
-#         fig, axs = plt.subplots(4,figsize=(10,10))
-#         fig.suptitle(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+i))+"\nleft peaks="+str(npeaks[i][0])+"\nright peaks="+str(npeaks[i][1]))
-#         axs[0].plot(y)
-#         axs[0].set_xlim(0,roi[i][1]+3)
-#         axs[0].set_ylim(0,y[int(roi[i][1]+3)]+5)
-#         axs[0].axvline(roi[i][1],color='r')
-#         axs[1].plot(y)
-#         axs[1].set_xlim(roi[i][2]-3,128)
-#         axs[1].set_ylim(0,y[int(roi[i][2])]+5)
-#         axs[1].axvline(roi[i][2],color='r')
-#         axs[2].plot(y)
-#         axs[2].axvline(roi[i][1],color='r')
-#         axs[2].axvline(roi[i][2],color='r')
-#         axs[2].axvline(xpeaks[i][0],color='y', ls = '--')
-#         axs[2].axvline(xpeaks[i][1],color='k', ls = '--')
-#         if (npeaks[i][0]>0 or npeaks[i][1]>0):
-#             aus = (stack[roi[i][0],xabsmax,:].copy()+stack[roi[i][0],xabsmax-1,:].copy()+stack[roi[i][0],xabsmax+1,:].copy())/3
-#             if (np.amax(aus)>150):
-#                 zmin1 = np.where(aus==np.amin(aus))[0][0]
-#                 if (np.amax(npeaks[:,1])<2):
-#                     zmin1 = len(aus)-1
-#                 for l in range(5):
-#                     if (zmin1+l<len(aus)):
-#                         aus[zmin1+l] += 1000
-#                     if (zmin1-l>-1):
-#                         aus[zmin1-l] += 1000
-#                 zmin2=np.where(aus==np.amin(aus))[0][0]
-#                 if (zmin1>zmin2):
-#                     zmin1,zmin2 = zmin2,zmin1
-#             else:
-#                 if (zmin1>0):
-#                     zmin1+=-1
-#                 if (zmin2<len(aus)-1):
-#                     zmin2+=1
-#         zmins[i][0]=zmin1
-#         zmins[i][1]=zmin2
-#         axs[3].plot((stack[roi[i][0],xabsmax,:].copy()+stack[roi[i][0],xabsmax-1,:].copy()+stack[roi[i][0],xabsmax+1,:].copy())/3)
-#         axs[3].axvline(zmins[i][0],color='g')
-#         axs[3].axvline(zmins[i][1],color='k')
-#         plt.savefig(controlplots+foldername[k] +'_line' +str("%0d"%(roi[0][0]+i))+'.png')
-#         plt.close(fig)
-#     roipeaks= np.concatenate((roi,npeaks,xpeaks,zmins),axis=1)
-#     with open(data_analysis+foldername[k]+'_ROI+Peaks.mpa', 'w') as f:
-#         np.savetxt(f,roipeaks, header="line x1 x2 left_peaks right_peaks xmax-1 xmax+1 zmin-1 zmin+1", fmt="%1.0f")
+for k in range(len(foldername)):
+    print(foldername[k])
+    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+    controlplots = data_analysis + "Control Plots/" 
+    # if os.path.exists(controlplots):
+    #     shutil.rmtree(controlplots)
+    # os.makedirs(controlplots)
+    matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
+    stack = np.stack(matrixes,axis=2)
+    roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI.mpa',skiprows=1).astype(int)    
+    y=np.zeros(128)
+    npeaks=np.zeros((len(roi[:,0]),2)).astype(int)
+    xpeaks=np.zeros((len(roi[:,0]),2)).astype(int)
+    zmins=np.zeros((len(roi[:,0]),2)).astype(int)
+    zmin1=0
+    zmin2=0
+    for i in range(len(roi[:,0])):
+        for j in range(128):
+            y[j]=np.amax(stack[roi[i][0],j,:])
+        xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
+        xabsmax = xyzabsmax[1][0]
+        if(roi[i][1]==roi[i][2]):
+            xmax=roi[i][1]
+        else:
+            xmax= np.where(y[roi[i][1]:(roi[i][2]+1)]==np.max(y[roi[i][1]:(roi[i][2]+1)]))[0][0]+roi[i][1]
+        if(abs(xmax-roi[i][1])<5):
+            npeaks[i][0]=0
+            a=roi[i][1]
+        else:
+            a=np.where(y[roi[i][1]:(xmax-1)]==np.amax(y[roi[i][1]:(xmax-1)]))[0][0] + roi[i][1]
+            if(abs((roi[i][1])-a)<10):
+                npeaks[i][0]=1
+            else:
+                npeaks[i][0]=2
+        xpeaks[i][0]=a
+        if(abs(roi[i][2]-xmax)<5):
+            npeaks[i][1]=0
+            b=roi[i][2]
+        else:
+            b=np.where(y[(xmax+2):(roi[i][2]+1)]==np.amax(y[(xmax+2):(roi[i][2]+1)]))[0][0]+xmax+2
+            if(abs((roi[i][2])-b)<10):
+                npeaks[i][1]=1
+            else:
+                npeaks[i][1]=2
+        xpeaks[i][1]=b
+    for i in range(len(roi[:,0])):
+        for j in range(128):
+            y[j]=np.amax(stack[roi[i][0],j,:])
+        xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
+        xabsmax = xyzabsmax[1][0]
+        fig, axs = plt.subplots(4,figsize=(10,10))
+        fig.suptitle(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+i))+"\nleft peaks="+str(npeaks[i][0])+"\nright peaks="+str(npeaks[i][1]))
+        axs[0].plot(y)
+        axs[0].set_xlim(0,roi[i][1]+3)
+        axs[0].set_ylim(0,y[int(roi[i][1]+3)]+5)
+        axs[0].axvline(roi[i][1],color='r')
+        axs[1].plot(y)
+        axs[1].set_xlim(roi[i][2]-3,128)
+        axs[1].set_ylim(0,y[int(roi[i][2])]+5)
+        axs[1].axvline(roi[i][2],color='r')
+        axs[2].plot(y)
+        axs[2].axvline(roi[i][1],color='r')
+        axs[2].axvline(roi[i][2],color='r')
+        axs[2].axvline(xpeaks[i][0],color='y', ls = '--')
+        axs[2].axvline(xpeaks[i][1],color='k', ls = '--')
+        if (npeaks[i][0]>0 or npeaks[i][1]>0):
+            aus = (stack[roi[i][0],xabsmax,:].copy()+stack[roi[i][0],xabsmax-1,:].copy()+stack[roi[i][0],xabsmax+1,:].copy())/3
+            if (np.amax(aus)>150):
+                zmin1 = np.where(aus==np.amin(aus))[0][0]
+                if (np.amax(npeaks[:,1])<2):
+                    zmin1 = len(aus)-1
+                for l in range(5):
+                    if (zmin1+l<len(aus)):
+                        aus[zmin1+l] += 1000
+                    if (zmin1-l>-1):
+                        aus[zmin1-l] += 1000
+                zmin2=np.where(aus==np.amin(aus))[0][0]
+                if (zmin1>zmin2):
+                    zmin1,zmin2 = zmin2,zmin1
+            else:
+                if (zmin1>0):
+                    zmin1+=-1
+                if (zmin2<len(aus)-1):
+                    zmin2+=1
+        zmins[i][0]=zmin1
+        zmins[i][1]=zmin2
+        axs[3].plot((stack[roi[i][0],xabsmax,:].copy()+stack[roi[i][0],xabsmax-1,:].copy()+stack[roi[i][0],xabsmax+1,:].copy())/3)
+        axs[3].axvline(zmins[i][0],color='g')
+        axs[3].axvline(zmins[i][1],color='k')
+        #plt.savefig(controlplots+foldername[k] +'_line' +str("%0d"%(roi[0][0]+i))+'.png')
+        #plt.close(fig)
+    roipeaks= np.concatenate((roi,npeaks,xpeaks,zmins),axis=1)
+    # with open(data_analysis+foldername[k]+'_ROI+Peaks.mpa', 'w') as f:
+    #     np.savetxt(f,roipeaks, header="line x1 x2 left_peaks right_peaks xmax-1 xmax+1 zmin-1 zmin+1", fmt="%1.0f")
 
 """
 This block creates cropped pictures of the ROI, to check that everything is ok
@@ -561,18 +626,18 @@ This block creates plots of the fits from the fit+data file to check them
 This block copies the fits in a common folder just 
 for the sake of simplicity
 """
-if os.path.exists(allcontrolfits):
-    shutil.rmtree(allcontrolfits)
-os.makedirs(allcontrolfits)
-for k in range(len(foldername)):
-    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    folder = sorted_fold_path+foldername[k]
-    roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI+Peaks.mpa',skiprows=1).astype(int)
-    for y in range(len(roi[:,0])):
-        for z in range(1,n_theta[k]+1):
-            contfitname = foldername[k] +'_line_' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z))+'_fit.png'
-            try:
-                shutil.copy(folder+"/Data Analysis/Control Fits/"+contfitname, allcontrolfits+contfitname)        
-            except FileNotFoundError:
-                a=0
+# if os.path.exists(allcontrolfits):
+#     shutil.rmtree(allcontrolfits)
+# os.makedirs(allcontrolfits)
+# for k in range(len(foldername)):
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     folder = sorted_fold_path+foldername[k]
+#     roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI+Peaks.mpa',skiprows=1).astype(int)
+#     for y in range(len(roi[:,0])):
+#         for z in range(1,n_theta[k]+1):
+#             contfitname = foldername[k] +'_line_' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z))+'_fit.png'
+#             try:
+#                 shutil.copy(folder+"/Data Analysis/Control Fits/"+contfitname, allcontrolfits+contfitname)        
+#             except FileNotFoundError:
+#                 a=0
 #                 print("not there")

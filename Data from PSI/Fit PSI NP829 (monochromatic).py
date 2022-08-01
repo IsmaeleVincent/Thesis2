@@ -60,7 +60,7 @@ This block fits the diffraction efficiencies n(x)= n_0 + n_1 cos(Gx)
 """
 Angular distribution: Gaussian
 """
-div=0.0006
+div=0.001
 def ang_gauss(x):
     sig=div
     return 1/((2*pi)**0.5*sig)*np.exp(-x**2/(2*sig**2))
@@ -87,9 +87,9 @@ def k_jz(theta, j, G,b):
     return k_jz
 def dq_j (theta, j, G,b):
     return b*np.cos(theta) - k_jz(theta, j, G, b)
-fitting=1
+fitting=0
 plotting=1
-save_fit_res=1
+save_fit_res=0
 wlp=1e-5
 
 # print(fold_name)
@@ -171,7 +171,7 @@ if (fitting):
     #plt.plot(ff,"k")
     try:
         for i in range(1):
-            p,cov=fit(fit_func,xx,ff, p0=P0,bounds=B, sigma=fferr)
+            p,cov=fit(fit_func,xx,ff, p0=P0,bounds=B)
             P0=p
     except RuntimeError:
         print("Error: fit not found")
@@ -289,15 +289,15 @@ if (plotting):
 
 duration = 0.2  # seconds
 freq = 440  # Hz
-for i in range (6):
-    os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq+i%3*62))
-    if i%3==2:
-        os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq))
-for i in range (2):
-    os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq+2*62))
-    os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq+2*62+31))
-    os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq+3*62+31))
-    time.sleep(0.2)
+# for i in range (6):
+#     os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq+i%3*62))
+#     if i%3==2:
+#         os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq))
+# for i in range (2):
+#     os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq+2*62))
+#     os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq+2*62+31))
+#     os.system('play -nq -t alsa synth {} sine {}'.format(duration, freq+3*62+31))
+#     time.sleep(0.2)
   
 #73606
 

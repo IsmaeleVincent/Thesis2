@@ -38,9 +38,9 @@ from scipy.stats import chisquare
 pi=np.pi
 rad=pi/180
 
-orig_fold_path="/home/aaa/Desktop/thesis_L1/Data from PSI/"
+orig_fold_path="/home/aaa/Desktop/Thesis2/Data from PSI/"
 fold_name = "D0043" # "NP829"
-sorted_fold_path="/home/aaa/Desktop/thesis_L1/Data from PSI/Sorted data/" #insert folder of sorted meausements files
+sorted_fold_path="/home/aaa/Desktop/Thesis2/Data from PSI/Sorted data/" #insert folder of sorted meausements files
 renamed = sorted_fold_path+fold_name+"/Renamed/"
 matrixes = sorted_fold_path+fold_name+"/Matrixes/"
 pictures = sorted_fold_path+fold_name+"/Pictures/"
@@ -80,7 +80,7 @@ sigma0=0.2e-3
 """
 Angular distribution: Gaussian
 """
-div=0.0004
+div=0.0008
 def ang_gauss(x):
     sig=div
     return 1/((2*pi)**0.5*sig)*np.exp(-x**2/(2*sig**2))
@@ -106,9 +106,9 @@ def k_jz(theta, j, G,b):
     return k_jz
 def dq_j (theta, j, G,b):
     return b*np.cos(theta) - k_jz(theta, j, G, b)
-fitting=0
+fitting=1
 plotting=1
-save_fit_res=0
+save_fit_res=1
 wlp=1e-5
 
 # print(fold_name)
@@ -191,7 +191,7 @@ if (fitting):
     #plt.plot(ff,"k")
     try:
         for i in range(1):
-            p,cov=fit(fit_func,xx,ff, p0=P0,bounds=B, sigma=fferr)
+            p,cov=fit(fit_func,xx,ff, p0=P0,bounds=B)
             P0=p
     except RuntimeError:
         print("Error: fit not found")

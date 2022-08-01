@@ -42,7 +42,7 @@ ax.plot(xplt1, xplt1*0 +distr(p[1],*p[0:2],0), "k-|")
 # ax.vlines(p[1],0,distr(p[1],*p[0:2],0), ls="--", color="grey")
 ax.text(-0.5, 225, "$\sigma \\approx $"+str("%.2f"%p[1])+" mm", fontsize="large",color="k",backgroundcolor="white")
 plt.legend(loc=1)
-plt.savefig('Horiz.eps', format='eps')
+#plt.savefig('Horiz.eps', format='eps')
 print(2*p[1]*1e-3/(1.9+1.50+1.46/2))
 # P0=[277.40655667,1.9e-1,7.90313202]
 # #plt.savefig(controlfits+foldername[k] +'_line_' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z))+'_fit.png')

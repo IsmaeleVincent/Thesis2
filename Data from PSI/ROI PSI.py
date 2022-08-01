@@ -15,9 +15,9 @@ from scipy.stats import chisquare as cs
 import math
 from scipy.interpolate import UnivariateSpline
 
-orig_fold_path="/home/aaa/Desktop/thesis_L1/Data from PSI/"
+orig_fold_path="/home/aaa/Desktop/Thesis2/Data from PSI/"
 fold_name = "D0043"#"NP829"
-sorted_fold_path="/home/aaa/Desktop/thesis_L1/Data from PSI/Sorted data/" #insert folder of sorted meausements files
+sorted_fold_path="/home/aaa/Desktop/Thesis2/Data from PSI/Sorted data/" #insert folder of sorted meausements files
 renamed = sorted_fold_path+fold_name+"/Renamed/"
 matrixes = sorted_fold_path+fold_name+"/Matrixes/"
 pictures = sorted_fold_path+fold_name+"/Pictures/"
@@ -107,7 +107,9 @@ This block calculates the region of interest (ROI)
 This block calculates diffraction efficiencies
 """
 matrixes1 = [np.loadtxt(th_matrixes+fold_name+"_"+str(j)+".mpa") for j in range(n_theta)]
+err= [np.loadtxt(th_matrixes+fold_name+"_"+str(j)+"_err.mpa") for j in range(n_theta)]
 stack = np.stack(matrixes1,axis=2)
+stack_err = np.stack(err,axis=2)
 lines= np.loadtxt(data_analysis+fold_name+'_ROI.mpa',dtype=int,skiprows=1,max_rows=2)
 rows= np.loadtxt(data_analysis+fold_name+'_ROI.mpa',dtype=int,skiprows=3)
 print(lines)
@@ -118,8 +120,9 @@ diff_eff[:,1]=0.01
 for i in range(len(stack[0,0,:])):
     for j in range(5):
         diff_eff[i,2*j+2]=np.sum(stack[lines[0]:lines[1],rows[j,0]:rows[j,1],i])
-err=diff_eff[:,2::2]**0.5+1
-diff_eff[:,3::2]=err
+        diff_eff[i,2*j+3]=np.sum((stack_err[lines[0]:lines[1],rows[j,0]:rows[j,1],i]))
+# err=diff_eff[:,2::2]**0.5
+# diff_eff[:,3::2]=err
 fig = plt.figure(figsize=(15,15))
 ax = fig.add_subplot(111)
 ax.set_title(fold_name)

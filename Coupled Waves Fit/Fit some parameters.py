@@ -255,14 +255,8 @@ if (plotting):
         for i in range(len(diff_eff[:,0])): 
             s=sum(diff_eff[i,2::2])
             diff_eff[i,2:]=diff_eff[i,2:]/s
-        # diff_eff_err= diff_eff[:,3::2]
-        # diff_eff_err=np.divide(diff_eff_err,diff_eff[:,2::2])
-        # diff_eff_err[np.isnan(diff_eff_err)]=0
-        diff_eff_fit=np.zeros((5, len(diff_eff[:,5])))
-        diff_eff_fit[2,:]=diff_eff[:,2*2+2].copy()
-        for i in range(1,3):
-            diff_eff_fit[2-i,:]=diff_eff[:,6-2*i].copy()
-            diff_eff_fit[2+i,:]=diff_eff[:,6+2*i].copy()
+        diff_eff_fit=diff_eff[:,2::2].copy()
+        diff_eff_fit=np.transpose(diff_eff_fit)
         def plot_func(x, bcr1, bcr2, mu1, sigma, tau, x00,d):
             # tau=M-mu1
             # sigma=(sigma1**2-tau0**2)**0.5
