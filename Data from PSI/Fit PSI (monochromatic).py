@@ -294,7 +294,7 @@ if (plotting):
         ax[i].plot(thx,eta[n_diff+i,:],"1--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
         ax[i].legend()
     p_name=["$(b_c \\rho)_1$","$(b_c \\rho)_2$", "$\lambda$", "$x_0$","d"]
-    p_units=[" $1/\mu m^2$"," $1/\mu m^2$","\mu m", " deg"," $\mu m$"]
+    p_units=[" $1/\mu m^2$"," $1/\mu m^2$","$\mu m$", " deg"," $\mu m$"]
     text = "Fit results"
     fit_res[0,2]*=1e3
     fit_res[1,2]*=1e3

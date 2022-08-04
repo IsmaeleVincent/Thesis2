@@ -105,7 +105,7 @@ n_0 =1.
 phi=0
 phi1=0
 d0=78
-krange=range(len(foldername))#[0,2,3,4,5] #[0]#np.arange(len(foldername))#
+krange=[1]#range(len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
 
 def k_jz(theta, j, G,b):
     k_jz=b*(1-(np.sin(theta)-j*G/b)**2)**0.5
@@ -131,7 +131,7 @@ def process_fit(k):
         diff_eff[i,2:]=diff_eff[i,2:]/s
     diff_eff_fit=diff_eff[:,2::2].copy()
     diff_eff_fit=np.transpose(diff_eff_fit)
-    def fit_func(x, bcr1, bcr2, mu1,sigma, tau, x00,d):
+    def fit_func(x, bcr1, bcr2, mu1, sigma, tau, x00, d):
         # tau=M-mu1
         # sigma=(sigma1**2-tau0**2)**0.5
         lambda_par=1/tau
@@ -199,14 +199,14 @@ def process_fit(k):
         plt.plot(aaa)
         plt.savefig('ff.eps', format='eps')
         return aaa
-    P0=  fit_res[0] # np.zeros(7) # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
-    # P0[0]=5
-    # P0[1]=3
-    # P0[2]=3e-3
-    # P0[3]=0.00055
-    # P0[4]=0.0005
-    # P0[5]=0
-    # P0[6]=78
+    P0=  np.zeros(7) # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
+    P0[0]=5
+    P0[1]=3
+    P0[2]=3e-3
+    P0[3]=0.00055
+    P0[4]=0.0005
+    P0[5]=0
+    P0[6]=78
     if (fitting):
         B=([4, 0, 2e-3, 1e-4, 0.001, -0.0005/rad, 70],[10, 2, 3.2e-3, 1e-3, 0.002, 0.0005/rad, 100])
         for i in range(len(B[0])):
@@ -250,12 +250,19 @@ if (plotting):
         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
         diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff.mpa',skiprows=1)
         fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results.mpa',skiprows=1)
+        diff_eff_aus=diff_eff[:,2::2].copy()
         p=fit_res[0]
         print(p)
         for i in range(len(diff_eff[:,0])): 
             s=sum(diff_eff[i,2::2])
             diff_eff[i,2:]=diff_eff[i,2:]/s
         diff_eff_fit=diff_eff[:,2::2].copy()
+        diff_eff_err=(diff_eff_fit**2+diff_eff_fit)
+        for i in range(len(diff_eff_err[:,0])):
+            s=sum(diff_eff_aus[i,:]**0.5)
+            for j in range(len(diff_eff_err[0,:])):
+                diff_eff_err[i,j]=diff_eff_err[i,j]*s/diff_eff_aus[i,j]
+        diff_eff[:,3::2]=diff_eff_err
         diff_eff_fit=np.transpose(diff_eff_fit)
         def plot_func(x, bcr1, bcr2, mu1, sigma, tau, x00,d):
             # tau=M-mu1

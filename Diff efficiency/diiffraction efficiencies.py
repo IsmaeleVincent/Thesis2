@@ -46,7 +46,7 @@ plot=0
 def gauss(x, A, x0,sx):
       return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
 
-for k in range(0,2):#len(foldername)):
+for k in range(len(foldername)):
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
     stack = np.stack(matrixes,axis=2)
@@ -130,8 +130,8 @@ for k in range(0,2):#len(foldername)):
                             diff_eff[z][7+j*2]+=sum((bckg+gauss(xplt, P0p[j], P0p[j+3], P0p[j+6]))**0.5) #diff_eff[z][6+j*2]**0.5#
             if(k==6 and (z==3 or z==4)):
                 diff_eff[z][:]*=0
-    if (k==6):
-        diff_eff=np.delete(diff_eff, [3,4])
+    # if (k==6):
+    #     diff_eff=np.delete(diff_eff, [3,4])
     with open(data_analysis+foldername[k]+'_diff_eff.mpa', 'w') as f:
         np.savetxt(f,diff_eff, header="theta err counts-2 err counts-1 err counts-0 err counts1 err counts1 err", fmt="%.6f")
 
