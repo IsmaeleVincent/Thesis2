@@ -26,7 +26,9 @@ import math
 from datetime import datetime
 from scipy.interpolate import interp1d
 from scipy.interpolate import UnivariateSpline
+from scipy.stats import skewnorm
 from scipy.stats import norm
+import matplotlib.gridspec as gridspec
 
 pi=np.pi
 rad=pi/180
@@ -37,37 +39,87 @@ Angular distribution: Gaussian
 """
 sig=0.0006/2
 def rho(x,x0):
-    g=norm(loc=x0)
-    return g.pdf(x)
+    g=skewnorm(x0,4,scale=0.5)
+    e=norm(x0+2,scale=0.4)
+    return g.pdf(x)+e.pdf(x)
 
 
 ##############################################################################
 mu=4
-wl=np.linspace(mu-3.5,mu+3.5, 100000)
+wl=np.linspace(mu-0.5,mu+3, 100000)
 a = rho(wl,mu)
 spl = UnivariateSpline(wl, a, k=3, s=0)
 d=spl.antiderivative()(wl)
-s=25
-y=np.linspace(d[d==np.amin(d)],d[d==np.amax(d)], s)
-x=np.zeros(len(y))
+s=40
+y1=np.linspace(d[d==np.amin(d)],d[d==np.amax(d)], s)
+x=np.zeros(len(y1))
 guess=0
-print(len(y))
-for i in range(len(y)):
-    aus =abs(spl.antiderivative()(wl)-y[i])
+print(len(y1))
+for i in range(len(y1)):
+    aus =abs(spl.antiderivative()(wl)-y1[i])
     x[i]=wl[aus==np.amin(aus)]
-fig, ax = plt.subplots(1,2,figsize=(10,3), sharey=True,sharex=True)
+#fig, ax = plt.subplots(2,figsize=(10,10), sharex=True)
 #ax[0].plot(wl,d)
-ax[0].plot(wl,rho(wl,mu),"k")
-ax[0].plot(x,rho(x,mu),"^", color = (0.8,0,0))
-ax[0].vlines(x, 0, rho(x,mu), color= (0.3,0.3,0.6)) 
-ax[1].plot(wl,rho(wl,mu),"k")
+
+
+fig = plt.figure(figsize=(5,6))
+
+gs = gridspec.GridSpec(7, 1)
+ax=[plt.subplot(gs[1:]),plt.subplot(gs[0])]           
+
+
+ax[0].plot(wl,d,"k", label="Cumulative\ndistribution\nfunction")
 y=np.linspace(x[0],x[-1], s)
-ax[1].plot(y,rho(y,mu),"^", color = (0.8,0,0))
-ax[1].vlines(y, 0, rho(y,mu),color= (0.3,0.3,0.6))
+#ax[0].plot(x,spl.antiderivative()(x),".", color = (0.8,0,0))
+y0=ax[0].get_ybound()[1]
+x0r=ax[0].get_xbound()[1]
+x0l=ax[0].get_xbound()[0]
+# ax[0].plot(x,x*0+y0,"o-", color = (0.8,0,0))
+ax[0].vlines(x, y0, spl.antiderivative()(x),color= (0.5,0.5,0.5))
+ax[0].hlines(y1, x,x0r, color= (0.5,0.5,0.5), ls="dashed")
+ax[0].spines['bottom'].set_visible(True)
+# ax[1].plot(wl, rho(wl,mu), "k")
+ax[0].legend(framealpha=1)
+ax[1].fill_between(
+        wl, 
+        rho(wl,mu), 
+        # here= (-1 < t)&(t < 1),
+        color= "b",
+        alpha= 0.2)
+ax[1].plot(x, rho(x,mu), ".", color = (0.8,0,0))
+ax[1].vlines(x, 0, rho(x,mu), color= (0.5,0.5,0.5))
+ax[0].tick_params(
+    axis='y',          # changes apply to the x-axis
+    which='both',      # both major and minor ticks are affected
+    bottom=False,      # ticks along the bottom edge are off
+    top=False,         # ticks along the top edge are off
+    left=False,
+    right=True,
+    labelleft=False,
+    labelright=True) # labels along the bottom edge are off
+ax[1].tick_params(
+    axis='x',          # changes apply to the x-axis
+    which='both',      # both major and minor ticks are affected
+    bottom=False,      # ticks along the bottom edge are off
+    top=False,         # ticks along the top edge are off
+    left=False,
+    labeltop=False,
+    labelbottom=False) # labels along the bottom edge are off
+ax[1].tick_params(
+    axis='y',          # changes apply to the x-axis
+    which='both',      # both major and minor ticks are affected
+    bottom=False,      # ticks along the bottom edge are off
+    top=False,         # ticks along the top edge are off
+    left=False,
+    labelleft=False) # labels along the bottom edge are off
+ax[1].spines[:].set_visible(False)
 #ax[0].plot(x,rho(x,mu),".", color = (0.8,0,0))
-ax[0].set_ylim([0,np.amax(a)+0.01])
+ax[1].set_ylim([0,np.amax(a)+0.1])
+ax[0].set_ylim([-0.02,np.amax(d)+0.05])
+ax[0].set_xlim([x0l,x0r])
+# ax[1].set_xlim([0,x[-1]+0.1])
 fig.subplots_adjust(wspace=0, hspace=0)
-plt.savefig('Weighted_sampling.eps', format='eps',bbox_inches='tight')
+# plt.savefig('Weighted_sampling2.eps', format='pdf',bbox_inches='tight')
 
 # a = rho1(wl,lambda_par, mu, sigma)/sum(rho1(wl,lambda_par, mu, sigma))
 # from scipy.interpolate import UnivariateSpline
