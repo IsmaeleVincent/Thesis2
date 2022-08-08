@@ -85,7 +85,7 @@ sigma1=(sigma0**2+tau0**2)**0.5
 """
 Angular distribution: Gaussian
 """
-div=0.00062
+div=0.00032
 def ang_gauss(x):
     sig=div
     return 1/((2*pi)**0.5*sig)*np.exp(-x**2/(2*sig**2))
@@ -112,9 +112,10 @@ def k_jz(theta, j, G,b):
     return k_jz
 def dq_j (theta, j, G,b):
     return b*np.cos(theta) - k_jz(theta, j, G, b)
-fitting=0
+fitting=1
 plotting=1
-save_fit_res=0
+extended_plot=1
+save_fit_res=1
 wlpoints=50
 wlp=5e-9
 def process_fit(k):
@@ -125,20 +126,30 @@ def process_fit(k):
     data_analysis1 = sorted_fold_path+foldername[1]+"/Data Analysis/"
     fit_res =  np.loadtxt(data_analysis1+foldername[1]+'_fit_results.mpa',skiprows=1)
     # diff_eff = diff_eff[diff_eff[:,0]<=0]
-    diff_eff_aus=diff_eff.copy()
-    for i in range(len(diff_eff[:,0])): 
+    diff_eff_aus=diff_eff[:,2::2].copy()
+    diff_eff_aus_err=diff_eff[:,3::2].copy()
+    diff_eff_aus[diff_eff_aus==0]=1
+    p=fit_res[0]
+    print(p)
+    for i in range(len(diff_eff[:,0])):
         s=sum(diff_eff[i,2::2])
         diff_eff[i,2:]=diff_eff[i,2:]/s
     diff_eff_fit=diff_eff[:,2::2].copy()
-    diff_eff_fit=np.transpose(diff_eff_fit)
-    def fit_func(x, bcr1, bcr2, mu1, sigma, tau, x00, d):
+    diff_eff_err=(diff_eff_fit**2+diff_eff_fit)
+    for i in range(len(diff_eff_err[:,0])):
+        s=sum(diff_eff_aus_err[i,:])
+        for j in range(len(diff_eff_err[0,:])):
+            diff_eff_err[i,j]=diff_eff_err[i,j]*s/diff_eff_aus[i,j]
+    diff_eff_err[diff_eff_err==0]=0.01
+    diff_eff[:,3::2]=diff_eff_err
+    def fit_func(x, bcr1, bcr2, mu1, sigma, tau, x00, zeta0):
         # tau=M-mu1
         # sigma=(sigma1**2-tau0**2)**0.5
         lambda_par=1/tau
         sigma1=(sigma**2+tau**2)**0.5
         x=diff_eff[:,0]+x00
-        # d=d0/np.cos((tilt[k]+zeta0)*rad)
-        d=d/np.cos((tilt[k])*rad)
+        d=d0/np.cos((tilt[k]+zeta0)*rad)
+        # d=d/np.cos((tilt[k])*rad)
         wl=np.linspace(mu1-2.5*sigma, mu1+1/lambda_par+3.5*sigma1, 10000)
         a = rho(wl,lambda_par, mu1, sigma)/sum(rho(wl,lambda_par, mu1, sigma))
         spl = UnivariateSpline(wl, a, k=4, s=0)
@@ -199,28 +210,30 @@ def process_fit(k):
         plt.plot(aaa)
         plt.savefig('ff.eps', format='eps')
         return aaa
-    P0=  np.zeros(7) # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
+    P0= fit_res[0] # np.zeros(7) # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
     P0[0]=5
     P0[1]=3
     P0[2]=3e-3
     P0[3]=0.00055
     P0[4]=0.0005
     P0[5]=0
-    P0[6]=78
+    P0[6]=0
     if (fitting):
-        B=([4, 0, 2e-3, 1e-4, 0.001, -0.0005/rad, 70],[10, 2, 3.2e-3, 1e-3, 0.002, 0.0005/rad, 100])
+        B=([4, 0, 2e-3, 1e-4, 0.001, -0.0005/rad, -2],[10, 2, 3.2e-3, 1e-3, 0.002, 0.0005/rad, 2])
         for i in range(len(B[0])):
             if (P0[i]<B[0][i] or P0[i]>B[1][i]):
                 P0[i]=(B[1][i]+B[0][i])/2
-        ff=diff_eff_fit.ravel()
+        ff=np.transpose(diff_eff_fit).ravel()
         fferr=(np.transpose(diff_eff[:,3::2])).ravel()
-        fferr[fferr==0]=1e-8
+        # fig=plt.figure()
+        # ax1=fig.add_subplot()
+        # ax1.errorbar(range(len(ff)), ff,yerr=fferr)
+        # plt.show()
         xx=np.zeros(len(diff_eff[:,0])*5)
         xx[0:len(diff_eff[:,0])]=diff_eff[:,0]
-        #plt.plot(ff,"k")
         try:
             for i in range(1):
-                p,cov=fit(fit_func,xx,ff, p0=P0,bounds=B)
+                p,cov=fit(fit_func,xx,ff, p0=P0,bounds=B,sigma=fferr)
                 P0=p
                 print(p)
         except RuntimeError:
@@ -251,27 +264,28 @@ if (plotting):
         diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff.mpa',skiprows=1)
         fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results.mpa',skiprows=1)
         diff_eff_aus=diff_eff[:,2::2].copy()
+        diff_eff_aus_err=diff_eff[:,3::2].copy()
+        diff_eff_aus[diff_eff_aus==0]=1
         p=fit_res[0]
         print(p)
-        for i in range(len(diff_eff[:,0])): 
+        for i in range(len(diff_eff[:,0])):
             s=sum(diff_eff[i,2::2])
             diff_eff[i,2:]=diff_eff[i,2:]/s
         diff_eff_fit=diff_eff[:,2::2].copy()
         diff_eff_err=(diff_eff_fit**2+diff_eff_fit)
         for i in range(len(diff_eff_err[:,0])):
-            s=sum(diff_eff_aus[i,:]**0.5)
+            s=sum(diff_eff_aus_err[i,:])
             for j in range(len(diff_eff_err[0,:])):
                 diff_eff_err[i,j]=diff_eff_err[i,j]*s/diff_eff_aus[i,j]
+        diff_eff_err[diff_eff_err==0]=0.01
         diff_eff[:,3::2]=diff_eff_err
         diff_eff_fit=np.transpose(diff_eff_fit)
-        def plot_func(x, bcr1, bcr2, mu1, sigma, tau, x00,d):
-            # tau=M-mu1
-            # sigma=(sigma1**2-tau0**2)**0.5
+        def plot_func(x, bcr1, bcr2, mu1, sigma, tau, x00,zeta0):
             lambda_par=1/tau
             sigma1=(sigma**2+tau**2)**0.5
             x=diff_eff[:,0]+x00
-            # d=d0/np.cos((tilt[k]+zeta0)*rad)
-            d=d/np.cos((tilt[k])*rad)
+            d=d0/np.cos((tilt[k]+zeta0)*rad)
+            # d=d/np.cos((tilt[k])*rad)
             wl=np.linspace(mu1-2.5*sigma, mu1+1/lambda_par+3.5*sigma1, 10000)
             a = rho(wl,lambda_par, mu1, sigma)/sum(rho(wl,lambda_par, mu1, sigma))
             spl = UnivariateSpline(wl, a, k=4, s=0)
@@ -329,44 +343,89 @@ if (plotting):
                 f_int = interp1d(x_int,conv, kind="cubic")
                 eta_ang[i,:]=f_int(x*rad)
             return eta_ang
-        # print(wlpoints)
         thx=diff_eff[:,0]*rad
         eta=plot_func(diff_eff[:,0], *p)
-        #print("here")
-        # bbb=eta.ravel()
-        # plt.plot(bbb)
-        fig, ax = plt.subplots(3,figsize=(10,10))
-        ax[0].set_title(foldername[k])
-        ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
-        ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
-        #ax[0].set_ylim([np.amin(diff_eff_fit[2,:])-0.4,np.amax(diff_eff_fit[2,:])])
-        #ax[0].legend(loc=(5))
-        for i in range(1,3):
-            if i<3:
-                #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6-2*i],'o')
-                ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6-2*i], fmt="^k", yerr=diff_eff[:,7-2*i], label="Data (-"+str(i)+")")
-                #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6+2*i],'o')
-                ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6+2*i], fmt="v",  color = (0.8,0,0),  yerr=diff_eff[:,7+2*i],label="Data (+"+str(i)+")")
-            ax[i].plot(thx,eta[n_diff-i,:],"--k", label="Fit (-"+str(i)+")")
-            ax[i].plot(thx,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
-            #ax[i].legend()
-        # ax[n_diff+1].plot(th, sum_diff)
-        # ax[n_diff+1].set_ylim([0.5,1.5])
-        #   plt.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+1],capsize=1)
         p_name=["$(b_c \\rho)_1$","$(b_c \\rho)_2$", "$\mu$", "$\sigma$","$\\tau$", "$x_0$","d"]
         p_units=[" $1/\mu m^2$"," $1/\mu m^2$"," nm", " nm", " nm", " deg", " $\mu m$"]
         text = "Fit results"
-        for i in range(2,5):
-            fit_res[0,i]*=1e3
-            fit_res[1,i]*=1e3
-        for i in range(len(p)):
-            if not i%3:
-                text+= "\n"
-            else:
-                text+= "\t"
-            text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
-        ax[-1].text(diff_eff[0,0]*rad,-np.amax(diff_eff_fit[0,:])*2/3, text,  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
-        #ax[1].text( diff_eff[0,0]*rad,np.amax(diff_eff_fit[3,:]), "p value="+str("%.3f" % (chi[1],)),  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
+        if(extended_plot):
+            p=fit_res[0]
+            fig = plt.figure(figsize=(11,10))#constrained_layout=True
+            gs_t = GridSpec(5, 2, figure=fig,hspace=0, top=0.95)
+            gs_b =GridSpec(5, 2, figure=fig, wspace=0)
+            ax = [fig.add_subplot(gs_t[0,:]), 
+                  fig.add_subplot(gs_t[1,:]),
+                  fig.add_subplot(gs_t[2,:]),
+                  fig.add_subplot(gs_b[3, 0]),
+                  fig.add_subplot(gs_b[3, 1])]
+            for i in range(len(ax)):
+                if i!=2 and i!=4:
+                    ax[i].tick_params(axis="x", labelbottom=False, bottom = False)
+                if i>2:
+                    ax[i].tick_params(axis="y", labelleft=False, left = False)
+            #ax[2].subplots_adjust(wspace=0, hspace=0)
+            ax[0].set_title(foldername[k])
+            ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
+            ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
+            for i in range(1,3):
+                if i<3:
+                    #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6-2*i],'o')
+                    ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6-2*i], fmt="^k", yerr=diff_eff[:,7-2*i], label="Data (-"+str(i)+")")
+                    #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6+2*i],'o')
+                    ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6+2*i], fmt="v",  color = (0.8,0,0),  yerr=diff_eff[:,7+2*i],label="Data (+"+str(i)+")")
+                ax[i].plot(thx,eta[n_diff-i,:],"--k", label="Fit (-"+str(i)+")")
+                ax[i].plot(thx,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
+                #ax[i].legend()
+            mu=fit_res[0,2]
+            sigma=fit_res[0,3]
+            tau=fit_res[0,4]
+            lambda_par=1/tau
+            sigma1=(sigma**2+tau**2)**0.5
+            wl=np.linspace(mu-2.5*sigma,mu+1/lambda_par+3.5*sigma1, 10000)
+            a = rho(wl,lambda_par, mu, sigma)/sum(rho(wl,lambda_par, mu, sigma))
+            ax[-1].plot(wl,a/np.amax(a), label= "WL distribution")
+            ax[-1].vlines(wl[a==np.amax(a)], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (wl[a==np.amax(a)]*1e3),)+" nm")
+            ax[-1].legend()
+            for i in range(2,5):
+                fit_res[0,i]*=1e3
+                fit_res[1,i]*=1e3
+            for i in range(len(p)):
+                if not i%2:
+                    text+= "\n"
+                else:
+                    text+= "\t"
+                text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
+            ax[-2].text(0.5,0.5,text,va="center", ha="center")
+        else:
+            fig, ax = plt.subplots(3,figsize=(10,10))
+            ax[0].set_title(foldername[k])
+            ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
+            ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
+            #ax[0].set_ylim([np.amin(diff_eff_fit[2,:])-0.4,np.amax(diff_eff_fit[2,:])])
+            #ax[0].legend(loc=(5))
+            for i in range(1,3):
+                if i<3:
+                    #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6-2*i],'o')
+                    ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6-2*i], fmt="^k", yerr=diff_eff[:,7-2*i], label="Data (-"+str(i)+")")
+                    #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6+2*i],'o')
+                    ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6+2*i], fmt="v",  color = (0.8,0,0),  yerr=diff_eff[:,7+2*i],label="Data (+"+str(i)+")")
+                ax[i].plot(thx,eta[n_diff-i,:],"--k", label="Fit (-"+str(i)+")")
+                ax[i].plot(thx,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
+                #ax[i].legend()
+            # ax[n_diff+1].plot(th, sum_diff)
+            # ax[n_diff+1].set_ylim([0.5,1.5])
+            #   plt.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+1],capsize=1)
+            for i in range(2,5):
+                fit_res[0,i]*=1e3
+                fit_res[1,i]*=1e3
+            for i in range(len(p)):
+                if not i%3:
+                    text+= "\n"
+                else:
+                    text+= "\t"
+                text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
+            ax[-1].text(diff_eff[0,0]*rad,-np.amax(diff_eff_fit[0,:])*2/3, text,  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
+            #ax[1].text( diff_eff[0,0]*rad,np.amax(diff_eff_fit[3,:]), "p value="+str("%.3f" % (chi[1],)),  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
         now2=datetime.now()
         print("plot time=",now2-now1)
 
@@ -459,7 +518,24 @@ for k in krange:
     #ax.plot(x,a/np.amax(a),"g.")
     ax.vlines(x[a==np.amax(a)], 0,1, ls="dashed", label="$\lambda_{max}=$"+str(x[a==np.amax(a)]*1e3)+" nm")
     ax.legend()
+
+"""
+"""
+# for k in krange:
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results.mpa',skiprows=1)
+#     p=fit_res[0]
+#     fig = plt.figure(constrained_layout=True)
+#     gs = GridSpec(3, 3, figure=fig)
     
+#     ax = [fig.add_subplot(gs[0, 0]), 
+#           fig.add_subplot(gs[1,0]),
+#           fig.add_subplot(gs[2,0]),
+#           fig.add_subplot(gs[0:2, 1]),
+#           fig.add_subplot(gs[-1, -1])]
+#     ax[0].set_title(foldername[k])
+#     ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
+#     ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
 
 # def format_axes(fig):
 #     for i, ax in enumerate(fig.axes):
