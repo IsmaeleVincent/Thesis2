@@ -173,100 +173,100 @@ This blocks allows to correct the ROI if needed
 This block checks the number of peaks of each line and puts it in the ROI file
 the plots the max points along z for each line to check if the ROI is reasonable
 """
-for k in range(len(foldername)):
-    print(foldername[k])
-    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    controlplots = data_analysis + "Control Plots/" 
-    # if os.path.exists(controlplots):
-    #     shutil.rmtree(controlplots)
-    # os.makedirs(controlplots)
-    matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
-    stack = np.stack(matrixes,axis=2)
-    roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI.mpa',skiprows=1).astype(int)    
-    y=np.zeros(128)
-    npeaks=np.zeros((len(roi[:,0]),2)).astype(int)
-    xpeaks=np.zeros((len(roi[:,0]),2)).astype(int)
-    zmins=np.zeros((len(roi[:,0]),2)).astype(int)
-    zmin1=0
-    zmin2=0
-    for i in range(len(roi[:,0])):
-        for j in range(128):
-            y[j]=np.amax(stack[roi[i][0],j,:])
-        xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
-        xabsmax = xyzabsmax[1][0]
-        if(roi[i][1]==roi[i][2]):
-            xmax=roi[i][1]
-        else:
-            xmax= np.where(y[roi[i][1]:(roi[i][2]+1)]==np.max(y[roi[i][1]:(roi[i][2]+1)]))[0][0]+roi[i][1]
-        if(abs(xmax-roi[i][1])<5):
-            npeaks[i][0]=0
-            a=roi[i][1]
-        else:
-            a=np.where(y[roi[i][1]:(xmax-1)]==np.amax(y[roi[i][1]:(xmax-1)]))[0][0] + roi[i][1]
-            if(abs((roi[i][1])-a)<10):
-                npeaks[i][0]=1
-            else:
-                npeaks[i][0]=2
-        xpeaks[i][0]=a
-        if(abs(roi[i][2]-xmax)<5):
-            npeaks[i][1]=0
-            b=roi[i][2]
-        else:
-            b=np.where(y[(xmax+2):(roi[i][2]+1)]==np.amax(y[(xmax+2):(roi[i][2]+1)]))[0][0]+xmax+2
-            if(abs((roi[i][2])-b)<10):
-                npeaks[i][1]=1
-            else:
-                npeaks[i][1]=2
-        xpeaks[i][1]=b
-    for i in range(len(roi[:,0])):
-        for j in range(128):
-            y[j]=np.amax(stack[roi[i][0],j,:])
-        xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
-        xabsmax = xyzabsmax[1][0]
-        fig, axs = plt.subplots(4,figsize=(10,10))
-        fig.suptitle(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+i))+"\nleft peaks="+str(npeaks[i][0])+"\nright peaks="+str(npeaks[i][1]))
-        axs[0].plot(y)
-        axs[0].set_xlim(0,roi[i][1]+3)
-        axs[0].set_ylim(0,y[int(roi[i][1]+3)]+5)
-        axs[0].axvline(roi[i][1],color='r')
-        axs[1].plot(y)
-        axs[1].set_xlim(roi[i][2]-3,128)
-        axs[1].set_ylim(0,y[int(roi[i][2])]+5)
-        axs[1].axvline(roi[i][2],color='r')
-        axs[2].plot(y)
-        axs[2].axvline(roi[i][1],color='r')
-        axs[2].axvline(roi[i][2],color='r')
-        axs[2].axvline(xpeaks[i][0],color='y', ls = '--')
-        axs[2].axvline(xpeaks[i][1],color='k', ls = '--')
-        if (npeaks[i][0]>0 or npeaks[i][1]>0):
-            aus = (stack[roi[i][0],xabsmax,:].copy()+stack[roi[i][0],xabsmax-1,:].copy()+stack[roi[i][0],xabsmax+1,:].copy())/3
-            if (np.amax(aus)>150):
-                zmin1 = np.where(aus==np.amin(aus))[0][0]
-                if (np.amax(npeaks[:,1])<2):
-                    zmin1 = len(aus)-1
-                for l in range(5):
-                    if (zmin1+l<len(aus)):
-                        aus[zmin1+l] += 1000
-                    if (zmin1-l>-1):
-                        aus[zmin1-l] += 1000
-                zmin2=np.where(aus==np.amin(aus))[0][0]
-                if (zmin1>zmin2):
-                    zmin1,zmin2 = zmin2,zmin1
-            else:
-                if (zmin1>0):
-                    zmin1+=-1
-                if (zmin2<len(aus)-1):
-                    zmin2+=1
-        zmins[i][0]=zmin1
-        zmins[i][1]=zmin2
-        axs[3].plot((stack[roi[i][0],xabsmax,:].copy()+stack[roi[i][0],xabsmax-1,:].copy()+stack[roi[i][0],xabsmax+1,:].copy())/3)
-        axs[3].axvline(zmins[i][0],color='g')
-        axs[3].axvline(zmins[i][1],color='k')
-        #plt.savefig(controlplots+foldername[k] +'_line' +str("%0d"%(roi[0][0]+i))+'.png')
-        #plt.close(fig)
-    roipeaks= np.concatenate((roi,npeaks,xpeaks,zmins),axis=1)
-    # with open(data_analysis+foldername[k]+'_ROI+Peaks.mpa', 'w') as f:
-    #     np.savetxt(f,roipeaks, header="line x1 x2 left_peaks right_peaks xmax-1 xmax+1 zmin-1 zmin+1", fmt="%1.0f")
+# for k in range(len(foldername)):
+#     print(foldername[k])
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     controlplots = data_analysis + "Control Plots/" 
+#     # if os.path.exists(controlplots):
+#     #     shutil.rmtree(controlplots)
+#     # os.makedirs(controlplots)
+#     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
+#     stack = np.stack(matrixes,axis=2)
+#     roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI.mpa',skiprows=1).astype(int)    
+#     y=np.zeros(128)
+#     npeaks=np.zeros((len(roi[:,0]),2)).astype(int)
+#     xpeaks=np.zeros((len(roi[:,0]),2)).astype(int)
+#     zmins=np.zeros((len(roi[:,0]),2)).astype(int)
+#     zmin1=0
+#     zmin2=0
+#     for i in range(len(roi[:,0])):
+#         for j in range(128):
+#             y[j]=np.amax(stack[roi[i][0],j,:])
+#         xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
+#         xabsmax = xyzabsmax[1][0]
+#         if(roi[i][1]==roi[i][2]):
+#             xmax=roi[i][1]
+#         else:
+#             xmax= np.where(y[roi[i][1]:(roi[i][2]+1)]==np.max(y[roi[i][1]:(roi[i][2]+1)]))[0][0]+roi[i][1]
+#         if(abs(xmax-roi[i][1])<5):
+#             npeaks[i][0]=0
+#             a=roi[i][1]
+#         else:
+#             a=np.where(y[roi[i][1]:(xmax-1)]==np.amax(y[roi[i][1]:(xmax-1)]))[0][0] + roi[i][1]
+#             if(abs((roi[i][1])-a)<10):
+#                 npeaks[i][0]=1
+#             else:
+#                 npeaks[i][0]=2
+#         xpeaks[i][0]=a
+#         if(abs(roi[i][2]-xmax)<5):
+#             npeaks[i][1]=0
+#             b=roi[i][2]
+#         else:
+#             b=np.where(y[(xmax+2):(roi[i][2]+1)]==np.amax(y[(xmax+2):(roi[i][2]+1)]))[0][0]+xmax+2
+#             if(abs((roi[i][2])-b)<10):
+#                 npeaks[i][1]=1
+#             else:
+#                 npeaks[i][1]=2
+#         xpeaks[i][1]=b
+#     for i in range(len(roi[:,0])):
+#         for j in range(128):
+#             y[j]=np.amax(stack[roi[i][0],j,:])
+#         xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
+#         xabsmax = xyzabsmax[1][0]
+#         fig, axs = plt.subplots(4,figsize=(10,10))
+#         fig.suptitle(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+i))+"\nleft peaks="+str(npeaks[i][0])+"\nright peaks="+str(npeaks[i][1]))
+#         axs[0].plot(y)
+#         axs[0].set_xlim(0,roi[i][1]+3)
+#         axs[0].set_ylim(0,y[int(roi[i][1]+3)]+5)
+#         axs[0].axvline(roi[i][1],color='r')
+#         axs[1].plot(y)
+#         axs[1].set_xlim(roi[i][2]-3,128)
+#         axs[1].set_ylim(0,y[int(roi[i][2])]+5)
+#         axs[1].axvline(roi[i][2],color='r')
+#         axs[2].plot(y)
+#         axs[2].axvline(roi[i][1],color='r')
+#         axs[2].axvline(roi[i][2],color='r')
+#         axs[2].axvline(xpeaks[i][0],color='y', ls = '--')
+#         axs[2].axvline(xpeaks[i][1],color='k', ls = '--')
+#         if (npeaks[i][0]>0 or npeaks[i][1]>0):
+#             aus = (stack[roi[i][0],xabsmax,:].copy()+stack[roi[i][0],xabsmax-1,:].copy()+stack[roi[i][0],xabsmax+1,:].copy())/3
+#             if (np.amax(aus)>150):
+#                 zmin1 = np.where(aus==np.amin(aus))[0][0]
+#                 if (np.amax(npeaks[:,1])<2):
+#                     zmin1 = len(aus)-1
+#                 for l in range(5):
+#                     if (zmin1+l<len(aus)):
+#                         aus[zmin1+l] += 1000
+#                     if (zmin1-l>-1):
+#                         aus[zmin1-l] += 1000
+#                 zmin2=np.where(aus==np.amin(aus))[0][0]
+#                 if (zmin1>zmin2):
+#                     zmin1,zmin2 = zmin2,zmin1
+#             else:
+#                 if (zmin1>0):
+#                     zmin1+=-1
+#                 if (zmin2<len(aus)-1):
+#                     zmin2+=1
+#         zmins[i][0]=zmin1
+#         zmins[i][1]=zmin2
+#         axs[3].plot((stack[roi[i][0],xabsmax,:].copy()+stack[roi[i][0],xabsmax-1,:].copy()+stack[roi[i][0],xabsmax+1,:].copy())/3)
+#         axs[3].axvline(zmins[i][0],color='g')
+#         axs[3].axvline(zmins[i][1],color='k')
+#         plt.savefig(controlplots+foldername[k] +'_line' +str("%0d"%(roi[0][0]+i))+'.png')
+#         plt.close(fig)
+#     roipeaks= np.concatenate((roi,npeaks,xpeaks,zmins),axis=1)
+#     with open(data_analysis+foldername[k]+'_ROI+Peaks.mpa', 'w') as f:
+#         np.savetxt(f,roipeaks, header="line x1 x2 left_peaks right_peaks xmax-1 xmax+1 zmin-1 zmin+1", fmt="%1.0f")
 
 """
 This block creates cropped pictures of the ROI, to check that everything is ok
@@ -323,20 +323,20 @@ line to check if the ROI is reasonable
 This block copies the files in a common folder just 
 for the sake of simplicity
 """
-# if os.path.exists(alldata_analysis):
-#     shutil.rmtree(alldata_analysis)
-# os.makedirs(alldata_analysis)
+# # if os.path.exists(alldata_analysis):
+# #     shutil.rmtree(alldata_analysis)
+# # os.makedirs(alldata_analysis)
 # if os.path.exists(allcropped_pictures):
 #     shutil.rmtree(allcropped_pictures)
-# os.makedirs(allcropped_pictures)
+# # os.makedirs(allcropped_pictures)
 # if os.path.exists(allcontrolplots):
 #     shutil.rmtree(allcontrolplots)
 # os.makedirs(allcontrolplots)
 # for k in range(len(foldername)):
 #     folder = sorted_fold_path+foldername[k]
-#     for j in range (1,n_theta[k]+1):
-#         croppicname = foldername[k]+"_cropped_"+str("%03d" % (j,))+".tiff"
-#         shutil.copy(folder+"/Data Analysis/Cropped Pictures/"+croppicname, allcropped_pictures+croppicname)
+#     # for j in range (1,n_theta[k]+1):
+#     #     croppicname = foldername[k]+"_cropped_"+str("%03d" % (j,))+".tiff"
+#     #     shutil.copy(folder+"/Data Analysis/Cropped Pictures/"+croppicname, allcropped_pictures+croppicname)
 #     roi =  np.loadtxt(folder+"/Data Analysis/"+foldername[k]+'_ROI.mpa',skiprows=1)    
 #     for j in range(len(roi[:,0])):
 #         contplotname = foldername[k] +'_line' +str("%0d"%(roi[0][0]+j))+'.png'

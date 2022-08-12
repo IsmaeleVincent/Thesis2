@@ -85,7 +85,7 @@ sigma1=(sigma0**2+tau0**2)**0.5
 """
 Angular distribution: Gaussian
 """
-div=0.00032
+div=0.00064
 def ang_gauss(x):
     sig=div
     return 1/((2*pi)**0.5*sig)*np.exp(-x**2/(2*sig**2))
@@ -105,17 +105,17 @@ n_0 =1.
 phi=0
 phi1=0
 d0=78
-krange=[1]#range(len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
+krange=[1]#range(6,len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
 
 def k_jz(theta, j, G,b):
     k_jz=b*(1-(np.sin(theta)-j*G/b)**2)**0.5
     return k_jz
 def dq_j (theta, j, G,b):
     return b*np.cos(theta) - k_jz(theta, j, G, b)
-fitting=1
+fitting=0
 plotting=1
 extended_plot=1
-save_fit_res=1
+save_fit_res=0
 wlpoints=50
 wlp=5e-9
 def process_fit(k):
@@ -129,8 +129,6 @@ def process_fit(k):
     diff_eff_aus=diff_eff[:,2::2].copy()
     diff_eff_aus_err=diff_eff[:,3::2].copy()
     diff_eff_aus[diff_eff_aus==0]=1
-    p=fit_res[0]
-    print(p)
     for i in range(len(diff_eff[:,0])):
         s=sum(diff_eff[i,2::2])
         diff_eff[i,2:]=diff_eff[i,2:]/s
@@ -161,7 +159,7 @@ def process_fit(k):
             xp[i]=wl[aus==np.amin(aus)]
         wl=xp.copy()
         a=rho(xp,lambda_par, mu1, sigma)/sum(rho(xp,lambda_par, mu1, sigma))
-        th=[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
+        th=[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#
         S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
         eta=S.copy().real
         eta_aus=eta.copy()
@@ -211,20 +209,20 @@ def process_fit(k):
         plt.savefig('ff.eps', format='eps')
         return aaa
     P0= fit_res[0] # np.zeros(7) # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
-    P0[0]=5
-    P0[1]=3
+    # P0[0]=5
+    # P0[1]=2.7
     P0[2]=3e-3
-    P0[3]=0.00055
-    P0[4]=0.0005
+    P0[3]=0.0001
+    P0[4]=0.0001
     P0[5]=0
     P0[6]=0
     if (fitting):
-        B=([4, 0, 2e-3, 1e-4, 0.001, -0.0005/rad, -2],[10, 2, 3.2e-3, 1e-3, 0.002, 0.0005/rad, 2])
+        B=([5, 0.8, 2e-3, 1e-4, 0.001, -0.0005/rad, -2],[7.5, 2, 3.2e-3, 1e-3, 0.002, 0.0005/rad, 2])
         for i in range(len(B[0])):
             if (P0[i]<B[0][i] or P0[i]>B[1][i]):
                 P0[i]=(B[1][i]+B[0][i])/2
         ff=np.transpose(diff_eff_fit).ravel()
-        fferr=(np.transpose(diff_eff[:,3::2])).ravel()
+        fferr=(np.transpose(diff_eff_err)).ravel()
         # fig=plt.figure()
         # ax1=fig.add_subplot()
         # ax1.errorbar(range(len(ff)), ff,yerr=fferr)
@@ -297,7 +295,7 @@ if (plotting):
                 xp[i]=wl[aus==np.amin(aus)]
             wl=xp.copy()
             a=rho(xp,lambda_par, mu1, sigma)/sum(rho(xp,lambda_par, mu1, sigma))
-            th=[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
+            th=np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
             S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
             eta=S.copy().real
             eta_aus=eta.copy()
@@ -345,8 +343,8 @@ if (plotting):
             return eta_ang
         thx=diff_eff[:,0]*rad
         eta=plot_func(diff_eff[:,0], *p)
-        p_name=["$(b_c \\rho)_1$","$(b_c \\rho)_2$", "$\mu$", "$\sigma$","$\\tau$", "$x_0$","d"]
-        p_units=[" $1/\mu m^2$"," $1/\mu m^2$"," nm", " nm", " nm", " deg", " $\mu m$"]
+        p_name=["$(b_c \\rho)_1$","$(b_c \\rho)_2$", "$\mu$", "$\sigma$","$\\tau$", "$x_0$","$\zeta_0$"]
+        p_units=[" $1/\mu m^2$"," $1/\mu m^2$"," nm", " nm", " nm", " deg", "  deg"]
         text = "Fit results"
         if(extended_plot):
             p=fit_res[0]
