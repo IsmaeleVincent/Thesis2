@@ -39,7 +39,7 @@ n_pixel = 16384 #number of pixels in one measurement
 This block creates a 3D matrix (stack) with measurments along the x,y plane and theta along z, 
 and uses it to calculate the region of interest (ROI)
 """
-# for k in range(1,len(foldername)):
+# for k in [2]:#range(0,len(foldername)):
 #     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
 #     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)] #matrixes of measurement along theta
 #     stack = np.stack(matrixes,axis=2) #3D stack of measurements
@@ -123,7 +123,7 @@ and uses it to calculate the region of interest (ROI)
 """
 This blocks allows to correct the ROI if needed
 """
-# for k in [13]:#len(foldername)):
+# for k in [2]:#len(foldername)):
 #     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
 #     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)] #matrixes of measurement along theta
 #     roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI.mpa',skiprows=1).astype(int)
@@ -138,12 +138,12 @@ This blocks allows to correct the ROI if needed
 #     y2=roi[-1,0]
 #     x1=roi[:,1]
 #     x2=roi[:,2]
-#     l=0 #line to check
+#     l=10 #line to check
 #     i=0 #delete first row?
 #     f=len(roi[:,0])
 #     print(y1,y2,"\n",x1[l],x2[l],"\n", roi[l,0])
-#     # x1[l]=45
-#     # x2[l]=80
+#     # x1[l]=61
+#     # x2[l]=72
 #     roi_new=roi[i:f,:]
 #     roi_new[:,1]=x1[i:f]
 #     roi_new[:,2]=x2[i:f]
@@ -171,9 +171,9 @@ This blocks allows to correct the ROI if needed
 
 """
 This block checks the number of peaks of each line and puts it in the ROI file
-the plots the max points along z for each line to check if the ROI is reasonable
+then plots the max points along z for each line to check if the ROI is reasonable
 """
-# for k in range(len(foldername)):
+# for k in [2]:# range(len(foldername)):
 #     print(foldername[k])
 #     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
 #     controlplots = data_analysis + "Control Plots/" 
@@ -263,7 +263,7 @@ the plots the max points along z for each line to check if the ROI is reasonable
 #         axs[3].axvline(zmins[i][0],color='g')
 #         axs[3].axvline(zmins[i][1],color='k')
 #         plt.savefig(controlplots+foldername[k] +'_line' +str("%0d"%(roi[0][0]+i))+'.png')
-#         plt.close(fig)
+#         # plt.close(fig)
 #     roipeaks= np.concatenate((roi,npeaks,xpeaks,zmins),axis=1)
 #     with open(data_analysis+foldername[k]+'_ROI+Peaks.mpa', 'w') as f:
 #         np.savetxt(f,roipeaks, header="line x1 x2 left_peaks right_peaks xmax-1 xmax+1 zmin-1 zmin+1", fmt="%1.0f")
@@ -291,34 +291,34 @@ This block creates cropped pictures of the ROI, to check that everything is ok
 This block creates a folder with the plot of the max points along z for each 
 line to check if the ROI is reasonable
 """
-# for k in range(len(foldername)):
-#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-#     controlplots = data_analysis + "Control Plots/" 
-#     if os.path.exists(controlplots):
-#         shutil.rmtree(controlplots)
-#     os.makedirs(controlplots)
-#     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
-#     stack = np.stack(matrixes,axis=2)
-#     roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI.mpa',skiprows=1)    
-#     y=np.zeros(128)
-#     for i in range(len(roi[:,0])):
-#         for j in range(128):
-#             y[j]=np.amax(stack[int(roi[0][0])+i,j,:])
-#         fig, axs = plt.subplots(3,figsize=(10,10))
-#         fig.suptitle(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+i)))
-#         axs[0].plot(y)
-#         axs[0].set_xlim(0,roi[i][1]+3)
-#         axs[0].set_ylim(0,y[int(roi[i][1]+3)]+5)
-#         axs[0].axvline(roi[i][1],color='r')
-#         axs[1].plot(y)
-#         axs[1].set_xlim(roi[i][2]-3,128)
-#         axs[1].set_ylim(0,y[int(roi[i][2])]+5)
-#         axs[1].axvline(roi[i][2],color='r')
-#         axs[2].plot(y)
-#         axs[2].axvline(roi[i][1],color='r')
-#         axs[2].axvline(roi[i][2],color='r')
-#         plt.savefig(controlplots+foldername[k] +'_line' +str("%0d"%(roi[0][0]+i))+'.png')
-#         plt.close(fig)
+for k in [0]:#range(len(foldername)):
+    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+    controlplots = data_analysis + "Control Plots/" 
+    if os.path.exists(controlplots):
+        shutil.rmtree(controlplots)
+    os.makedirs(controlplots)
+    matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
+    stack = np.stack(matrixes,axis=2)
+    roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI.mpa',skiprows=1)    
+    y=np.zeros(128)
+    for i in range(len(roi[:,0])):
+        for j in range(128):
+            y[j]=np.amax(stack[int(roi[0][0])+i,j,:])
+        fig, axs = plt.subplots(3,figsize=(10,10))
+        fig.suptitle(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+i)))
+        axs[0].plot(y)
+        axs[0].set_xlim(0,roi[i][1]+3)
+        axs[0].set_ylim(0,y[int(roi[i][1]+3)]+5)
+        axs[0].axvline(roi[i][1],color='r')
+        axs[1].plot(y)
+        axs[1].set_xlim(roi[i][2]-3,128)
+        axs[1].set_ylim(0,y[int(roi[i][2])]+5)
+        axs[1].axvline(roi[i][2],color='r')
+        axs[2].plot(y)
+        axs[2].axvline(roi[i][1],color='r')
+        axs[2].axvline(roi[i][2],color='r')
+        plt.savefig(controlplots+foldername[k] +'_line' +str("%0d"%(roi[0][0]+i))+'.png')
+        plt.close(fig)
 """
 This block copies the files in a common folder just 
 for the sake of simplicity
@@ -355,7 +355,7 @@ This block calculates the fits
 # def distr1(x, A, x0,sx):
 #     return bg1+A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
 
-# for k in range(0,1):#len(foldername)):
+# for k in range(10,len(foldername)):
 #     bckg=0.
 #     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
 #     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
@@ -417,6 +417,7 @@ This block calculates the fits
 #             zmin1=roi[y][7]
 #             zmin2=roi[y][8]
 #             for z in range(len(stack[0,0,:])):
+#                 print(y,z)
 #                 data=np.zeros((roi[y][2]-roi[y][1]+1,2))
 #                 data[:,0] =  np.arange(roi[y][1],roi[y][2]+1)
 #                 data[:,1] =  stack[roi[y][0],roi[y][1]:(roi[y][2]+1),z]
@@ -446,7 +447,18 @@ This block calculates the fits
 #                         P0m[2]=0.09
 #                 if(roi[y][4]==0):
 #                     boundp[1][1] = 1e-8
-#                     P0p[1]=0.
+#                     P0p[1]=0.# if(roi[y][3]==1):
+#     #     P0m = [1.,0.3,0.1, 0., abs(roi[y][5]-xabsmax)-2, abs(roi[y][5]-xabsmax)+8, 0.5, 0.5, 0.5]
+#     #     boundm = [[0.2,0.,0.,-2.,abs(roi[y][5]-xabsmax)-4, abs(roi[y][5]-xabsmax)+2,0.01,0.1,0.1],[1.5,1.5,0.4,2.,abs(roi[y][1]-xabsmax),abs(roi[y][1]-xabsmax), 1.,1.5,1.5]]
+#     # if(roi[y][3]>1):    
+#     #     P0m = [1.,0.3,0.1, 0., abs(roi[y][5]-xabsmax)-2, abs(roi[y][5]-xabsmax)+8, 0.5, 0.5, 0.5]
+#     #     boundm = [[0.2,0.,0.,-2.,abs(roi[y][5]-xabsmax)-4, abs(roi[y][5]-xabsmax)+5,0.01,0.1,0.1],[1.5,1.5,0.4,2.,abs(roi[y][1]-xabsmax),abs(roi[y][1]-xabsmax), 1.,1.5,1.5]]
+#     # if(roi[y][4]==1):
+#     #     P0p = [1.,0.,0., 0., abs(roi[y][6]-xabsmax)-2, abs(roi[y][6]-xabsmax)+3, 0.5, 1., 1.5]
+#     #     boundp = [[0.2,0,0,-2.,abs(roi[y][6]-xabsmax)-4, abs(roi[y][6]-xabsmax)+1,0.01,0.1,0.1],[2.,0.4,1e-8,2.,abs(roi[y][2]-xabsmax),abs(roi[y][2]-xabsmax), 1,1.5,1.5]]
+#     # if(roi[y][4]>1):    
+#     #     P0p = [1.,0.,0., 0., abs(roi[y][6]-xabsmax)-2, abs(roi[y][6]-xabsmax)+3, 0.5, 1., 1.5]
+#     #     boundp = [[0.2,0,0,-2.,abs(roi[y][6]-xabsmax)
 #                     boundp[1][2] = 1e-8
 #                     P0p[2]=0.
 #                 if(z>zmin2-4):
@@ -573,7 +585,7 @@ This block creates plots of the fits from the fit+data file to check them
 # def distr1(x, A, x0,sx):
 #     return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
 
-# for k in range(0,7):#len(foldername)):
+# for k in range(10,len(foldername)):
 #     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
 #     controlfits = data_analysis + "Control Fits/" 
 #     if os.path.exists(controlfits):

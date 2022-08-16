@@ -84,7 +84,7 @@ for k in range(0,1):#len(foldername)):
                 p,cov=fit(distr1,data[:,0][data[:,0]>-3],data[:,1][data[:,0]>-3], p0=P0, bounds = bound)
                 P0=p.copy()
                 if plot:
-                    fig = plt.figure(figsize=(15,15))
+                    fig = plt.figure(figsize=(10,10))
                     ax = fig.add_subplot(111)
                     ax.set_title(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z)))
                     ax.plot(data[:,0],data[:,1], "k-")
@@ -125,7 +125,7 @@ for k in range(0,1):#len(foldername)):
                 data[:,0] = (data[:,0]-xabsmax)
                 data[:,1] = (data[:,1]-ymin)/(ymax-ymin)
                 if plot:
-                    fig = plt.figure(figsize=(15,15))
+                    fig = plt.figure(figsize=(10,10))
                     ax = fig.add_subplot(111)
                     ax.set_title(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z)))
                     ax.plot(data[:,0],data[:,1], "ko")
@@ -243,7 +243,9 @@ for k in range(0,1):#len(foldername)):
                     color=["r-","g-","k-"]
                     for i in range(3):
                         ax.plot(xplt,(bg1+gauss(xplt, pm[i], -pm[i+3], pm[i+6])), color[i%3])
+                        xbar=np.array([-pm[i+3]-3*pm[i+6],-pm[i+3]+3*pm[i+6]])
                         ax.plot(xplt, (bg1+gauss(xplt, pp[i], pp[i+3], pp[i+6])), color[i%3])
+                        ax.plot(xbar, xbar*0,"1-", color[i%3], linewidth=10)
                 if (P0m[4]+4<abs(roi[y][1]-xabsmax)):
                     boundm[0][5]=P0m[4]+4
                 else:
