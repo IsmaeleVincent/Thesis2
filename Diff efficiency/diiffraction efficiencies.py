@@ -42,7 +42,7 @@ n_pixel = 16384 #number of pixels in one measurement
 This block calculates the diffraction efficiencies, first part estimates theta=0
 and second part the diff eff for each theta
 """
-plot=0
+plot=1
 def gauss(x, A, x0,sx):
       return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
 

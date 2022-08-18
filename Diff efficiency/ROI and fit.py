@@ -580,63 +580,63 @@ This block calculates the fits
 """
 This block creates plots of the fits from the fit+data file to check them
 """
-# def gauss(x, A, x0,sx):
-#     return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
-# def distrm3(x,A0,A1,A2,x0,x1,x2,s0,s1,s2):
-#     return gauss(x,A0,-x0,s0)+gauss(x, A1,-x1,s1)+gauss(x, A2, -x2,s2)
-# def distrp3(x,A0,A1,A2,x0,x1,x2,s0,s1,s2):
-#     return gauss(x,A0,x0,s0)+gauss(x, A1, x1,s1)+gauss(x, A2, x2,s2)
-# def distr1(x, A, x0,sx):
-#     return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
+def gauss(x, A, x0,sx):
+    return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
+def distrm3(x,A0,A1,A2,x0,x1,x2,s0,s1,s2):
+    return gauss(x,A0,-x0,s0)+gauss(x, A1,-x1,s1)+gauss(x, A2, -x2,s2)
+def distrp3(x,A0,A1,A2,x0,x1,x2,s0,s1,s2):
+    return gauss(x,A0,x0,s0)+gauss(x, A1, x1,s1)+gauss(x, A2, x2,s2)
+def distr1(x, A, x0,sx):
+    return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
 
-# for k in [7,8]:#range(10,len(foldername)):
-#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-#     controlfits = data_analysis + "Control Fits/" 
-#     if os.path.exists(controlfits):
-#         shutil.rmtree(controlfits)
-#     os.makedirs(controlfits)
-#     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
-#     stack = np.stack(matrixes,axis=2)
-#     xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
-#     yabsmax = xyzabsmax[0][0]
-#     xabsmax = xyzabsmax[1][0]
-#     zabsmax = xyzabsmax[2][0]
-#     roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI+Peaks.mpa',skiprows=1).astype(int)
-#     data_and_fit  =  np.loadtxt(data_analysis+foldername[k]+'_fit+data.mpa',skiprows=1)
-#     P0m = np.zeros(9)
-#     P0p = np.zeros(9)
-#     print(foldername[k])
-#     for y in range(len(roi[:,0])):
-#         for z in range(len(stack[0,0,:])):
-#             if data_and_fit[z*len(roi[:,0])+y][1]>0:
-#                 bckg = data_and_fit[z*len(roi[:,0])+y][2]
-#                 for j in range(len(P0m)):
-#                     P0m[j]=data_and_fit[z*len(roi[:,0])+y][j+3] 
-#                     P0p[j]=data_and_fit[z*len(roi[:,0])+y][j+3+len(P0m)]
-#                 data=np.zeros((roi[y][2]-roi[y][1]+1,2))
-#                 data[:,0] =  np.arange(roi[y][1],roi[y][2]+1)
-#                 data[:,1] =  stack[roi[y][0],roi[y][1]:(roi[y][2]+1),z]
-#                 data[:,0] = (data[:,0]-xabsmax)
+for k in range(8,len(foldername)):#[7,8]:#
+    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+    controlfits = data_analysis + "Control Fits/" 
+    if os.path.exists(controlfits):
+        shutil.rmtree(controlfits)
+    os.makedirs(controlfits)
+    matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
+    stack = np.stack(matrixes,axis=2)
+    xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
+    yabsmax = xyzabsmax[0][0]
+    xabsmax = xyzabsmax[1][0]
+    zabsmax = xyzabsmax[2][0]
+    roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI+Peaks.mpa',skiprows=1).astype(int)
+    data_and_fit  =  np.loadtxt(data_analysis+foldername[k]+'_fit+data.mpa',skiprows=1)
+    P0m = np.zeros(9)
+    P0p = np.zeros(9)
+    print(foldername[k])
+    for y in range(len(roi[:,0])):
+        for z in range(len(stack[0,0,:])):
+            if data_and_fit[z*len(roi[:,0])+y][1]>0:
+                bckg = data_and_fit[z*len(roi[:,0])+y][2]
+                for j in range(len(P0m)):
+                    P0m[j]=data_and_fit[z*len(roi[:,0])+y][j+3] 
+                    P0p[j]=data_and_fit[z*len(roi[:,0])+y][j+3+len(P0m)]
+                data=np.zeros((roi[y][2]-roi[y][1]+1,2))
+                data[:,0] =  np.arange(roi[y][1],roi[y][2]+1)
+                data[:,1] =  stack[roi[y][0],roi[y][1]:(roi[y][2]+1),z]
+                data[:,0] = (data[:,0]-xabsmax)
                 
-#                 fig = plt.figure(figsize=(15,15))
-#                 ax = fig.add_subplot(111)
-#                 ax.set_title(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z)))
-#                 if(P0m[2]>0 or P0m[2]>0):
-#                     ax.plot(data[:,0],data[:,1], "ko")
-#                     xplt=np.linspace(data[:, 0][0], data[:, 0][-1], 1000)
-#                     ax.plot(xplt,bckg + distrm3(xplt,*P0m), "b--")
-#                     ax.plot(xplt,bckg + distrp3(xplt,*P0p), "b--")
-#                     color=["r-","g-","k-"]
-#                     for i in range(3):
-#                         ax.plot(xplt,(bckg+gauss(xplt, P0m[i], -P0m[i+3], P0m[i+6])), color[i%3])
-#                         ax.plot(xplt, (bckg+gauss(xplt, P0p[i], P0p[i+3], P0p[i+6])), color[i%3])
-#                 else:
-#                     if(P0m[0]>0):
-#                           ax.plot(data[:,0],data[:,1], "k-")
-#                           xplt=np.linspace(data[:, 0][0], data[:, 0][-1], 1000)
-#                           ax.plot(xplt,(bckg+gauss(xplt, P0m[0], -P0m[3], P0m[6])), color[i%3])
-#                 plt.savefig(controlfits+foldername[k] +'_line_' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z))+'_fit.png')
-#                 plt.close(fig)
+                fig = plt.figure(figsize=(15,15))
+                ax = fig.add_subplot(111)
+                ax.set_title(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z)))
+                if(P0m[2]>0 or P0m[2]>0):
+                    ax.plot(data[:,0],data[:,1], "ko")
+                    xplt=np.linspace(data[:, 0][0], data[:, 0][-1], 1000)
+                    ax.plot(xplt,bckg + distrm3(xplt,*P0m), "b--")
+                    ax.plot(xplt,bckg + distrp3(xplt,*P0p), "b--")
+                    color=["r-","g-","k-"]
+                    for i in range(3):
+                        ax.plot(xplt,(bckg+gauss(xplt, P0m[i], -P0m[i+3], P0m[i+6])), color[i%3])
+                        ax.plot(xplt, (bckg+gauss(xplt, P0p[i], P0p[i+3], P0p[i+6])), color[i%3])
+                else:
+                    if(P0m[0]>0):
+                          ax.plot(data[:,0],data[:,1], "k-")
+                          xplt=np.linspace(data[:, 0][0], data[:, 0][-1], 1000)
+                          ax.plot(xplt,(bckg+gauss(xplt, P0m[0], -P0m[3], P0m[6])), color[i%3])
+                plt.savefig(controlfits+foldername[k] +'_line_' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z))+'_fit.png')
+                plt.close(fig)
 
 """
 This block copies the fits in a common folder just 
