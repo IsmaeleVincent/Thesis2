@@ -132,8 +132,8 @@ for k in range(len(foldername)):
                 diff_eff[z][:]*=0
     # if (k==6):
     #     diff_eff=np.delete(diff_eff, [3,4])
-    with open(data_analysis+foldername[k]+'_diff_eff.mpa', 'w') as f:
-        np.savetxt(f,diff_eff, header="theta err counts-2 err counts-1 err counts-0 err counts1 err counts1 err", fmt="%.6f")
+    # with open(data_analysis+foldername[k]+'_diff_eff.mpa', 'w') as f:
+    #     np.savetxt(f,diff_eff, header="theta err counts-2 err counts-1 err counts-0 err counts1 err counts1 err", fmt="%.6f")
 
 """
 This block calculates the diffraction efficiencies for 3 lines

@@ -291,34 +291,39 @@ This block creates cropped pictures of the ROI, to check that everything is ok
 This block creates a folder with the plot of the max points along z for each 
 line to check if the ROI is reasonable
 """
-for k in [0]:#range(len(foldername)):
-    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    controlplots = data_analysis + "Control Plots/" 
-    if os.path.exists(controlplots):
-        shutil.rmtree(controlplots)
-    os.makedirs(controlplots)
-    matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
-    stack = np.stack(matrixes,axis=2)
-    roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI.mpa',skiprows=1)    
-    y=np.zeros(128)
-    for i in range(len(roi[:,0])):
-        for j in range(128):
-            y[j]=np.amax(stack[int(roi[0][0])+i,j,:])
-        fig, axs = plt.subplots(3,figsize=(10,10))
-        fig.suptitle(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+i)))
-        axs[0].plot(y)
-        axs[0].set_xlim(0,roi[i][1]+3)
-        axs[0].set_ylim(0,y[int(roi[i][1]+3)]+5)
-        axs[0].axvline(roi[i][1],color='r')
-        axs[1].plot(y)
-        axs[1].set_xlim(roi[i][2]-3,128)
-        axs[1].set_ylim(0,y[int(roi[i][2])]+5)
-        axs[1].axvline(roi[i][2],color='r')
-        axs[2].plot(y)
-        axs[2].axvline(roi[i][1],color='r')
-        axs[2].axvline(roi[i][2],color='r')
-        plt.savefig(controlplots+foldername[k] +'_line' +str("%0d"%(roi[0][0]+i))+'.png')
-        plt.close(fig)
+# for k in range(len(foldername)):
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     controlplots = data_analysis + "Control Plots/" 
+#     if os.path.exists(controlplots):
+#         shutil.rmtree(controlplots)
+#     os.makedirs(controlplots)
+#     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
+#     stack = np.stack(matrixes,axis=2)
+#     roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI+Peaks.mpa',skiprows=1,dtype=int)
+#     npeaks=roi[:,3:5]
+#     xpeaks=roi[:,5:7]
+#     y=np.zeros(128)
+#     for i in range(len(roi[:,0])):
+#         for j in range(128):
+#             y[j]=np.amax(stack[int(roi[0][0])+i,j,:])
+#         fig, axs = plt.subplots(3,figsize=(10,10))
+#         # fig.suptitle(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+i)))
+#         fig.suptitle(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+i))+"\nleft peaks="+str(npeaks[i][0])+"\nright peaks="+str(npeaks[i][1]))
+#         axs[0].plot(y)
+#         axs[0].set_xlim(0,roi[i][1]+3)
+#         axs[0].set_ylim(0,y[int(roi[i][1]+3)]+5)
+#         axs[0].axvline(roi[i][1],color='r')
+#         axs[1].plot(y)
+#         axs[1].set_xlim(roi[i][2]-3,128)
+#         axs[1].set_ylim(0,y[int(roi[i][2])]+5)
+#         axs[1].axvline(roi[i][2],color='r')
+#         axs[2].plot(y)
+#         axs[2].axvline(roi[i][1],color='r')
+#         axs[2].axvline(roi[i][2],color='r')
+#         axs[2].axvline(xpeaks[i][0],color='y', ls = '--')
+#         axs[2].axvline(xpeaks[i][1],color='k', ls = '--')
+#         plt.savefig(controlplots+foldername[k] +'_line' +str("%0d"%(roi[0][0]+i))+'.png')
+#         plt.close(fig)
 """
 This block copies the files in a common folder just 
 for the sake of simplicity
@@ -344,7 +349,6 @@ for the sake of simplicity
 """
 This block calculates the fits
 """
-
 # plot=0
 # def gauss(x, A, x0,sx):
 #     return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
@@ -585,7 +589,7 @@ This block creates plots of the fits from the fit+data file to check them
 # def distr1(x, A, x0,sx):
 #     return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
 
-# for k in range(10,len(foldername)):
+# for k in [7,8]:#range(10,len(foldername)):
 #     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
 #     controlfits = data_analysis + "Control Fits/" 
 #     if os.path.exists(controlfits):
