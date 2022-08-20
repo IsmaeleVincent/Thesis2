@@ -589,7 +589,7 @@ def distrp3(x,A0,A1,A2,x0,x1,x2,s0,s1,s2):
 def distr1(x, A, x0,sx):
     return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
 
-for k in range(8,len(foldername)):#[7,8]:#
+for k in range(10,len(foldername)):#[7,8]:#
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
     controlfits = data_analysis + "Control Fits/" 
     if os.path.exists(controlfits):
@@ -617,7 +617,6 @@ for k in range(8,len(foldername)):#[7,8]:#
                 data[:,0] =  np.arange(roi[y][1],roi[y][2]+1)
                 data[:,1] =  stack[roi[y][0],roi[y][1]:(roi[y][2]+1),z]
                 data[:,0] = (data[:,0]-xabsmax)
-                
                 fig = plt.figure(figsize=(15,15))
                 ax = fig.add_subplot(111)
                 ax.set_title(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z)))
@@ -630,6 +629,12 @@ for k in range(8,len(foldername)):#[7,8]:#
                     for i in range(3):
                         ax.plot(xplt,(bckg+gauss(xplt, P0m[i], -P0m[i+3], P0m[i+6])), color[i%3])
                         ax.plot(xplt, (bckg+gauss(xplt, P0p[i], P0p[i+3], P0p[i+6])), color[i%3])
+                        # if(P0m[i]>3):
+                        #     xplt1=np.linspace(-P0m[i+3]-3.5*P0m[i+6],-P0m[i+3]+3.5*P0m[i+6], 2)
+                        #     ax[0].plot(xplt1, xplt1*0 + bckg+gauss(P0m[i+3]+3.5*P0m[i+6], P0m[i], P0m[i+3], P0m[i+6]), color[i%3] +"-|",ms=10)
+                        # if(P0p[i]>3):
+                        #     xplt1=np.linspace(P0p[i+3]-3.5*P0p[i+6],P0p[i+3]+3.5*P0p[i+6], 2)
+                        #     ax[0].plot(xplt1, xplt1*0 + bckg+gauss(P0p[i+3]+3.5*P0p[i+6], P0p[i], P0p[i+3], P0p[i+6]), color[i%3] +"-|",ms=10)
                 else:
                     if(P0m[0]>0):
                           ax.plot(data[:,0],data[:,1], "k-")

@@ -96,17 +96,17 @@ for k in range(0,1):#len(foldername)):
                     dev= distrm3(data[:,0],*P0m) + distrp3(data[:,0],*P0p) - data[:,1] - gauss(data[:,0], P0m[0], -P0m[3], P0m[6])
                     ax[0].plot(xplt,bckg + distrp3(xplt,*P0p), "b--")
                     ax[1].plot(data[:,0], abs(dev), "b")
-                    ax[1].plot(data[:,0], data[:,1]**0.5, "r")
+                    # ax[1].plot(data[:,0], data[:,1]**0.5, "r")
                     color=["r-","g-","k-"]
                     for i in range(3):
                         ax[0].plot(xplt,(bckg+gauss(xplt, P0m[i], -P0m[i+3], P0m[i+6])), color[i%3])
                         ax[0].plot(xplt, (bckg+gauss(xplt, P0p[i], P0p[i+3], P0p[i+6])), color[i%3])
                         if(P0m[i]>3):
                             xplt1=np.linspace(-P0m[i+3]-3.5*P0m[i+6],-P0m[i+3]+3.5*P0m[i+6], 2)
-                            ax[0].plot(xplt1, xplt1*0 + bckg+gauss(P0m[i+3]+3.5*P0m[i+6], P0m[i], P0m[i+3], P0m[i+6]), color[i%3] +"-|",ms=10)
+                            ax[0].plot(xplt1, xplt1*0 + bckg+gauss(P0m[i+3]+3.5*P0m[i+6], P0m[i], P0m[i+3], P0m[i+6]), color[i%3] +"-|",ms=np.amax(data[:,1])/10)
                         if(P0p[i]>3):
                             xplt1=np.linspace(P0p[i+3]-3.5*P0p[i+6],P0p[i+3]+3.5*P0p[i+6], 2)
-                            ax[0].plot(xplt1, xplt1*0 + bckg+gauss(P0p[i+3]+3.5*P0p[i+6], P0p[i], P0p[i+3], P0p[i+6]), color[i%3] +"-|",ms=10)
+                            ax[0].plot(xplt1, xplt1*0 + bckg+gauss(P0p[i+3]+3.5*P0p[i+6], P0p[i], P0p[i+3], P0p[i+6]), color[i%3] +"-|",ms=np.amax(data[:,1])/10)
                     if a==0:
                         dd=np.abs(dev)
                         mm=data[:,1]
