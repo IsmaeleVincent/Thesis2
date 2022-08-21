@@ -45,8 +45,8 @@ and second part the diff eff for each theta
 plot=0
 def gauss(x, A, x0,sx):
       return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
-
-for k in range(5,10):#range(len(foldername)):#
+krange=range(11,len(foldername))
+for k in krange:#range(11,len(foldername)):#range(8,10):#
     print(k)
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
     controldiff = data_analysis + "Control Diff/" 
@@ -127,9 +127,10 @@ for k in range(5,10):#range(len(foldername)):#
             data[:,0] = (data[:,0]-xabsmax)
             xplt=data[:, 0]
             color=["r-","g-","k-"]
-            print(y,z)
+            #print(roi[y,0],z)
             if npeaks[y,0]==0 and npeaks[y,1]==0:
                 diff_eff[z][6]+=sum(data[:,1])
+                diff_eff[z][7]+=sum(data[:,1]**0.5)
                 fig=plt.figure(figsize=(10,10))
                 ax=fig.add_subplot()
                 ax.plot(data[:,0],data[:,1],"r")
@@ -139,6 +140,8 @@ for k in range(5,10):#range(len(foldername)):#
                 xm[0,1]=np.where(data[:,0]==data[:,0][abs(data[:,0]+P0m[3])<=3.5*P0m[6]][-1])[0][0]+1
                 diff_eff[z][6]+=sum(data[xm[0,0]:xm[0,1],1])
                 diff_eff[z][4]+=sum(data[:xm[0,0],1])
+                diff_eff[z][7]+=sum(data[xm[0,0]:xm[0,1],1]**0.5)
+                diff_eff[z][5]+=sum(data[:xm[0,0],1]**0.5)
                 fig=plt.figure(figsize=(10,10))
                 ax=fig.add_subplot()
                 ax.plot(data[:,0],data[:,1],"-")
@@ -151,6 +154,8 @@ for k in range(5,10):#range(len(foldername)):#
                 xm[0,1]=np.where(data[:,0]==data[:,0][abs(data[:,0]+P0m[3])<=3.5*P0m[6]][-1])[0][0]+1
                 diff_eff[z][6]+=sum(data[xm[0,0]:xm[0,1],1])
                 diff_eff[z][8]+=sum(data[xm[0,1]:,1])
+                diff_eff[z][7]+=sum(data[xm[0,0]:xm[0,1],1]**0.5)
+                diff_eff[z][9]+=sum(data[xm[0,1]:,1]**0.5)
                 fig=plt.figure(figsize=(10,10))
                 ax=fig.add_subplot()
                 ax.plot(data[:,0],data[:,1],"-")
@@ -164,6 +169,9 @@ for k in range(5,10):#range(len(foldername)):#
                 diff_eff[z][6]+=sum(data[xm[0,0]:xm[0,1],1])
                 diff_eff[z][4]+=sum(data[:xm[0,0],1])
                 diff_eff[z][8]+=sum(data[xm[0,1]:,1])
+                diff_eff[z][7]+=sum(data[xm[0,0]:xm[0,1],1]**0.5)
+                diff_eff[z][5]+=sum(data[:xm[0,0],1]**0.5)
+                diff_eff[z][9]+=sum(data[xm[0,1]:,1]**0.5)
                 fig=plt.figure(figsize=(10,10))
                 ax=fig.add_subplot()
                 ax.plot(data[:,0],data[:,1],"-")
@@ -184,13 +192,19 @@ for k in range(5,10):#range(len(foldername)):#
                 diff_eff[z][8]+=sum(data[xm[0,1]+1:,1])
                 diff_eff[z][4]+=sum(data[xm[2,1]:xm[0,0],1])
                 diff_eff[z][2]+=sum(data[:xm[1,0],1])
+                diff_eff[z][7]+=sum(data[xm[0,0]:xm[0,1],1]**0.5)
+                diff_eff[z][9]+=sum(data[xm[0,1]+1:,1]**0.5)
+                diff_eff[z][5]+=sum(data[xm[2,1]:xm[0,0],1]**0.5)
+                diff_eff[z][3]+=sum(data[:xm[1,0],1]**0.5)
                 frac=np.zeros((len(data[xm[1,0]:xm[2,1],0]),2))
                 if xm[1,0]<xm[2,1]:
                     for j in range(xm[1,0],xm[2,1]):
                         frac[j-xm[1,0],0]=data[j,1]*gauss(xplt[j], P0m[1], -P0m[4], P0m[7])/(gauss(xplt[j], P0m[1], -P0m[4], P0m[7])+gauss(xplt[j], P0m[2], -P0m[5], P0m[8]))
                         diff_eff[z][4]+=frac[j-xm[1,0],0]
+                        diff_eff[z][5]+=frac[j-xm[1,0],0]**0.5
                         frac[j-xm[1,0],1]=data[j,1]*gauss(xplt[j], P0m[2], -P0m[5], P0m[8])/(gauss(xplt[j], P0m[1], -P0m[4], P0m[7])+gauss(xplt[j], P0m[2], -P0m[5], P0m[8]))
                         diff_eff[z][2]+=frac[j-xm[1,0],1]
+                        diff_eff[z][3]+=frac[j-xm[1,0],1]**0.5
                 fig=plt.figure(figsize=(10,10))
                 ax=fig.add_subplot()
                 ax.plot(data[:,0],data[:,1],"-")
@@ -201,7 +215,9 @@ for k in range(5,10):#range(len(foldername)):#
                 if xm[1,0]<xm[2,1]:
                         ax.plot(data[xm[1,0]:xm[2,1],0],data[xm[1,0]:xm[2,1],1],"g-")
                         ax.plot(data[xm[1,0]:xm[2,1],0],data[xm[1,0]:xm[2,1],1],"k--")
-            
+                        ax.plot(data[xm[1,0]:xm[2,1],0],frac[:,0],"go")
+                        ax.plot(data[xm[1,0]:xm[2,1],0],frac[:,1],"ko")
+                        
             if npeaks[y,0]==1 and npeaks[y,1]==2:
                 xm=np.zeros((2,2),dtype=int)
                 xp=np.zeros((2,2),dtype=int)
@@ -215,14 +231,20 @@ for k in range(5,10):#range(len(foldername)):#
                 diff_eff[z][6]+=sum(data[xm[0,0]:xm[0,1],1])
                 diff_eff[z][8]+=sum(data[xm[0,1]+1:xp[1,0],1])
                 diff_eff[z][10]+=sum(data[xp[0,1]+1:,1])
+                diff_eff[z][7]+=sum(data[xm[0,0]:xm[0,1],1]**0.5)
+                diff_eff[z][9]+=sum(data[xm[0,1]+1:xp[1,0],1]**0.5)
+                diff_eff[z][11]+=sum(data[xp[0,1]+1:,1]**0.5)
                 frac=np.zeros((len(data[xp[1,0]:xp[0,1]+1,0]),2))
                 if xp[0,1]>xp[1,0]:
                     for j in range(xp[1,0],xp[0,1]):
                         frac[j-xp[1,0],0]=data[j,1]*gauss(xplt[j], P0p[1], P0p[4], P0p[7])/(gauss(xplt[j], P0p[1], P0p[4], P0p[7])+gauss(xplt[j], P0p[2], P0p[5], P0p[8]))
                         diff_eff[z][8]+=frac[j-xp[1,0],0]
+                        diff_eff[z][9]+=frac[j-xp[1,0],0]**0.5
                         frac[j-xp[1,0],1]=data[j,1]*gauss(xplt[j], P0p[2], P0p[5], P0p[8])/(gauss(xplt[j], P0p[1], P0p[4], P0p[7])+gauss(xplt[j], P0p[2], P0p[5], P0p[8]))
                         diff_eff[z][10]+=frac[j-xp[1,0],1]
+                        diff_eff[z][11]+=frac[j-xp[1,0],1]**0.5
                 diff_eff[z][4]+=sum(data[:xm[0,0],1])
+                diff_eff[z][5]+=sum(data[:xm[0,0],1]**0.5)
                 
                 fig=plt.figure(figsize=(10,10))
                 ax=fig.add_subplot()
@@ -234,6 +256,8 @@ for k in range(5,10):#range(len(foldername)):#
                 if xp[0,1]>xp[1,0]:
                         ax.plot(data[xp[1,0]:xp[0,1]+1,0],data[xp[1,0]:xp[0,1]+1,1],"g-")
                         ax.plot(data[xp[1,0]:xp[0,1]+1,0],data[xp[1,0]:xp[0,1]+1,1],"k--")
+                        ax.plot(data[xp[1,0]:xp[0,1]+1,0],frac[:,0],"go")
+                        ax.plot(data[xp[1,0]:xp[0,1]+1,0],frac[:,1],"ko")
             
             if npeaks[y,0]==2 and npeaks[y,1]==2:
                 xm=np.zeros((3,2),dtype=int)
@@ -247,22 +271,31 @@ for k in range(5,10):#range(len(foldername)):#
                 diff_eff[z][6]+=sum(data[xm[0,0]:xm[0,1],1])
                 diff_eff[z][4]+=sum(data[xm[2,1]:xm[0,0],1])
                 diff_eff[z][2]+=sum(data[:xm[1,0],1])
+                diff_eff[z][7]+=sum(data[xm[0,0]:xm[0,1],1]**0.5)
+                diff_eff[z][5]+=sum(data[xm[2,1]:xm[0,0],1]**0.5)
+                diff_eff[z][3]+=sum(data[:xm[1,0],1]**0.5)
                 fracm=np.zeros((len(data[xm[1,0]:xm[2,1],0]),2))
                 if xm[1,0]<xm[2,1]:
                     for j in range(xm[1,0],xm[2,1]):
                         fracm[j-xm[1,0],0]=data[j,1]*gauss(xplt[j], P0m[1], -P0m[4], P0m[7])/(gauss(xplt[j], P0m[1], -P0m[4], P0m[7])+gauss(xplt[j], P0m[2], -P0m[5], P0m[8]))
                         diff_eff[z][4]+=fracm[j-xm[1,0],0]
+                        diff_eff[z][5]+=fracm[j-xm[1,0],0]**0.5
                         fracm[j-xm[1,0],1]=data[j,1]*gauss(xplt[j], P0m[2], -P0m[5], P0m[8])/(gauss(xplt[j], P0m[1], -P0m[4], P0m[7])+gauss(xplt[j], P0m[2], -P0m[5], P0m[8]))
                         diff_eff[z][2]+=fracm[j-xm[1,0],1]
+                        diff_eff[z][3]+=fracm[j-xm[1,0],1]**0.5
                 diff_eff[z][8]+=sum(data[xm[0,1]+1:xp[1,0],1])
                 diff_eff[z][10]+=sum(data[xp[0,1]+1:,1])
+                diff_eff[z][9]+=sum(data[xm[0,1]+1:xp[1,0],1])**0.5
+                diff_eff[z][11]+=sum(data[xp[0,1]+1:,1])**0.5
                 fracp=np.zeros((len(data[xp[1,0]:xp[0,1]+1,0]),2))
                 if xp[0,1]>xp[1,0]:
                     for j in range(xp[1,0],xp[0,1]):
                         fracp[j-xp[1,0],0]=data[j,1]*gauss(xplt[j], P0p[1], P0p[4], P0p[7])/(gauss(xplt[j], P0p[1], P0p[4], P0p[7])+gauss(xplt[j], P0p[2], P0p[5], P0p[8]))
                         diff_eff[z][8]+=fracp[j-xp[1,0],0]
+                        diff_eff[z][9]+=fracp[j-xp[1,0],0]**0.5
                         fracp[j-xp[1,0],1]=data[j,1]*gauss(xplt[j], P0p[2], P0p[5], P0p[8])/(gauss(xplt[j], P0p[1], P0p[4], P0p[7])+gauss(xplt[j], P0p[2], P0p[5], P0p[8]))
                         diff_eff[z][10]+=fracp[j-xp[1,0],1]
+                        diff_eff[z][11]+=fracp[j-xp[1,0],1]**0.5
                 fig=plt.figure(figsize=(10,10))
                 ax=fig.add_subplot()
                 ax.plot(data[:,0],data[:,1],"-")
@@ -282,11 +315,11 @@ for k in range(5,10):#range(len(foldername)):#
                         ax.plot(data[xp[1,0]:xp[0,1]+1,0],fracp[:,1],"ko")
                 
             ax.set_title(foldername[k] +'-Line ' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z))+ "\nnum peaks ="+str(npeaks[y][0])+", "+str(npeaks[y][1]))
-            # diff_eff[3::2]=diff_eff[2::2]**0.5
             plt.savefig(controldiff+foldername[k] +'_line_' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z))+'_fit.png')
             plt.close(fig)
             if(k==6 and (z==3 or z==4)):
                 diff_eff[z][:]*=0
+    # diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
     with open(data_analysis+foldername[k]+'_diff_eff_new.mpa', 'w') as f:
         np.savetxt(f,diff_eff, header="theta err counts-2 err counts-1 err counts-0 err counts1 err counts1 err", fmt="%.6f")
 
@@ -295,7 +328,7 @@ for k in range(5,10):#range(len(foldername)):#
 # This block plots the diffraction efficiencies
 """
 
-for k in range(5,10):#range(len(foldername)):
+for k in krange:#range(6,len(foldername)):#
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
     diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff_new.mpa',skiprows=1)
     fig = plt.figure(figsize=(15,15))
