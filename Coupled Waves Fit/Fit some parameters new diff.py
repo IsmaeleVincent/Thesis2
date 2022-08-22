@@ -85,7 +85,7 @@ sigma1=(sigma0**2+tau0**2)**0.5
 """
 Angular distribution: Gaussian
 """
-div=0.00064
+div=0.00032
 def ang_gauss(x):
     sig=div
     return 1/((2*pi)**0.5*sig)*np.exp(-x**2/(2*sig**2))
