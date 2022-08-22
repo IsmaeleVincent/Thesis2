@@ -105,7 +105,7 @@ n_0 =1.
 phi=0
 phi1=0
 d0=78
-krange=[1]#range(len(foldername))#[0,2,3,4,5]#range(7,len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
+krange=[0]#range(len(foldername))#[0,2,3,4,5]#range(7,len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
 
 def k_jz(theta, j, G,b):
     k_jz=b*(1-(np.sin(theta)-j*G/b)**2)**0.5
@@ -128,7 +128,7 @@ def process_fit(k):
         fit_res =  np.loadtxt(data_analysis1+foldername[1]+'_fit_results.mpa',skiprows=1)
     if k<2 or (k>2 and k<6):
         data_analysis1 = sorted_fold_path+foldername[2]+"/Data Analysis/"
-        fit_res =  np.loadtxt(data_analysis1+foldername[2]+'_fit_results_new_diff.mpa',skiprows=1)
+        fit_res =  np.loadtxt(data_analysis1+foldername[2]+'_fit_results.mpa',skiprows=1)
     # diff_eff = diff_eff[diff_eff[:,0]<=0]
     diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
     diff_eff_aus=diff_eff[:,2::2].copy()
@@ -164,7 +164,7 @@ def process_fit(k):
             xp[i]=wl[aus==np.amin(aus)]
         wl=xp.copy()
         a=rho(xp,lambda_par, mu1, sigma)/sum(rho(xp,lambda_par, mu1, sigma))
-        th=np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,2*len(x))#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#
+        th=[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,2*len(x))#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#
         S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
         eta=S.copy().real
         eta_aus=eta.copy()
@@ -214,15 +214,15 @@ def process_fit(k):
         plt.savefig('ff.eps', format='eps')
         return aaa
     P0= fit_res[0] # np.zeros(7) # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
-    # P0[0]=7
-    # P0[1]=1.
-    # P0[2]=3e-3
-    # P0[3]=0.0001
-    # P0[4]=0.001
-    # P0[5]=0
-    # P0[6]=0
+    P0[0]=8
+    P0[1]=1.
+    P0[2]=3e-3
+    P0[3]=0.0001
+    P0[4]=0.0005
+    P0[5]=0
+    P0[6]=0
     if (fitting):
-        B=([5, 0.5, 2e-3, 1e-4, 0.001, -0.0005/rad, -2],[10, 2, 3.6e-3, 1e-3, 0.002, 0.0005/rad, 2])
+        B=([5, 0.5, 2e-3, 1e-4, 0.0005, -0.0005/rad, -10],[10, 2, 3.6e-3, 1e-3, 0.002, 0.0005/rad, 10])
         for i in range(len(B[0])):
             if (P0[i]<B[0][i] or P0[i]>B[1][i]):
                 P0[i]=(B[1][i]+B[0][i])/2

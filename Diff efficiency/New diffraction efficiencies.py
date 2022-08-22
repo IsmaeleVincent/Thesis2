@@ -25,6 +25,7 @@ alldata_analysis = allmeasurements + "All Data Analysis/"
 allcropped_pictures = alldata_analysis + "All Cropped Pictures/"
 allcontrolplots = alldata_analysis + "All Control plots/"
 allcorrectedfits = alldata_analysis + "All Corrected Fits/"
+allcontroldiff = alldata_analysis + "All Control new diff/"
 tiltangles=[0,40,48,61,69,71,79,80,81]
 foldername=[]
 for i in range(len(tiltangles)):
@@ -37,6 +38,7 @@ n_theta=[26,46,28,17,16,20,21,20,19,48,43,59,24]  #number of measurements files 
 step_theta=[0.03,0.03,0.05,0.05,0.05,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03]
 n_pixel = 16384 #number of pixels in one measurement
 
+krange=[1]#range(0,len(foldername))
 
 """
 This block calculates the diffraction efficiencies, first part estimates theta=0
@@ -45,7 +47,6 @@ and second part the diff eff for each theta
 plot=0
 def gauss(x, A, x0,sx):
       return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
-krange=range(11,len(foldername))
 for k in krange:#range(11,len(foldername)):#range(8,10):#
     print(k)
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
@@ -127,7 +128,7 @@ for k in krange:#range(11,len(foldername)):#range(8,10):#
             data[:,0] = (data[:,0]-xabsmax)
             xplt=data[:, 0]
             color=["r-","g-","k-"]
-            #print(roi[y,0],z)
+            print(roi[y,0],z)
             if npeaks[y,0]==0 and npeaks[y,1]==0:
                 diff_eff[z][6]+=sum(data[:,1])
                 diff_eff[z][7]+=sum(data[:,1]**0.5)
@@ -328,30 +329,34 @@ for k in krange:#range(11,len(foldername)):#range(8,10):#
 # This block plots the diffraction efficiencies
 """
 
-for k in krange:#range(6,len(foldername)):#
-    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff_new.mpa',skiprows=1)
-    fig = plt.figure(figsize=(15,15))
-    ax = fig.add_subplot(111)
-    ax.set_title(foldername[k])
-    for j in range(5):
-        ax.plot(diff_eff[:,0],diff_eff[:,2*j+2],'o')
-        ax.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+3],capsize=1)
-    # data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    # diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff_3lines.mpa',skiprows=1)
-    # fig = plt.figure(figsize=(15,15))
-    # ax = fig.add_subplot(111)
-    # ax.set_title(foldername[k]+"_diff_eff_3lines")
-    # for j in range(5):
-    #     ax.plot(diff_eff[:,0],diff_eff[:,2*j+2],'o')
-    #     ax.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+1],capsize=1)
-    # data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    # diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff_1line.mpa',skiprows=1)
-    # fig = plt.figure(figsize=(15,15))
-    # ax = fig.add_subplot(111)
-    # ax.set_title(foldername[k]+"_diff_eff_1line")
-    # for j in range(5):
-    #     ax.plot(diff_eff[:,0],diff_eff[:,2*j+2],'o')
-    #     ax.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+1],capsize=1)
+# for k in krange:#range(6,len(foldername)):#
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff_new.mpa',skiprows=1)
+#     fig = plt.figure(figsize=(15,15))
+#     ax = fig.add_subplot(111)
+#     ax.set_title(foldername[k])
+#     for j in range(5):
+#         ax.plot(diff_eff[:,0],diff_eff[:,2*j+2],'o')
+#         ax.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+3],capsize=1)
 
+"""
+# This block copies the plots in a common folder
+"""
 
+# if os.path.exists(allcontroldiff):
+#     shutil.rmtree(allcontroldiff)
+# os.makedirs(allcontroldiff)
+# for k in range(0,1):#len(foldername)):
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     controldiff = data_analysis + "Control Diff/" 
+#     folder = sorted_fold_path+foldername[k]
+#     roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI+Peaks.mpa',skiprows=1).astype(int)
+#     for y in range(len(roi[:,0])):
+#         for z in range(n_theta[k]):
+#             contdiffname = controldiff+foldername[k] +'_line_' +str("%0d"%(roi[0][0]+y))+'_theta'+str("%0d"%(z))+'_fit.png'
+#             try:
+#                 shutil.copy(controldiff+contdiffname, allcontroldiff+contdiffname)   
+#                 print("here")
+#             except FileNotFoundError:
+#                 a=0
+#                 print("not there")

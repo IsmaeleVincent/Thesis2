@@ -48,7 +48,7 @@ def distrp3(x,A0,A1,A2,x0,x1,x2,s0,s1,s2):
 def distr1(x, A, x0,sx):
     return bg1+A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
 
-k=6
+k=1
 bckg=0.
 data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
 matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
@@ -60,8 +60,8 @@ zabsmax = xyzabsmax[2][0]
 roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI+Peaks.mpa',skiprows=1).astype(int)
 print(foldername[k])
 data_and_fit = np.loadtxt(data_analysis+foldername[k]+'_fit+data.mpa',skiprows=1)
-line=70
-for z in [7]:#range(38,n_theta[k]):#[1]:# range(0,16):#range(0,n_theta[k]):#
+line=68
+for z in [19]:#range(23,n_theta[k]):#:#range(38,n_theta[k]):#[1]:# range(0,16):#range(0,n_theta[k]):#
     theta=0
     y=np.where(roi[:,0]==line)[0][0]
     # print(y)
@@ -70,9 +70,9 @@ for z in [7]:#range(38,n_theta[k]):#[1]:# range(0,16):#range(0,n_theta[k]):#
         bckg = sum(stack[roi[y][0],xabsmax-20:xabsmax-3,0])/len(stack[roi[y][0],xabsmax-20:xabsmax-3,0])
     if (roi[y][3]>0 or roi[y][4]>0):
         P0m = [1.,0.,0.2, 0., 3, 10, 0.5, 1., 1]
-        boundm = [[0.0,0.,0.,-2.,3, 10,0.01,0.01,0.5],[1.5,1.,0.2,2.,15,22, 1.,1.5,1.5]]
+        boundm = [[0.0,0.,0.,-2.,4, 10,0.01,0.01,0.5],[1.5,1.,0.2,2.,15,22, 1.,1.5,1.5]]
         P0p = [1.,0.01,0., 0., 5, 15, 0.5, 0.5, 1]
-        boundp = [[0.3,0.,0.,-2., 3, 10,0.01,0.1,0.1],[2.,0.2,0.4e-8,2.,8,22, 1.,1,1]]
+        boundp = [[0.3,0.,0.,-2., 4, 8,0.01,0.1,0.1],[2.,1.,0.8,2.,8,15, 1.,1,1.5]]
         P0maus=P0m.copy()
         P0paus=P0p.copy()
         boundmaus=boundm.copy()
