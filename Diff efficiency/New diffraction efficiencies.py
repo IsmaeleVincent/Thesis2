@@ -38,7 +38,7 @@ n_theta=[26,46,28,17,16,20,21,20,19,48,43,59,24]  #number of measurements files 
 step_theta=[0.03,0.03,0.05,0.05,0.05,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03]
 n_pixel = 16384 #number of pixels in one measurement
 
-krange=[1]#range(0,len(foldername))
+krange=range(11,13)#[1]#range(0,len(foldername))
 
 """
 This block calculates the diffraction efficiencies, first part estimates theta=0
@@ -253,7 +253,7 @@ for k in krange:#range(11,len(foldername)):#range(8,10):#
                 ax.plot(data[xm[0,0]:xm[0,1],0],data[xm[0,0]:xm[0,1],1],"r")
                 ax.plot(data[:xm[0,0],0],data[:xm[0,0],1],"g")
                 ax.plot(data[xm[0,1]+1:xp[1,0],0],data[xm[0,1]+1:xp[1,0],1],"g")
-                ax.plot(data[xp[0,1]+1,0],data[xp[0,1]+1,1],"k")
+                ax.plot(data[xp[0,1]+1:,0],data[xp[0,1]+1:,1],"k")
                 if xp[0,1]>xp[1,0]:
                         ax.plot(data[xp[1,0]:xp[0,1]+1,0],data[xp[1,0]:xp[0,1]+1,1],"g-")
                         ax.plot(data[xp[1,0]:xp[0,1]+1,0],data[xp[1,0]:xp[0,1]+1,1],"k--")
@@ -304,6 +304,7 @@ for k in krange:#range(11,len(foldername)):#range(8,10):#
                 ax.plot(data[xm[2,1]:xm[0,0],0],data[xm[2,1]:xm[0,0],1],"g")
                 ax.plot(data[xm[0,1]+1:xp[1,0],0],data[xm[0,1]+1:xp[1,0],1],"g")
                 ax.plot(data[:xm[1,0],0],data[:xm[1,0],1],"k")
+                ax.plot(data[xp[0,1]+1:,0],data[xp[0,1]+1:,1],"k")
                 if xm[1,0]<xm[2,1]:
                         ax.plot(data[xm[1,0]:xm[2,1],0],data[xm[1,0]:xm[2,1],1],"g-")
                         ax.plot(data[xm[1,0]:xm[2,1],0],data[xm[1,0]:xm[2,1],1],"k--")
