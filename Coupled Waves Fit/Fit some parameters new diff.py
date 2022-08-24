@@ -105,17 +105,17 @@ n_0 =1.
 phi=0
 phi1=0
 d0=78
-krange=[0]#range(len(foldername))#[0,2,3,4,5]#range(7,len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
+krange=range(6,len(foldername))#[0]#[0,2,3,4,5]#range(7,len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
 
 def k_jz(theta, j, G,b):
     k_jz=b*(1-(np.sin(theta)-j*G/b)**2)**0.5
     return k_jz
 def dq_j (theta, j, G,b):
     return b*np.cos(theta) - k_jz(theta, j, G, b)
-fitting=1
+fitting=0
 plotting=1
 extended_plot=1
-save_fit_res=1
+save_fit_res=0
 wlpoints=50
 wlp=5e-9
 def process_fit(k):
@@ -478,7 +478,7 @@ print(tot_res)
 
 with open(sorted_fold_path+'tot_fit_results_new_diff.mpa', 'w') as f:
       np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-with open(sorted_fold_path+'tot_fit_covariances.mpa', 'w') as f:
+with open(sorted_fold_path+'tot_fit_covariances_new_diff.mpa', 'w') as f:
       np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
 
 """
@@ -486,7 +486,7 @@ Plot parameters evolution
 """
 data_analysis = sorted_fold_path+foldername[2]+"/Data Analysis/"
 fit_res =  np.loadtxt(sorted_fold_path+'tot_fit_results_new_diff.mpa',skiprows=1)
-fit_cov =  np.loadtxt(sorted_fold_path+'tot_fit_covariances.mpa',skiprows=1)
+fit_cov =  np.loadtxt(sorted_fold_path+'tot_fit_covariances_new_diff.mpa',skiprows=1)
 fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(10,10),sharex="col")
 #plt.subplots_adjust(hspace=0.5)
 plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
