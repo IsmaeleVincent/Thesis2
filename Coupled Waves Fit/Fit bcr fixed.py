@@ -48,6 +48,7 @@ alldata_analysis = allmeasurements + "All Data Analysis/"
 allcropped_pictures = alldata_analysis + "All Cropped Pictures/"
 allcontrolplots = alldata_analysis + "All Control plots/"
 allcontrolfits = alldata_analysis + "All Control Fits/"
+allfitsplots = alldata_analysis + "All fits plots/"
 tiltangles=[0,40,48,61,69,71,79,80,81]
 foldername=[]
 for i in range(len(tiltangles)):
@@ -98,24 +99,25 @@ n_diff= 4 #number of peaks for each side, for example: n=2 for 5 diffracted wave
 
 LAM= 0.5 #grating constant in micrometers
 G=2*pi/LAM
-bcr1=7.051 #scattering lenght x density
-bcr2=1.317
+bcr1=7.915 #scattering lenght x density
+bcr2=1.361
 bcr3=0.
 n_0 =1.
 phi=0
 phi1=0
 d0=78
-krange=[1]#range(6,len(foldername))#[0]#[0,2,3,4,5]#range(7,len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
+krange=range(len(foldername))#[1]#[0]#[0,2,3,4,5]#range(7,len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
 
 def k_jz(theta, j, G,b):
     k_jz=b*(1-(np.sin(theta)-j*G/b)**2)**0.5
     return k_jz
 def dq_j (theta, j, G,b):
     return b*np.cos(theta) - k_jz(theta, j, G, b)
-fitting=1
-plotting=1
-extended_plot=1
-save_fit_res=1
+fitting=0
+plotting=0
+extended_plot=0
+save_fit_res=0
+save_fit_tot=0
 wlpoints=50
 wlp=5e-9
 def process_fit(k):
@@ -125,10 +127,10 @@ def process_fit(k):
     diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff_new.mpa',skiprows=1)
     if k==1 or k>5:
         data_analysis1 = sorted_fold_path+foldername[1]+"/Data Analysis/"
-        fit_res =  np.loadtxt(data_analysis1+foldername[1]+'_fit_results.mpa',skiprows=1)
+        fit_res =  np.loadtxt(data_analysis1+foldername[1]+'_fit_results_bcr_fix.mpa',skiprows=1)
     if k<1 or (k>1 and k<1):
         data_analysis1 = sorted_fold_path+foldername[2]+"/Data Analysis/"
-        fit_res =  np.loadtxt(data_analysis1+foldername[2]+'_fit_results.mpa',skiprows=1)
+        fit_res =  np.loadtxt(data_analysis1+foldername[2]+'_fit_results_bcr_fix.mpa',skiprows=1)
     # diff_eff = diff_eff[diff_eff[:,0]<=0]
     diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
     diff_eff_aus=diff_eff[:,2::2].copy()
@@ -307,7 +309,7 @@ if (plotting):
                 xp[i]=wl[aus==np.amin(aus)]
             wl=xp.copy()
             a=rho(xp,lambda_par, mu1, sigma)/sum(rho(xp,lambda_par, mu1, sigma))
-            th=np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,4*len(x))#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
+            th=np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,6*len(x))#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
             S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
             eta=S.copy().real
             eta_aus=eta.copy()
@@ -360,7 +362,7 @@ if (plotting):
         text = "Fit results"
         if(extended_plot):
             p=fit_res[0]
-            fig = plt.figure(figsize=(11,10))#constrained_layout=True
+            fig = plt.figure(figsize=(11.69,8.27), dpi=100)#constrained_layout=True
             gs_t = GridSpec(5, 2, figure=fig,hspace=0, top=0.95)
             gs_b =GridSpec(5, 2, figure=fig, wspace=0)
             ax = [fig.add_subplot(gs_t[0,:]), 
@@ -437,6 +439,8 @@ if (plotting):
             ax[-1].text(diff_eff[0,0]*rad,-np.amax(diff_eff_fit[0,:])*2/3, text,  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
             #ax[1].text( diff_eff[0,0]*rad,np.amax(diff_eff_fit[3,:]), "p value="+str("%.3f" % (chi[1],)),  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
         now2=datetime.now()
+        plt.savefig(allfitsplots+str(tilt[k])+'deg_fit_bcr_fix.pdf', format='pdf',bbox_inches='tight')
+        plt.close(fig)
         print("plot time=",now2-now1)
 
 duration = 0.2  # seconds
@@ -456,79 +460,123 @@ for i in range (2):
 """
 Merges fit results in a doc
 """
-data_analysis = sorted_fold_path+foldername[0]+"/Data Analysis/"
-fit_res =  np.loadtxt(data_analysis+foldername[0]+'_fit_results_bcr_fix.mpa',skiprows=1)
-tot_res = np.zeros((len(foldername), 8))
-tot_cov=tot_res.copy()
-for k in range(len(foldername)):
-    #print(foldername[k])
-    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_bcr_fix.mpa',skiprows=1)
-    tot_res[k,0]=tilt[k]
-    tot_res[k,1:]=fit_res[0]
-    tot_cov[k,0]=tilt[k]
-    tot_cov[k,1:]=fit_res[1]
-tot_res=tot_res[np.argsort(tot_res[:,0])]
-tot_cov=tot_cov[np.argsort(tot_cov[:,0])]
-print(tot_res)
-
-with open(sorted_fold_path+'tot_fit_results_bcr_fix.mpa', 'w') as f:
-      np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-with open(sorted_fold_path+'tot_fit_covariances.mpa', 'w') as f:
-      np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
+if (save_fit_tot):
+    data_analysis = sorted_fold_path+foldername[0]+"/Data Analysis/"
+    fit_res =  np.loadtxt(data_analysis+foldername[0]+'_fit_results_bcr_fix.mpa',skiprows=1)
+    tot_res = np.zeros((len(foldername), 6))
+    tot_cov=tot_res.copy()
+    for k in range(len(foldername)):
+        #print(foldername[k])
+        data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+        fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_bcr_fix.mpa',skiprows=1)
+        tot_res[k,0]=tilt[k]
+        tot_res[k,1:]=fit_res[0]
+        tot_cov[k,0]=tilt[k]
+        tot_cov[k,1:]=fit_res[1]
+    tot_res=tot_res[np.argsort(tot_res[:,0])]
+    tot_cov=tot_cov[np.argsort(tot_cov[:,0])]
+    print(tot_res)
+    
+    with open(sorted_fold_path+'tot_fit_results_bcr_fix.mpa', 'w') as f:
+          np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
+    with open(sorted_fold_path+'tot_fit_covariances_bcr_fix.mpa', 'w') as f:
+          np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
 
 """
 Plot parameters evolution
 """
-data_analysis = sorted_fold_path+foldername[2]+"/Data Analysis/"
-fit_res =  np.loadtxt(sorted_fold_path+'tot_fit_results_bcr_fix.mpa',skiprows=1)
-fit_cov =  np.loadtxt(sorted_fold_path+'tot_fit_covariances.mpa',skiprows=1)
-fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(10,10),sharex="col")
-#plt.subplots_adjust(hspace=0.5)
-plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
+# data_analysis = sorted_fold_path+foldername[2]+"/Data Analysis/"
+# fit_res =  np.loadtxt(sorted_fold_path+'tot_fit_results_bcr_fix.mpa',skiprows=1)
+# fit_cov =  np.loadtxt(sorted_fold_path+'tot_fit_covariances_bcr_fix.mpa',skiprows=1)
+# fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(10,10),sharex="col")
+# #plt.subplots_adjust(hspace=0.5)
+# plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
 
-title=["mu", "sigma","tau", "x0","d"]
-for i in range(len(fit_res[0,1:])):
-    ax[i].set(ylabel=title[i])
-    ax[i].errorbar(np.arange(len(foldername)),fit_res[:,i+1], yerr=fit_cov[:,i+1])
-    ax[i].set_ylim([np.amin(fit_res[:,i+1])*(0.9),np.amax(fit_res[:,i+1])*(1.1)])
+# title=["mu", "sigma","tau", "x0","d"]
+# for i in range(len(fit_res[0,1:])):
+#     ax[i].set(ylabel=title[i])
+#     ax[i].errorbar(np.arange(len(foldername)),fit_res[:,i+1], yerr=fit_cov[:,i+1])
+#     ax[i].set_ylim([np.amin(fit_res[:,i+1])*(0.9),np.amax(fit_res[:,i+1])*(1.1)])
    
 """
 """
-for k in krange:
-    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_bcr_fix.mpa',skiprows=1)
-    mu=fit_res[0,0]
-    # tau=M-mu
-    # sigma=(sigma1**2-tau0**2)**0.5
-    # lambda_par=1/tau
-    sigma=fit_res[0,1]
-    tau=fit_res[0,2]
-    lambda_par=1/tau
-    sigma1=(sigma**2+tau**2)**0.5
-    wl=np.linspace(mu-2.5*sigma,mu+1/lambda_par+3.5*sigma1, 10000)
-    a = rho(wl,lambda_par, mu, sigma)/sum(rho(wl,lambda_par, mu, sigma))
-    spl = UnivariateSpline(wl, a, k=3, s=0)
-    d=spl.antiderivative()(wl)
-    s=wlpoints
-    y=np.arange(d[d==np.amin(d)],d[d==np.amax(d)]+wlp,  wlp)
-    # print("points=",len(y))
-    x=np.zeros(len(y))
-    for i in range(len(y)):
-        aus =abs(spl.antiderivative()(wl)-y[i])
-        x[i]=wl[aus==np.amin(aus)]
-    fig = plt.figure(figsize=(10,10))
-    ax= fig.add_subplot()
-    ax.set_title(foldername[k])
-    #ax.plot(wl,d/np.amax(d))
-    ax.plot(wl,a/np.amax(a), label= "WL distribution")
-    #ax.plot(x,x*0,"k.")
-    #ax.set_xlim([0,0.011])
-    a=rho(x,lambda_par, mu, sigma)/sum(rho(x,lambda_par, mu, sigma))
-    #ax.plot(x,a/np.amax(a),"g.")
-    ax.vlines(x[a==np.amax(a)], 0,1, ls="dashed", label="$\lambda_{max}=$"+str(x[a==np.amax(a)]*1e3)+" nm")
-    ax.legend()
-
+# for k in [0]:#krange:
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_bcr_fix.mpa',skiprows=1)
+#     mu=fit_res[0,0]
+#     sigma=fit_res[0,1]
+#     tau=fit_res[0,2]
+#     lambda_par=1/tau
+#     sigma1=(sigma**2+tau**2)**0.5
+#     #wl=np.linspace(mu-2.5*sigma,mu+1/lambda_par+3.5*sigma1, 10000)
+#     wl=np.linspace(0,0.012, 10000)
+#     a = rho(wl,lambda_par, mu, sigma)/sum(rho(wl,lambda_par, mu, sigma))
+#     spl = UnivariateSpline(wl, a, k=3, s=0)
+#     d=spl.antiderivative()(wl)
+#     s=wlpoints
+#     y=np.arange(d[d==np.amin(d)],d[d==np.amax(d)]+wlp,  wlp)
+#     # print("points=",len(y))
+#     x=np.zeros(len(y))
+#     for i in range(len(y)):
+#         aus =abs(spl.antiderivative()(wl)-y[i])
+#         x[i]=wl[aus==np.amin(aus)]
+#     d=d/np.amax(d)
+#     aus =abs(d-0.5)
+#     x_mean=wl[aus==np.amin(aus)]
+#     fig = plt.figure(figsize=(10,10))
+#     ax= fig.add_subplot()
+#     ax.set_title(foldername[k])
+#     #ax.plot(wl,d/np.amax(d))
+#     ax.plot(wl,a/np.amax(a), "k",label= "WL distribution")
+#     #ax.plot(x,x*0,"k.")
+#     #ax.set_xlim([0,0.011])
+#     # a=rho(x,lambda_par, mu, sigma)/sum(rho(x,lambda_par, mu, sigma))
+#     #ax.plot(x,a/np.amax(a),"g.")
+#     ax.vlines(wl[a==np.amax(a)], 0,1, ls="dashed", label="$\lambda_{max}=$"+str(wl[a==np.amax(a)]*1e3)+" nm")
+#     ax.vlines(wl[wl==x_mean], 0,a[wl==x_mean]/np.amax(a), ls="dotted", label="$\lambda_{mean}=$"+str(x_mean*1e3)+" nm")
+#     ax.legend()
+# kaus=-1
+# for k in np.argsort(tilt):#krange:
+#     kaus+=1
+#     if kaus%4==0:
+#         if k>0:
+#             plt.savefig(allfitsplots+str(tilt[k-4])+"-"+str(tilt[k-1])+'deg_wl_bcr_fix.pdf', format='pdf',bbox_inches='tight')
+#         fig, ax = plt.subplots(4,figsize=(8.27,11.69), dpi=100, sharex=False)
+        
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_bcr_fix.mpa',skiprows=1)
+#     mu=fit_res[0,0]
+#     sigma=fit_res[0,1]
+#     tau=fit_res[0,2]
+#     lambda_par=1/tau
+#     sigma1=(sigma**2+tau**2)**0.5
+#     #wl=np.linspace(mu-2.5*sigma,mu+1/lambda_par+3.5*sigma1, 10000)
+#     wl=np.linspace(0,0.012, 10000)
+#     a = rho(wl,lambda_par, mu, sigma)/sum(rho(wl,lambda_par, mu, sigma))
+#     spl = UnivariateSpline(wl, a, k=3, s=0)
+#     d=spl.antiderivative()(wl)
+#     s=wlpoints
+#     y=np.arange(d[d==np.amin(d)],d[d==np.amax(d)]+wlp,  wlp)
+#     # print("points=",len(y))
+#     x=np.zeros(len(y))
+#     for i in range(len(y)):
+#         aus =abs(spl.antiderivative()(wl)-y[i])
+#         x[i]=wl[aus==np.amin(aus)]
+#     d=d/np.amax(d)
+#     aus =abs(d-0.5)
+#     x_mean=wl[aus==np.amin(aus)]
+#     #ax.plot(wl,d/np.amax(d))
+#     ax[kaus%4].xaxis.grid()
+#     ax[kaus%4].plot(wl,a/np.amax(a), "k",label= "WL distribution $\zeta$="+str(tilt[k])+" deg")
+#     #ax.plot(x,x*0,"k.")
+#     #ax.set_xlim([0,0.011])
+#     # a=rho(x,lambda_par, mu, sigma)/sum(rho(x,lambda_par, mu, sigma))
+#     #ax.plot(x,a/np.amax(a),"g.")
+#     ax[kaus%4].vlines(wl[a==np.amax(a)], 0,1, ls="dashed", label="$\lambda_{max}=$"+str(wl[a==np.amax(a)]*1e3)+" nm")
+#     ax[kaus%4].vlines(wl[wl==x_mean], 0,a[wl==x_mean]/np.amax(a), ls="dotted", label="$\lambda_{mean}=$"+str(x_mean*1e3)+" nm")
+#     ax[kaus%4].legend(prop={'size': 14})
+#     if k==8:
+#         plt.savefig(allfitsplots+str(tilt[k])+'deg_wl_bcr_fix.pdf', format='pdf',bbox_inches='tight')
 """
 """
 # for k in krange:

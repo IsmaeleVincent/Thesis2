@@ -5,6 +5,15 @@ Created on Sun May 22 15:12:29 2022
 
 @author: exp-k03
 """
+
+"""
+This module defines the vector field for 5 coupled wave equations
+(without a decay, Uchelnik) and first and second harmonics in the modulation; phase: 0 or pi (sign of n2).
+Fit parameters are: n1,n2, d, and wavelength; 
+Fit 5/(5) orders!
+!!!Data: X,order,INTENSITIES
+Fit  background for second orders , first and subtract it for zero orders (background fixed)
+"""
 from scipy.integrate import ode
 from scipy import integrate
 import numpy as np
@@ -52,40 +61,14 @@ n_theta=[26,46,28,17,16,20,21,20,19,48,43,59,24]  #number of measurements files 
 n_pixel = 16384 #number of pixels in one measurement
 
 
-##############################################################################
-krange=range(len(foldername))#[0,2,3,4,5]#range(7,len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
-
-pendol = np.zeros((len(foldername),5))
-pendol[:,0]= tilt.copy()
+krange=range(len(foldername))
+tot_fit_res = fit_res =  np.loadtxt(sorted_fold_path+'tot_fit_results_bcr_fix.mpa',skiprows=1)
+tot_fit_cov =  np.loadtxt(sorted_fold_path+'tot_fit_covariances_bcr_fix.mpa',skiprows=1)
 for k in krange:
-    # print(foldername[k])
-    nowf=datetime.now()
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff_new.mpa',skiprows=1)
-    diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
-    diff_eff_aus=diff_eff[:,2::2].copy()
-    diff_eff_aus_err=diff_eff[:,3::2].copy()
-    diff_eff_aus[diff_eff_aus==0]=1
-    for i in range(len(diff_eff[:,0])):
-        s=sum(diff_eff[i,2::2])
-        diff_eff[i,2:]=diff_eff[i,2:]/s
-    diff_eff_fit=diff_eff[:,2::2].copy()
-    diff_eff_err=(diff_eff_fit**2+diff_eff_fit)
-    for i in range(len(diff_eff_err[:,0])):
-        s=sum(diff_eff_aus_err[i,:])
-        for j in range(len(diff_eff_err[0,:])):
-            diff_eff_err[i,j]=diff_eff_err[i,j]*s/diff_eff_aus[i,j]
-    diff_eff_err[diff_eff_err==0]=0.01
-    diff_eff[:,3::2]=diff_eff_err
-    pendol[k,1]=np.amax(diff_eff_fit[:,1])
-    pendol[k,2]=diff_eff_err[:,1][diff_eff_fit[:,1]==pendol[k,1]]
-    pendol[k,3]=np.amax(diff_eff_fit[:,0])
-    pendol[k,4]=diff_eff_err[:,0][diff_eff_fit[:,0]==pendol[k,3]]
-
-print(pendol)
-pendol[:,0]=pendol[np.argsort(pendol[:,0],axis=0),0]
-pendol[:,1]=pendol[np.argsort(pendol[:,0],axis=0),1]
-print(pendol)
-plt.errorbar(pendol[:,0],pendol[:,1],pendol[:,2], fmt="^--k")
-plt.errorbar(pendol[:,0],pendol[:,3],pendol[:,4], fmt="^--", color=(0.8,0,0))
-
+    p=tot_fit_res[k,1:]
+    print(p)
+    cov=tot_fit_cov[k,1:]
+    print(cov)
+    with open(data_analysis+foldername[k]+'_fit_results_bcr_fix.mpa', 'w') as f:
+        np.savetxt(f,(p,cov), header="mu sigma tau x_0 zeta_0", fmt="%.6f")

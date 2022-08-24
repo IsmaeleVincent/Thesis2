@@ -105,17 +105,17 @@ n_0 =1.
 phi=0
 phi1=0
 d0=78
-krange=np.arange(len(foldername))#[1]#range(6,len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
+krange=[0]#np.arange(len(foldername))#[1]#range(6,len(foldername))#[0,2,3,4,5] #np.arange(len(foldername))#
 
 def k_jz(theta, j, G,b):
     k_jz=b*(1-(np.sin(theta)-j*G/b)**2)**0.5
     return k_jz
 def dq_j (theta, j, G,b):
     return b*np.cos(theta) - k_jz(theta, j, G, b)
-fitting=0
+fitting=1
 plotting=1
 extended_plot=1
-save_fit_res=0
+save_fit_res=1
 wlpoints=50
 wlp=5e-9
 def process_fit(k):
@@ -123,9 +123,10 @@ def process_fit(k):
     nowf=datetime.now()
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
     diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff.mpa',skiprows=1)
-    data_analysis1 = sorted_fold_path+foldername[1]+"/Data Analysis/"
-    fit_res =  np.loadtxt(data_analysis1+foldername[1]+'_fit_results.mpa',skiprows=1)
+    # data_analysis1 = sorted_fold_path+foldername[1]+"/Data Analysis/"
+    # fit_res =  np.loadtxt(data_analysis1+foldername[1]+'_fit_results.mpa',skiprows=1)
     # diff_eff = diff_eff[diff_eff[:,0]<=0]
+    diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
     diff_eff_aus=diff_eff[:,2::2].copy()
     diff_eff_aus_err=diff_eff[:,3::2].copy()
     diff_eff_aus[diff_eff_aus==0]=1
@@ -140,7 +141,7 @@ def process_fit(k):
             diff_eff_err[i,j]=diff_eff_err[i,j]*s/diff_eff_aus[i,j]
     diff_eff_err[diff_eff_err==0]=0.01
     diff_eff[:,3::2]=diff_eff_err
-    def fit_func(x, bcr1, bcr2, mu1, sigma, tau, x00, zeta0):
+    def fit_func(x, bcr1, bcr2, bcr3, mu1, sigma, tau, x00, zeta0):
         # tau=M-mu1
         # sigma=(sigma1**2-tau0**2)**0.5
         lambda_par=1/tau
@@ -208,16 +209,17 @@ def process_fit(k):
         plt.plot(aaa)
         plt.savefig('ff.eps', format='eps')
         return aaa
-    P0= fit_res[0] # np.zeros(7) # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
-    # P0[0]=5
-    # P0[1]=2.7
-    P0[2]=3e-3
-    P0[3]=0.0001
-    P0[4]=0.0001
-    P0[5]=0
+    P0= np.zeros(8) #fit_res[0] #  [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
+    P0[0]=8
+    P0[1]=1.7
+    P0[2]=0.1
+    P0[3]=2.8e-3
+    P0[4]=0.0005
+    P0[5]=0.001
     P0[6]=0
+    P0[7]=0
     if (fitting):
-        B=([5, 0.8, 2e-3, 1e-4, 0.001, -0.0005/rad, -2],[7.5, 2, 3.2e-3, 1e-3, 0.002, 0.0005/rad, 2])
+        B=([5, 0, 0, 2e-3, 1e-4, 0.001, -0.0005/rad, -2],[7.5, 5, 5, 3.2e-3, 1e-3, 0.002, 0.0005/rad, 2])
         for i in range(len(B[0])):
             if (P0[i]<B[0][i] or P0[i]>B[1][i]):
                 P0[i]=(B[1][i]+B[0][i])/2
@@ -231,7 +233,7 @@ def process_fit(k):
         xx[0:len(diff_eff[:,0])]=diff_eff[:,0]
         try:
             for i in range(1):
-                p,cov=fit(fit_func,xx,ff, p0=P0,bounds=B,sigma=fferr)
+                p,cov=fit(fit_func,xx,ff, p0=P0,bounds=B)
                 P0=p
                 print(p)
         except RuntimeError:
@@ -241,7 +243,7 @@ def process_fit(k):
         now1f=datetime.now()
         print("fit time "+foldername[k]+"=",now1f-nowf)
         if (save_fit_res):
-            with open(data_analysis+foldername[k]+'_fit_results.mpa', 'w') as f:
+            with open(data_analysis+foldername[k]+'_fit_results_bcr3.mpa', 'w') as f:
                 np.savetxt(f,(p,np.diag(cov)**0.5), header="bcr1 bcr2 mu phi thickness", fmt="%.6f")
 
 if (fitting):
@@ -260,7 +262,8 @@ if (plotting):
         print(foldername[k])
         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
         diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff.mpa',skiprows=1)
-        fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results.mpa',skiprows=1)
+        fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_bcr3.mpa',skiprows=1)
+        diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
         diff_eff_aus=diff_eff[:,2::2].copy()
         diff_eff_aus_err=diff_eff[:,3::2].copy()
         diff_eff_aus[diff_eff_aus==0]=1
@@ -278,7 +281,7 @@ if (plotting):
         diff_eff_err[diff_eff_err==0]=0.01
         diff_eff[:,3::2]=diff_eff_err
         diff_eff_fit=np.transpose(diff_eff_fit)
-        def plot_func(x, bcr1, bcr2, mu1, sigma, tau, x00,zeta0):
+        def plot_func(x, bcr1, bcr2, bcr3, mu1, sigma, tau, x00,zeta0):
             lambda_par=1/tau
             sigma1=(sigma**2+tau**2)**0.5
             x=diff_eff[:,0]+x00
@@ -295,7 +298,7 @@ if (plotting):
                 xp[i]=wl[aus==np.amin(aus)]
             wl=xp.copy()
             a=rho(xp,lambda_par, mu1, sigma)/sum(rho(xp,lambda_par, mu1, sigma))
-            th=[x[0]*rad-3*div,x[0]*rad-2*div,x[0]*rad-div,*x*rad,x[-1]*rad+3*div,x[-1]*rad+2*div,x[-1]*rad+div]#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#
+            th=np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
             S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
             eta=S.copy().real
             eta_aus=eta.copy()
@@ -343,8 +346,8 @@ if (plotting):
             return eta_ang
         thx=diff_eff[:,0]*rad
         eta=plot_func(diff_eff[:,0], *p)
-        p_name=["$(b_c \\rho)_1$","$(b_c \\rho)_2$", "$\mu$", "$\sigma$","$\\tau$", "$x_0$","$\zeta_0$"]
-        p_units=[" $1/\mu m^2$"," $1/\mu m^2$"," nm", " nm", " nm", " deg", "  deg"]
+        p_name=["$(b_c \\rho)_1$","$(b_c \\rho)_2$","$(b_c \\rho)_3$", "$\mu$", "$\sigma$","$\\tau$", "$x_0$","$\zeta_0$"]
+        p_units=[" $1/\mu m^2$"," $1/\mu m^2$"," $1/\mu m^2$", " nm", " nm", " nm", " deg", "  deg"]
         text = "Fit results"
         if(extended_plot):
             p=fit_res[0]
@@ -374,9 +377,9 @@ if (plotting):
                 ax[i].plot(thx,eta[n_diff-i,:],"--k", label="Fit (-"+str(i)+")")
                 ax[i].plot(thx,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
                 #ax[i].legend()
-            mu=fit_res[0,2]
-            sigma=fit_res[0,3]
-            tau=fit_res[0,4]
+            mu=fit_res[0,3]
+            sigma=fit_res[0,4]
+            tau=fit_res[0,5]
             lambda_par=1/tau
             sigma1=(sigma**2+tau**2)**0.5
             wl=np.linspace(mu-2.5*sigma,mu+1/lambda_par+3.5*sigma1, 10000)
@@ -384,7 +387,7 @@ if (plotting):
             ax[-1].plot(wl,a/np.amax(a), label= "WL distribution")
             ax[-1].vlines(wl[a==np.amax(a)], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (wl[a==np.amax(a)]*1e3),)+" nm")
             ax[-1].legend()
-            for i in range(2,5):
+            for i in range(3,6):
                 fit_res[0,i]*=1e3
                 fit_res[1,i]*=1e3
             for i in range(len(p)):
@@ -413,7 +416,7 @@ if (plotting):
             # ax[n_diff+1].plot(th, sum_diff)
             # ax[n_diff+1].set_ylim([0.5,1.5])
             #   plt.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+1],capsize=1)
-            for i in range(2,5):
+            for i in range(3,6):
                 fit_res[0,i]*=1e3
                 fit_res[1,i]*=1e3
             for i in range(len(p)):
@@ -445,13 +448,13 @@ for i in range (2):
 Merges fit results in a doc
 """
 data_analysis = sorted_fold_path+foldername[0]+"/Data Analysis/"
-fit_res =  np.loadtxt(data_analysis+foldername[0]+'_fit_results.mpa',skiprows=1)
-tot_res = np.zeros((len(foldername), 8))
+fit_res =  np.loadtxt(data_analysis+foldername[0]+'_fit_results_bcr3.mpa',skiprows=1)
+tot_res = np.zeros((len(foldername), 9))
 tot_cov=tot_res.copy()
 for k in range(len(foldername)):
     #print(foldername[k])
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results.mpa',skiprows=1)
+    fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_bcr3.mpa',skiprows=1)
     tot_res[k,0]=tilt[k]
     tot_res[k,1:]=fit_res[0]
     tot_cov[k,0]=tilt[k]
@@ -460,17 +463,17 @@ tot_res=tot_res[np.argsort(tot_res[:,0])]
 tot_cov=tot_cov[np.argsort(tot_cov[:,0])]
 print(tot_res)
 
-with open(sorted_fold_path+'tot_fit_results.mpa', 'w') as f:
+with open(sorted_fold_path+'tot_fit_results_bcr3.mpa', 'w') as f:
       np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-with open(sorted_fold_path+'tot_fit_covariances.mpa', 'w') as f:
+with open(sorted_fold_path+'tot_fit_covariances_bcr3.mpa', 'w') as f:
       np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
 
 """
 Plot parameters evolution
 """
 data_analysis = sorted_fold_path+foldername[2]+"/Data Analysis/"
-fit_res =  np.loadtxt(sorted_fold_path+'tot_fit_results.mpa',skiprows=1)
-fit_cov =  np.loadtxt(sorted_fold_path+'tot_fit_covariances.mpa',skiprows=1)
+fit_res =  np.loadtxt(sorted_fold_path+'tot_fit_results_bcr3.mpa',skiprows=1)
+fit_cov =  np.loadtxt(sorted_fold_path+'tot_fit_covariances_bcr3.mpa',skiprows=1)
 fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(10,10),sharex="col")
 #plt.subplots_adjust(hspace=0.5)
 plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
@@ -485,13 +488,13 @@ for i in range(len(fit_res[0,1:])):
 """
 for k in krange:
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results.mpa',skiprows=1)
-    mu=fit_res[0,2]
+    fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_bcr3.mpa',skiprows=1)
+    mu=fit_res[0,3]
     # tau=M-mu
     # sigma=(sigma1**2-tau0**2)**0.5
     # lambda_par=1/tau
-    sigma=fit_res[0,3]
-    tau=fit_res[0,4]
+    sigma=fit_res[0,4]
+    tau=fit_res[0,5]
     lambda_par=1/tau
     sigma1=(sigma**2+tau**2)**0.5
     wl=np.linspace(mu-2.5*sigma,mu+1/lambda_par+3.5*sigma1, 10000)
@@ -521,7 +524,7 @@ for k in krange:
 """
 # for k in krange:
 #     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-#     fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results.mpa',skiprows=1)
+#     fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_bcr3.mpa',skiprows=1)
 #     p=fit_res[0]
 #     fig = plt.figure(constrained_layout=True)
 #     gs = GridSpec(3, 3, figure=fig)
