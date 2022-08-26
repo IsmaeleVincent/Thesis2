@@ -62,13 +62,13 @@ n_pixel = 16384 #number of pixels in one measurement
 
 
 krange=range(len(foldername))
-tot_fit_res = fit_res =  np.loadtxt(sorted_fold_path+'tot_fit_results_bcr_fix.mpa',skiprows=1)
-tot_fit_cov =  np.loadtxt(sorted_fold_path+'tot_fit_covariances_bcr_fix.mpa',skiprows=1)
+tot_fit_res = np.loadtxt(sorted_fold_path+'tot_fit_results_bcr3.mpa',skiprows=1)
+tot_fit_cov =  np.loadtxt(sorted_fold_path+'tot_fit_covariances_bcr3.mpa',skiprows=1)
 for k in krange:
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
     p=tot_fit_res[k,1:]
     print(p)
     cov=tot_fit_cov[k,1:]
     print(cov)
-    with open(data_analysis+foldername[k]+'_fit_results_bcr_fix.mpa', 'w') as f:
+    with open(data_analysis+foldername[k]+'_fit_results_bcr3.mpa', 'w') as f:
         np.savetxt(f,(p,cov), header="mu sigma tau x_0 zeta_0", fmt="%.6f")

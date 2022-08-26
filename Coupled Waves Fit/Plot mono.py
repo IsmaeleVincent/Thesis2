@@ -47,18 +47,18 @@ def k_jz(theta, j, G,b):
 def dq_j (theta, j, G,b):
     return b*np.cos(theta) - k_jz(theta, j, G, b)
 
-n_diff= 2 #number of peaks for each side, for example: n=2 for 5 diffracted waves
-lam=3.5e-3
+n_diff= 5 #number of peaks for each side, for example: n=2 for 5 diffracted waves
+lam=3.e-3
 LAM= 0.5 #grating constant in micrometers
 G=2*pi/LAM
 bcr1=8.0 #scattering lenght x density
-bcr2=1.2
-bcr3=0.
+bcr2=0.6
+bcr3=1.
 n_0 =1.
 phi=0
 phi1=0
 d0=78
-d=322.4181085662225#d0/np.cos((0*rad))
+d=78#d0/np.cos((0*rad))
 th=diff_eff[:,0]*rad#np.linspace(-0.02,0.02,50)#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
 S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
 eta=S.copy().real
@@ -94,14 +94,14 @@ for t in range(len(th)):
     for i in range(2*n_diff+1):
         eta[i,t] = abs(S[i,t])**2*k_jz(th[t],i-n_diff,G,b)/(b*np.cos(th[t]))
     sum_diff[t] = sum(eta[:,t])
-fig, ax = plt.subplots(3,figsize=(10,10))
+fig, ax = plt.subplots(4,figsize=(10,10))
 ax[0].plot(th,eta[n_diff,:],"-k", label="Fit")
-ax[0].plot(diff_eff[:,0]*rad,diff_eff[:,n_diff+1],"--w", label="Fit")
+#ax[0].plot(diff_eff[:,0]*rad,diff_eff[:,n_diff+1],"--w", label="Fit")
 #ax[0].set_ylim([np.amin(diff_eff_fit[2,:])-0.4,np.amax(diff_eff_fit[2,:])])
 #ax[0].legend(loc=(5))
-for i in range(1,3):
+for i in range(1,4):
     ax[i].plot(th,eta[n_diff-i,:],"-k", label="Fit (-"+str(i)+")")
-    ax[i].plot(th,diff_eff[:,n_diff+1+i],"-",color = (0.8,0,0), label="Fit (+"+str(i)+")")  
-    ax[i].plot(th,eta[n_diff+i,:],"--w", label="Fit (+"+str(i)+")") 
-    ax[i].plot(th,diff_eff[:,n_diff+1-i],"--w", label="Fit (-"+str(i)+")")
+    #ax[i].plot(th,diff_eff[:,n_diff+1+i],"-",color = (0.8,0,0), label="Fit (+"+str(i)+")")  
+    ax[i].plot(th,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")") 
+   # ax[i].plot(th,diff_eff[:,n_diff+1-i],"--w", label="Fit (-"+str(i)+")")
 

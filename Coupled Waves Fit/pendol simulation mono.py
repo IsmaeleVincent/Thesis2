@@ -47,13 +47,13 @@ def k_jz(theta, j, G,b):
 def dq_j (theta, j, G,b):
     return b*np.cos(theta) - k_jz(theta, j, G, b)
 
-n_diff= 5 #number of peaks for each side, for example: n=2 for 5 diffracted waves
+n_diff= 4 #number of peaks for each side, for example: n=2 for 5 diffracted waves
 lam=2e-3
 LAM= 0.5 #grating constant in micrometers
 G=2*pi/LAM
 bcr1=8.0 #scattering lenght x density
 bcr2=1.2
-bcr3=1.
+bcr3=0.
 n_0 =1.
 phi=0
 phi1=0
