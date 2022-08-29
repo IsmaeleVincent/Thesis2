@@ -1,19 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 22 15:12:29 2022
-
-@author: exp-k03
-"""
-
-"""
-This module defines the vector field for 5 coupled wave equations
-(without a decay, Uchelnik) and first and second harmonics in the modulation; phase: 0 or pi (sign of n2).
-Fit parameters are: n1,n2, d, and wavelength; 
-Fit 5/(5) orders!
-!!!Data: X,order,INTENSITIES
-Fit  background for second orders , first and subtract it for zero orders (background fixed)
-"""
 from scipy.integrate import ode
 from scipy import integrate
 import numpy as np
@@ -48,26 +32,26 @@ def dq_j (theta, j, G,b):
     return b*np.cos(theta) - k_jz(theta, j, G, b)
 
 n_diff= 4 #number of peaks for each side, for example: n=2 for 5 diffracted waves
-lam=4e-3
+lam=3e-3
 LAM= 0.5 #grating constant in micrometers
 G=2*pi/LAM
 bcr1=8.0 #scattering lenght x density
-bcr2=1.2
-bcr3=0.
+bcr2=0
+bcr3=0
 n_0 =1.
-phi=0
-phi1=0
-d0=78
+phi=0.
+phi1=0.
+d0=0
 tilt=[0,40,48,61,69,71,79,80,81,77.88,76.76,75.64,74.52]
-tilt=np.linspace(0,81,100)#np.sort(tilt)
-pendol = np.zeros((len(tilt),4))
+tilt=np.linspace(0,500,1000)#np.sort(tilt)
+pendol = np.zeros((len(tilt),5))
 pendol[:,0] = tilt
 k=-1
 for zeta in tilt:
     k+=1
-    d=d0/np.cos((zeta*rad))
+    d=zeta#d0/np.cos((zeta*rad))
     # pendol[k,0] = d
-    th=np.linspace(-0.015,0,50)#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
+    th=[-0.00459184]#np.linspace(-0.015,0,50)#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
     S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
     eta=S.copy().real
     eta_aus=eta.copy()
@@ -76,7 +60,7 @@ for zeta in tilt:
     n_1 = bcr1*2*pi/b**2
     n_2 = bcr2*2*pi/b**2
     n_3 = bcr3*2*pi/b**2
-    for t in range(len(th)):
+    for t in [0]:#range(len(th2)):
         A = np.zeros((2*n_diff+1,2*n_diff+1), dtype=complex)
         for i in range(len(A[0])):
             A[i][i]=-dq_j(th[t],i-n_diff,G,b)
@@ -102,10 +86,14 @@ for zeta in tilt:
         for i in range(2*n_diff+1):
             eta[i,t] = abs(S[i,t])**2*k_jz(th[t],i-n_diff,G,b)/(b*np.cos(th[t]))
         sum_diff[t] = sum(eta[:,t])
-    pendol[k,1]=np.amax(eta[n_diff-1,:])
-    pendol[k,2]=np.amax(eta[n_diff-2,:])
-    # pendol[k,3]=np.amax(eta[n_diff-3,:])
-    
-plt.plot(pendol[:,0],pendol[:,1],"--k")
-plt.plot(pendol[:,0],pendol[:,2],"--", color=(0.8,0,0))
-# plt.plot(pendol[:,0],pendol[:,3],"--", color=(0.,0,0.8))
+    pendol[k,1]=eta[n_diff,:]
+    pendol[k,2]=eta[n_diff-1,:]
+    pendol[k,3]=eta[n_diff-2,:]
+    pendol[k,4]=eta[n_diff-3,:]
+plt.plot(pendol[:,0],pendol[:,1],"-k", label="Order 0")   
+plt.plot(pendol[:,0],pendol[:,2],"--k", label="Order 1")
+plt.plot(pendol[:,0],pendol[:,3],"--", color=(0.8,0,0),label="Order 2")
+plt.plot(pendol[:,0],pendol[:,4],"--", color=(0,0,0.5), label="Order 3")
+plt.legend()
+plt.xlabel("Thickness (arb)")
+plt.ylabel("Diff. efficiency")

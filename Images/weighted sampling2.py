@@ -40,17 +40,17 @@ Angular distribution: Gaussian
 sig=0.0006/2
 def rho(x,x0):
     g=skewnorm(x0,4,scale=0.5)
-    e=norm(x0+2,scale=0.4)
-    return g.pdf(x)+e.pdf(x)
+    e=norm(x0,scale=1)
+    return e.pdf(x)# +g.pdf(x)
 
 
 ##############################################################################
 mu=4
-wl=np.linspace(mu-0.5,mu+3, 100000)
+wl=np.linspace(mu-3,mu+3, 100000)
 a = rho(wl,mu)
 spl = UnivariateSpline(wl, a, k=3, s=0)
 d=spl.antiderivative()(wl)
-s=40
+s=35
 y1=np.linspace(d[d==np.amin(d)],d[d==np.amax(d)], s)
 x=np.zeros(len(y1))
 guess=0
@@ -62,13 +62,13 @@ for i in range(len(y1)):
 #ax[0].plot(wl,d)
 
 
-fig = plt.figure(figsize=(5,6))
+fig = plt.figure(figsize=(6,8))
 
 gs = gridspec.GridSpec(7, 1)
 ax=[plt.subplot(gs[1:]),plt.subplot(gs[0])]           
 
 
-ax[0].plot(wl,d,"k", label="Cumulative\ndistribution\nfunction")
+ax[0].plot(wl,d,"k", label="CDF", lw=3)
 y=np.linspace(x[0],x[-1], s)
 #ax[0].plot(x,spl.antiderivative()(x),".", color = (0.8,0,0))
 y0=ax[0].get_ybound()[1]
@@ -79,7 +79,7 @@ ax[0].vlines(x, y0, spl.antiderivative()(x),color= (0.5,0.5,0.5))
 ax[0].hlines(y1, x,x0r, color= (0.5,0.5,0.5), ls="dashed")
 ax[0].spines['bottom'].set_visible(True)
 # ax[1].plot(wl, rho(wl,mu), "k")
-ax[0].legend(framealpha=1)
+ax[0].legend(framealpha=1, loc=0, fontsize=20)
 ax[1].fill_between(
         wl, 
         rho(wl,mu), 
@@ -112,14 +112,17 @@ ax[1].tick_params(
     top=False,         # ticks along the top edge are off
     left=False,
     labelleft=False) # labels along the bottom edge are off
-ax[1].spines[:].set_visible(False)
+ax[1].spines["top"].set_visible(False)
+ax[1].spines["left"].set_visible(False)
+ax[1].spines["bottom"].set_visible(False)
+ax[1].spines["right"].set_visible(False)
 #ax[0].plot(x,rho(x,mu),".", color = (0.8,0,0))
 ax[1].set_ylim([0,np.amax(a)+0.1])
 ax[0].set_ylim([-0.02,np.amax(d)+0.05])
 ax[0].set_xlim([x0l,x0r])
 # ax[1].set_xlim([0,x[-1]+0.1])
 fig.subplots_adjust(wspace=0, hspace=0)
-# plt.savefig('Weighted_sampling2.eps', format='pdf',bbox_inches='tight')
+plt.savefig('Weighted_sampling2.eps', format='pdf',bbox_inches='tight')
 
 # a = rho1(wl,lambda_par, mu, sigma)/sum(rho1(wl,lambda_par, mu, sigma))
 # from scipy.interpolate import UnivariateSpline
