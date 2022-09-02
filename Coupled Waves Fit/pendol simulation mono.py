@@ -6,14 +6,7 @@ Created on Sun May 22 15:12:29 2022
 @author: exp-k03
 """
 
-"""
-This module defines the vector field for 5 coupled wave equations
-(without a decay, Uchelnik) and first and second harmonics in the modulation; phase: 0 or pi (sign of n2).
-Fit parameters are: n1,n2, d, and wavelength; 
-Fit 5/(5) orders!
-!!!Data: X,order,INTENSITIES
-Fit  background for second orders , first and subtract it for zero orders (background fixed)
-"""
+
 from scipy.integrate import ode
 from scipy import integrate
 import numpy as np

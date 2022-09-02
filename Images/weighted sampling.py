@@ -44,17 +44,8 @@ def rho(x,x0):
 ##############################################################################
 mu=4
 wl=np.linspace(mu-3.5,mu+3.5, 100000)
-a = rho(wl,mu)
-spl = UnivariateSpline(wl, a, k=3, s=0)
-d=spl.antiderivative()(wl)
 s=20
-y=np.linspace(d[d==np.amin(d)],d[d==np.amax(d)], s)
-x=np.zeros(len(y))
-guess=0
-print(len(y))
-for i in range(len(y)):
-    aus =abs(spl.antiderivative()(wl)-y[i])
-    x[i]=wl[aus==np.amin(aus)]
+x=norm.ppf(np.linspace(0.001,0.999,s), loc=mu)
 fig, ax = plt.subplots(1,2,figsize=(10,2), sharey=True,sharex=False)
 #ax[0].plot(wl,d)
 ax[0].plot(wl,rho(wl,mu),"k")
@@ -67,9 +58,9 @@ ax[1].plot(y,rho(y,mu),"^k")#, color = (0.8,0,0))
 ax[1].plot(y,rho(y,mu)*0,".k")
 ax[1].vlines(y, 0, rho(y,mu),color= (0.5,0.5,0.5))#, ls="dashed")
 #ax[0].plot(x,rho(x,mu),".", color = (0.8,0,0))
-ax[0].set_ylim([0,np.amax(a)+0.01])
+ax[0].set_ylim([0,np.amax(rho(wl,mu))+0.01])
 fig.subplots_adjust(wspace=0, hspace=0)
-plt.savefig('Weighted_sampling.eps', format='eps',bbox_inches='tight')
+# plt.savefig('Weighted_sampling.eps', format='eps',bbox_inches='tight')
 
 # a = rho1(wl,lambda_par, mu, sigma)/sum(rho1(wl,lambda_par, mu, sigma))
 # from scipy.interpolate import UnivariateSpline

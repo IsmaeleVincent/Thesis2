@@ -12,44 +12,51 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from scipy.optimize import curve_fit as fit
 from scipy.stats import skewnorm
+from scipy.stats import exponnorm
 from scipy.special import erfc
 
 def rho(x,B,A,x0, sk, sig):
     g=skewnorm(loc=x0,a=sk,scale=sig)
     return B+A*g.pdf(x)
-def func(l,A,mu,sig):
-    return A/(2.)*np.exp(A/(2.)*(2.*mu+A*sig**2-2*l))
-def rho1(l,B,A1,A,mu,sig):
-    return B+A1*func(l,A,mu,sig)*erfc((mu+A*sig**2-l)/(np.sqrt(2)*sig))
+def rho1(x,B,A,x0, sk, sig):
+    g=exponnorm(loc=x0,K=sk,scale=sig)
+    return B+A*g.pdf(x)
+file_name="/home/aaa/Desktop/Thesis2/Wavelength distribution/measuredVCNSpectr.dat"
+wl_dist=np.loadtxt(file_name) 
+x=wl_dist[:,0]*1e6
+y=wl_dist[:,1]
+P0 = [30,350,3.6e-3,6, 1e-4]
+p,cov=fit(rho,x,y, p0=P0)
+P01 = [30,1e-3,3.5e-3,10, 2e-4]
+B=([0,0,2e-3,1,1e-4],[100,1,4e-3,20,1e-3])
+p1,cov1=fit(rho1,x,y, p0=P01, bounds=B)
+plt.plot(x,y,".")
+# plt.plot(x,rho(x,*p), label="Skewed gaussian")
+plt.plot(x,rho1(x,*p1), label="EMG")
+# pp=[8.43918354e+00, 4.65054398e-01, 1.0e-04, 3.6e-03, 1e-05]
+# x1=np.linspace(0,10e-3, 1000)
+# plt.plot(x1,rho1(x1,*pp), label="EMG")
 
-# file_name="/home/aaa/Desktop/Thesis2/Wavelength distribution/measuredVCNSpectr.dat"
-# wl_dist=np.loadtxt(file_name) 
-# x=wl_dist[:,0]
-# y=wl_dist[:,1]
-# P0 = [30,350,3.5e-9,0, 1e-9]
-# p,cov=fit(rho,x,y, p0=P0)
-# # P01 = [30,350,1e9/0.1,3.6e-9, 0.3e-9]
-# # p1,cov1=fit(rho1,x,y, p0=P01)
-# plt.plot(x,y,".")
+print(p1)
+print(1/p1[2])
+lmax=x[rho1(x,*p1)==np.amax(rho1(x,*p1))]
+print(lmax)
+plt.vlines(lmax,0,np.amax(rho1(x,*p1)), label="max 1="+str("%.2e"%(lmax,)))
+plt.legend()
+
+# p = [0,1,2.3e-3,2,1e-3]
+# if p[3]<1:
+#     x0=p[2]-3.5*p[4]
+# else:
+#     x0=p[2]-3*p[4]/p[3]
+# x1=p[2]+3.5*p[4]
+# x=np.linspace(x0,x1,1000)
 # plt.plot(x,rho(x,*p), label="Skewed gaussian")
 # #plt.plot(x,rho1(x,*p1), label="EMG")
 # print(p)
-# plt.vlines(p[2],0,350)
+# plt.vlines(p[2],0,rho(p[2],*p))
+# plt.vlines(x0,0,50)#rho(x0,*p))
+# plt.vlines(x1,0,50)#rho(x1,*p))
+# print(rho(x0,*p)/np.amax(rho(x,*p)),rho(x1,*p)/np.amax(rho(x,*p)))
 # plt.legend()
-
-p = [0,1,2.3e-3,2,1e-3]
-if p[3]<1:
-    x0=p[2]-3.5*p[4]
-else:
-    x0=p[2]-3*p[4]/p[3]
-x1=p[2]+3.5*p[4]
-x=np.linspace(x0,x1,1000)
-plt.plot(x,rho(x,*p), label="Skewed gaussian")
-#plt.plot(x,rho1(x,*p1), label="EMG")
-print(p)
-plt.vlines(p[2],0,rho(p[2],*p))
-plt.vlines(x0,0,50)#rho(x0,*p))
-plt.vlines(x1,0,50)#rho(x1,*p))
-print(rho(x0,*p)/np.amax(rho(x,*p)),rho(x1,*p)/np.amax(rho(x,*p)))
-plt.legend()
 
