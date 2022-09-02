@@ -26,12 +26,12 @@ tiltangles=[0,40,48,61,69,71,79,80,81]
 foldername=[]
 for i in range(len(tiltangles)):
     foldername.append(str(tiltangles[i])+"deg")
-foldername.append("Flat")
 foldername.append("79-4U_77c88deg")
 foldername.append("79-8U_76c76deg")
 foldername.append("79-12U_75c64deg")
 foldername.append("79-16U_74c52deg")
-n_theta=[26,46,28,18,16,20,21,20,19,5,51,43,60,28] #number of measurements files for each folder
+foldername.append("Flat")
+n_theta=[26,46,28,18,16,20,21,20,19,51,43,60,28,2] #number of measurements files for each folder
 n_pixel = 16384 #number of pixels in one measurement
 """
 This block renames the data files so they respect a specific labeling pattern: 
@@ -51,20 +51,20 @@ It has to be done folder by folder
 This block creates for each measurement a file with the matrix version of the 
 128x128 measurements
 """
-# data=np.zeros(n_pixel);
-# for k in range(len(foldername)):
-#     matrixes = sorted_fold_path+foldername[k]+"/Matrixes/"
-#     if os.path.exists(matrixes):
-#         shutil.rmtree(matrixes)
-#     os.makedirs(matrixes)
-#     for j in range (1,n_theta[k]+1):
-#         with open(sorted_fold_path+foldername[k]+"/Renamed/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa",'r') as f:
-#             for i,line in enumerate(f):
-#                 if i>124 and i<(126+n_pixel):
-#                     data[125-i]=float(line) #to correct image upside down 
-#         data_matrix = data.reshape(128, 128)
-#         with open(matrixes+foldername[k]+"_"+str("%03d" % (j,))+'.mpa', 'w') as f:
-#                 np.savetxt(f, data_matrix, fmt="%1.0f")
+data=np.zeros(n_pixel);
+for k in [13]:#range(len(foldername)):
+    matrixes = sorted_fold_path+foldername[k]+"/Matrixes/"
+    if os.path.exists(matrixes):
+        shutil.rmtree(matrixes)
+    os.makedirs(matrixes)
+    for j in range (1,n_theta[k]+1):
+        with open(sorted_fold_path+foldername[k]+"/Renamed/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa",'r') as f:
+            for i,line in enumerate(f):
+                if i>124 and i<(126+n_pixel):
+                    data[125-i]=float(line) #to correct image upside down 
+        data_matrix = data.reshape(128, 128)
+        with open(matrixes+foldername[k]+"_"+str("%03d" % (j,))+'.mpa', 'w') as f:
+                np.savetxt(f, data_matrix, fmt="%1.0f")
 """
 This creates for each matrix file a corresponding picture
 """
