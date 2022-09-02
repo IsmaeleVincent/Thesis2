@@ -181,7 +181,7 @@ def process_fit(k):
             eta+=eta_aus*a[l]
         aaa=eta[n_diff-2:n_diff+3].ravel()
         return aaa
-    P0= fit_res[0] # np.zeros(7) # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
+    P0= np.zeros(8) # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
     if (fitting):
         P0[0]=8
         P0[1]=1.
@@ -330,9 +330,9 @@ if (plotting):
                 ax[i].plot(thx,eta[n_diff-i,:],"--k", label="Fit (-"+str(i)+")")
                 ax[i].plot(thx,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
                 #ax[i].legend()
-            mu=fit_res[0,2]
-            sigma=fit_res[0,3]
-            tau=fit_res[0,4]
+            mu=fit_res[0,3]
+            sigma=fit_res[0,4]
+            tau=fit_res[0,5]
             wl=exponnorm.ppf(np.arange(0.11,0.99,wlp),K=tau, loc=mu, scale=sigma)
             a = rho(wl,tau, mu, sigma)/sum(rho(wl,tau, mu, sigma))
             ax[-1].plot(wl,a/np.amax(a), label= "WL distribution")
@@ -340,7 +340,7 @@ if (plotting):
             mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
             ax[-1].vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
             ax[-1].legend()
-            for i in range(2,4):
+            for i in range(3,5):
                 fit_res[0,i]*=1e3
                 fit_res[1,i]*=1e3
             for i in range(len(p)):

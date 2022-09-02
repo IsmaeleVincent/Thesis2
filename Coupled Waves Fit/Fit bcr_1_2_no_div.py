@@ -184,7 +184,7 @@ def process_fit(k):
             eta+=eta_aus*a[l]
         aaa=eta[n_diff-2:n_diff+3].ravel()
         return aaa
-    P0= fit_res[0] # np.zeros(7) # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
+    P0= np.zeros(7) # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
     if (fitting):
         P0[0]=8
         P0[1]=1.
