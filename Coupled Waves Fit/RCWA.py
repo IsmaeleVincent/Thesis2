@@ -63,27 +63,27 @@ b=2*pi/lam #beta value
 G=2*pi/LAM
 bcr1=8.0#scattering lenght x density
 bcr2=1.2
-n_0 =1.00
+n_0 =1
 n_1 = bcr1*2*pi/b**2 
 #print(n_1)
 
-def k_jz(theta, j, G):
-    k_jz=b*(1-(np.sin(theta)-j*G/b)**2)**0.5
+def k_jz(theta):
+    k_jz=2*n_0*np.cos(theta)/(pi*lam)
     return k_jz
-def dq_j (theta, j, G):
-    return b*np.cos(theta) - k_jz(theta, j, G)
+def m (theta):
+    return 2*LAM*n_0*np.sin(theta)/lam
 
-d=78/np.cos(76*rad)
+d=78
 th=np.linspace(-0.02,0.02, 1000)
 S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
 sum_diff = np.zeros(len(th)) 
 for t in range(len(th)):
     A = np.zeros((2*n_diff+1,2*n_diff+1), dtype=complex)
     for i in range(len(A[0])):
-        A[i][i]=b**2*(n_0**2-1)/(2*k_jz(th[t],i-n_diff,G))-dq_j(th[t],i-n_diff,G)
+        A[i][i]=2*i*(m(t)+i)/(LAM**2*k_jz(th[t]))
         if(i+1<len(A[0])):
-            A[i][i+1]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G))
-            A[i+1][i]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G))
+            A[i][i+1]=n_1**2/(lam**2*k_jz(th[t]))
+            A[i+1][i]=n_1**2/(lam**2*k_jz(th[t]))
     A=-1j*A
     # print(A)
     w,v = np.linalg.eig(A)
@@ -103,7 +103,7 @@ for t in range(len(th)):
 eta = S.copy().real
 for t in range(len(th)):
     for i in range(2*n_diff+1):
-        eta[i,t] = abs(S[i,t])**2*k_jz(th[t],i-n_diff,G)/(b*np.cos(th[t]))
+        eta[i,t] = abs(S[i,t])**2*k_jz(th[t])/(b*np.cos(th[t]))
     sum_diff[t]= sum(eta[:,t])
 # print(sum_diff)
 # for i in range(len(S[0,:])): 
