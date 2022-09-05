@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun May 22 15:12:29 2022
+Created on Mon Sep  5 16:01:10 2022
 
-@author: exp-k03
+@author: aaa
 """
-import numpy as np
 
+import numpy as np
 
 pi=np.pi
 rad=pi/180
@@ -32,17 +32,15 @@ tilt=[0,40,48,61,69,71,79,80,81,77.88,76.76,75.64,74.52]
 n_theta=[26,46,28,17,16,20,21,20,19,48,43,59,24]  #number of measurements files for each folder (no flat, no compromised data)
 n_pixel = 16384 #number of pixels in one measurement
 
-names=["bcr_1_2","bcr_1_2_3","bcr_1_2_no_div","bcr_1_2_3_no_div","bcr_1_2_phi","bcr_1_2_3_phi_1_2"]
 
 krange=range(len(foldername))
-for name in names:
-    tot_fit_res = np.loadtxt(sorted_fold_path+'tot_fit_results_'+name+'.mpa',skiprows=1)
-    tot_fit_cov =  np.loadtxt(sorted_fold_path+'tot_fit_covariances_'+name+'.mpa',skiprows=1)
-    for k in krange:
-        data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-        p=tot_fit_res[k,1:]
-        print(p)
-        cov=tot_fit_cov[k,1:]
-        print(cov)
-        with open(data_analysis+foldername[k]+'_fit_results_'+name+'.mpa', 'w') as f:
-            np.savetxt(f,(p,cov), header="mu sigma tau x_0 zeta_0", fmt="%.6f")
+tot_fit_res = np.loadtxt(sorted_fold_path+'tot_fit_results_bcr3.mpa',skiprows=1)
+tot_fit_cov =  np.loadtxt(sorted_fold_path+'tot_fit_covariances_bcr3.mpa',skiprows=1)
+for k in krange:
+    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+    p=tot_fit_res[k,1:]
+    print(p)
+    cov=tot_fit_cov[k,1:]
+    print(cov)
+    with open(data_analysis+foldername[k]+'_fit_results_bcr3.mpa', 'w') as f:
+        np.savetxt(f,(p,cov), header="mu sigma tau x_0 zeta_0", fmt="%.6f")
