@@ -30,10 +30,14 @@ from multiprocessing import Pool
 from scipy.stats import norm
 from scipy.stats import cosine
 from scipy.stats import exponnorm
+plt.rcParams['font.size'] = 18
+plt.rcParams['lines.markersize'] = 12
+plt.rcParams['lines.linewidth'] = 4
+fig_size=[20,18]
 
 pi=np.pi
 rad=pi/180
-plt.rcParams['font.size'] = 10
+
 sorted_fold_path="/home/aaa/Desktop/Thesis2/Sorted data/" #insert folder of sorted meausements files
 allmeasurements = sorted_fold_path+"All measurements/"
 allrenamed = allmeasurements +"All renamed/"
@@ -52,17 +56,19 @@ alldiff_eff_fit=allfits_plots.copy()
 allwl_plots=allfits_plots.copy()
 
 for g in range(4):
-    if os.path.exists(allfits_plots[g]):
-            shutil.rmtree(allfits_plots[g])
-    os.makedirs(allfits_plots[g])
     alldiff_eff_fit[g]+="Diff. effs + fits/"
-    if os.path.exists(alldiff_eff_fit[g]):
-            shutil.rmtree(alldiff_eff_fit[g])
-    os.makedirs(alldiff_eff_fit[g])
     allwl_plots[g]+="WL distributions/"
-    if os.path.exists(allwl_plots[g]):
-            shutil.rmtree(allwl_plots[g])
-    os.makedirs(allwl_plots[g])
+    # if os.path.exists(allfits_plots[g]):
+    #         shutil.rmtree(allfits_plots[g])
+    # os.makedirs(allfits_plots[g])
+   
+    # if os.path.exists(alldiff_eff_fit[g]):
+    #         shutil.rmtree(alldiff_eff_fit[g])
+    # os.makedirs(alldiff_eff_fit[g])
+
+    # if os.path.exists(allwl_plots[g]):
+    #         shutil.rmtree(allwl_plots[g])
+    # os.makedirs(allwl_plots[g])
 
 tiltangles=[0,40,48,61,69,71,79,80,81]
 foldername=[]
@@ -115,8 +121,8 @@ d0=78 #sample thickness
 
 measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13)]
 
-for group in [0,1,2,3]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
-    krange=measur_groups[group]
+for group in [1]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+    krange=[8]#measur_groups[group]
     
     def k_jz(theta, j, G,b):
         k_jz=b*(1-(np.sin(theta)-j*G/b)**2)**0.5
@@ -127,15 +133,17 @@ for group in [0,1,2,3]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     plotting=1
     extended_plot=1
     save_fit_res=0
-    close_fig=1
-    wlpoints=50
-    wlp=5e-3
+    wl_plot=0
+    param_ev_plot=0
+    close_fig=0
+    wlp=1e-2
     def process_fit(k):
         print(foldername[k])
         nowf=datetime.now()
         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
         diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff_new.mpa',skiprows=1)
-        fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_new_diff.mpa',skiprows=1)
+        data_analysis1 = sorted_fold_path+foldername[0]+"/Data Analysis/"
+        fit_res =  np.loadtxt(data_analysis1+foldername[0]+'_fit_results_bcr_1_2_3_phi_1_2.mpa',skiprows=1)
         # diff_eff = diff_eff[diff_eff[:,0]<=0]
         diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
         diff_eff_aus=diff_eff[:,2::2].copy()
@@ -208,14 +216,14 @@ for group in [0,1,2,3]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                 eta_ang[i,:]=f_int(x*rad)
             aaa=eta_ang[n_diff-2:n_diff+3].ravel()
             return aaa
-        P0= np.zeros(10) # [*fit_res[0],0 
+        P0= fit_res[0] #np.zeros(10) #
         if (fitting):
-            P0[0]=8
-            P0[1]=1.
-            P0[2]=1.
-            P0[3]=3.5e-3
-            P0[4]=0.0002
-            P0[5]=5
+            # P0[0]=8
+            # P0[1]=1.
+            # P0[2]=0.
+            # P0[3]=3.5e-3
+            # P0[4]=0.0002
+            # P0[5]=5
             P0[6]=0
             P0[7]=0
             P0[8]=1
@@ -352,7 +360,7 @@ for group in [0,1,2,3]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             text = "Fit results"
             if(extended_plot):
                 p=fit_res[0]
-                fig = plt.figure(figsize=(11,10))#constrained_layout=True
+                fig = plt.figure(figsize=(fig_size[0],fig_size[1]))#constrained_layout=True
                 gs_t = GridSpec(5, 2, figure=fig,hspace=0, top=0.95)
                 gs_b =GridSpec(5, 2, figure=fig, wspace=0)
                 ax = [fig.add_subplot(gs_t[0,:]), 
@@ -387,7 +395,7 @@ for group in [0,1,2,3]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                 ax[-1].vlines(wl[a==np.amax(a)], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (wl[a==np.amax(a)]*1e3),)+" nm")
                 mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
                 ax[-1].vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
-                ax[-1].legend()
+                ax[-1].legend(loc=1)
                 for i in range(3,5):
                     fit_res[0,i]*=1e3
                     fit_res[1,i]*=1e3
@@ -399,7 +407,7 @@ for group in [0,1,2,3]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                     text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
                 ax[-2].text(0.5,0.5,text,va="center", ha="center")
             else:
-                fig, ax = plt.subplots(3,figsize=(10,10))
+                fig, ax = plt.subplots(3,figsize=(fig_size[0],fig_size[1]))
                 ax[0].set_title(foldername[k])
                 ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
                 ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
@@ -480,19 +488,22 @@ for group in [0,1,2,3]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     """
     Plot parameters evolution
     """
-    if group!=2:
-        fit_res =  np.loadtxt(allfits_plots[group]+'tot_fit_results_bcr_1_2_3_phi_1_2.mpa',skiprows=1)
-        fit_cov =  np.loadtxt(allfits_plots[group]+'tot_fit_covariances_bcr_1_2_3_phi_1_2.mpa',skiprows=1)
-        fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(10,10),sharex=True)
-        #plt.subplots_adjust(hspace=0.5)
-        plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
-        
-        title=["$(b_c \\rho)_1$","$(b_c \\rho)_2$","$(b_c \\rho)_3$", "$\mu$", "$\sigma$","$\\tau$", "$x_0$","$\zeta_0$","$\phi$", "$\phi_1$"]
-        for i in range(len(fit_res[0,1:])):
-            ax[i].set_ylabel(title[i],fontsize=13)
-            ax[i].errorbar(np.arange(len(fit_res[:,i+1])),fit_res[:,i+1], yerr=fit_cov[:,i+1])
-            ax[i].set_ylim([np.amin(fit_res[:,i+1])*(0.9),np.amax(fit_res[:,i+1])*(1.1)])
-       
+    if param_ev_plot:
+        if group!=2:
+            fit_res =  np.loadtxt(allfits_plots[group]+'tot_fit_results_bcr_1_2_3_phi_1_2.mpa',skiprows=1)
+            fit_cov =  np.loadtxt(allfits_plots[group]+'tot_fit_covariances_bcr_1_2_3_phi_1_2.mpa',skiprows=1)
+            fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(fig_size[0],fig_size[1]),sharex=True)
+            #plt.subplots_adjust(hspace=0.5)
+            plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
+            
+            title=["$(b_c \\rho)_1$","$(b_c \\rho)_2$","$(b_c \\rho)_3$", "$\mu$", "$\sigma$","$\\tau$", "$x_0$","$\zeta_0$","$\phi$", "$\phi_1$"]
+            for i in range(len(fit_res[0,1:])):
+                ax[i].set_ylabel(title[i],fontsize=13)
+                ax[i].errorbar(np.arange(len(fit_res[:,i+1])),fit_res[:,i+1], yerr=fit_cov[:,i+1])
+                ax[i].set_ylim([np.amin(fit_res[:,i+1])*(0.9),np.amax(fit_res[:,i+1])*(1.1)])
+            plt.savefig(allfits_plots[group]+'Param_evolution_bcr_1_2_3_phi_1_2.png', format='png',bbox_inches='tight')
+            if close_fig:
+                plt.close(fig)
     """
     """
     # for k in krange:
@@ -516,45 +527,50 @@ for group in [0,1,2,3]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     
     """
     """
-    tilt=np.array(tilt)
-    krange=np.array(krange)
-    krange=krange[np.argsort(tilt[krange])]
-    # print(krange)
-    group_names=["Jürgen's","Martin's","Christian's", "All"]
-    fit_res_meas =  np.loadtxt(allfits_plots[group]+'tot_fit_results_bcr_1_2_3_phi_1_2.mpa',skiprows=1)
-    fit_cov_meas = np.loadtxt(allfits_plots[group]+'tot_fit_covariances_bcr_1_2_3_phi_1_2.mpa',skiprows=1)
-    n_plots=4
-    if group==2:
-        n_plots=2
-    kaus=-1
-    tilt0=str(tilt[krange[0]])
-    for k in krange:
-        kaus+=1
-        if kaus%n_plots==0:
-            tilt1=str(tilt[krange[kaus-1]])
-            if kaus>0:
-                plt.savefig(allwl_plots[group]+tilt0+"deg-"+tilt1+'deg_wl.png', format='png',bbox_inches='tight')
+    if wl_plot:
+        plt.rcParams['font.size'] = 10
+        plt.rcParams['lines.markersize'] = 6
+        plt.rcParams['lines.linewidth'] = 1
+        tilt=np.array(tilt)
+        krange=np.array(krange)
+        krange=krange[np.argsort(tilt[krange])]
+        # print(krange)
+        group_names=["Jürgen's","Martin's","Christian's", "All"]
+        fit_res_meas =  np.loadtxt(allfits_plots[group]+'tot_fit_results_bcr_1_2_3_phi_1_2.mpa',skiprows=1)
+        fit_cov_meas = np.loadtxt(allfits_plots[group]+'tot_fit_covariances_bcr_1_2_3_phi_1_2.mpa',skiprows=1)
+        n_plots=4
+        if group==2:
+            n_plots=2
+        kaus=-1
+        tilt0=str(tilt[krange[0]])
+        for k in krange:
+            kaus+=1
+            if kaus%n_plots==0:
+                tilt1=str(tilt[krange[kaus-1]])
+                if kaus>0:
+                    plt.savefig(allwl_plots[group]+tilt0+"deg-"+tilt1+'deg_wl.png', format='png',bbox_inches='tight')
+                    if close_fig:
+                        plt.close(fig)
+                    tilt0=str(tilt[k])
+                fig, ax = plt.subplots(n_plots,figsize=(8.27,11.69), dpi=100, sharex=False)
+                ax[0].set_title(group_names[group]+" measurements")
+            data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+            fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_bcr_1_2_3_phi_1_2.mpa',skiprows=1)
+            mu=fit_res[0,3]
+            sigma=fit_res[0,4]
+            tau=fit_res[0,5]
+            wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu, scale=sigma)
+            x=np.linspace(wl[0],wl[-1],10000)
+            a=rho(wl,tau, mu, sigma)/sum(rho(wl,tau, mu, sigma))
+            # ax[kaus%n_plots].plot(wl,a/np.amax(a),"k.", label= "WL distribution")
+            mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
+            ax[kaus%n_plots].vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
+            a=rho(x,tau, mu, sigma)/sum(rho(x,tau, mu, sigma))
+            ax[kaus%n_plots].plot(x,a/np.amax(a),"k-", label= "WL distribution\n$\zeta = $"+str(tilt[k])+" deg")
+            ax[kaus%n_plots].vlines(x[a==np.amax(a)][0], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (x[a==np.amax(a)]*1e3),)+" nm")
+            ax[kaus%n_plots].legend(loc=1, fontsize=13)
+            ax[kaus%n_plots].set_xlim([0,12e-3])
+            if k==krange[-1]:
+                plt.savefig(allwl_plots[group]+tilt0+"deg-"+str(tilt[k])+'deg_wl.png', format='png',bbox_inches='tight')
                 if close_fig:
                     plt.close(fig)
-                tilt0=str(tilt[k])
-            fig, ax = plt.subplots(n_plots,figsize=(8.27,11.69), dpi=100, sharex=False)
-            ax[0].set_title(group_names[group]+" measurements")
-        data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-        fit_res =  np.loadtxt(data_analysis+foldername[k]+'_fit_results_bcr_1_2_3_phi_1_2.mpa',skiprows=1)
-        mu=fit_res[0,3]
-        sigma=fit_res[0,4]
-        tau=fit_res[0,5]
-        wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu, scale=sigma)
-        x=np.linspace(wl[0],wl[-1],10000)
-        a=rho(wl,tau, mu, sigma)/sum(rho(wl,tau, mu, sigma))
-        # ax[kaus%n_plots].plot(wl,a/np.amax(a),"k.", label= "WL distribution")
-        mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
-        ax[kaus%n_plots].vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
-        a=rho(x,tau, mu, sigma)/sum(rho(x,tau, mu, sigma))
-        ax[kaus%n_plots].plot(x,a/np.amax(a),"k-", label= "WL distribution\n$\zeta = $"+str(tilt[k])+" deg")
-        ax[kaus%n_plots].vlines(x[a==np.amax(a)][0], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (x[a==np.amax(a)]*1e3),)+" nm")
-        ax[kaus%n_plots].legend(loc=1, fontsize=13)
-        if k==krange[-1]:
-            plt.savefig(allwl_plots[group]+tilt0+"deg-"+str(tilt[k])+'deg_wl.png', format='png',bbox_inches='tight')
-            if close_fig:
-                plt.close(fig)

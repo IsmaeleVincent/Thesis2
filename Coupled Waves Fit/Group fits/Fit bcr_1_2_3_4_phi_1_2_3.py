@@ -122,8 +122,8 @@ for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     def dq_j (theta, j, G,b):
         return b*np.cos(theta) - k_jz(theta, j, G, b)
     fitting=0
-    plotting=0
-    extended_plot=0
+    plotting=1
+    extended_plot=1
     close_fig=1
     save_fit_res=0
     wlpoints=50

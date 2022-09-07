@@ -57,16 +57,16 @@ This block fits the diffraction efficiencies n(x)= n_0 + n_1 cos(Gx)
 """
 
 n_diff= 7#number of peaks for each side, for example: n=2 for 5 diffracted waves
-lam= 3.7e-3 #incoming wavelenght in micrometers
+lam= 4e-3 #incoming wavelenght in micrometers
 LAM= 0.5 #grating constant in micrometers
 b=2*pi/lam #beta value 
 G=2*pi/LAM
 bcr1=8.0#scattering lenght x density
-bcr2=3.
+bcr2=2.
 bcr3=0.
-bcr4=1
+bcr4=0
 n_0 =1.
-phi=pi
+phi=0
 phi1=pi/2
 phi2=pi
 n_0 =1.00
@@ -82,7 +82,7 @@ def k_jz(theta, j, G):
 def dq_j (theta, j, G):
     return b*np.cos(theta) - k_jz(theta, j, G)
 
-d=78/np.cos(76*rad)
+d=78#/np.cos(76*rad)
 th=np.linspace(-0.015,0.015, 1000)
 S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
 sum_diff = np.zeros(len(th)) 
