@@ -34,7 +34,7 @@ from scipy.stats import exponnorm
 pi=np.pi
 rad=pi/180
 plt.rcParams['font.size'] = 10
-sorted_fold_path="/home/aaa/Desktop/Thesis2/Sorted data/" #insert folder of sorted meausements files
+sorted_fold_path="/home/ismaele/Desktop/Thesis2/Sorted data/" #insert folder of sorted meausements files
 allmeasurements = sorted_fold_path+"All measurements/"
 allrenamed = allmeasurements +"All renamed/"
 allmatrixes = allmeasurements + "All matrixes/"
@@ -115,7 +115,7 @@ d0=78 #sample thickness
 measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13)]
 
 
-for group in [0,1,2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all 
+for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all 
     krange=measur_groups[group]
     
     def k_jz(theta, j, G,b):
@@ -124,13 +124,14 @@ for group in [0,1,2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     def dq_j (theta, j, G,b):
         return b*np.cos(theta) - k_jz(theta, j, G, b)
     
-    fitting=0
+    fitting=1
     plotting=1
     extended_plot=1
-    save_fit_res=0
+    save_fit_res=1
+    standard=0
     no_div=0
-    fit_phi=0
-    wlpoints=50
+    fit_phi=1
+
     wlp=5e-3
     def process_fit(k):
         # print(foldername[k])
@@ -256,7 +257,7 @@ for group in [0,1,2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                 with open(data_analysis+foldername[k]+'_fit_results_bcr_1_2_3.mpa', 'w') as f:
                     np.savetxt(f,(p,np.diag(cov)**0.5), header="bcr1 bcr2 mu phi thickness", fmt="%.6f")
     
-    if (fitting):
+    if (fitting and standard):
         now=datetime.now()
         current_time = now.strftime("%H:%M:%S")
         print("Start Time =", current_time)
@@ -386,7 +387,7 @@ for group in [0,1,2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                 with open(data_analysis+foldername[k]+'_fit_results_bcr_1_2.mpa', 'w') as f:
                     np.savetxt(f,(p,np.diag(cov)**0.5), header="bcr1 bcr2 mu phi thickness", fmt="%.6f")
     
-    if (fitting):
+    if (fitting and standard):
         now=datetime.now()
         current_time = now.strftime("%H:%M:%S")
         print("Start Time =", current_time)
@@ -682,8 +683,8 @@ for group in [0,1,2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             phi1=phi1*pi
             wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
             a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
-            plt.plot(a)
-            plt.savefig('a.eps', format='eps')
+            # plt.plot(a)
+            # plt.savefig('a.eps', format='eps')
             th=[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,2*len(x))#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#
             S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
             eta=S.copy().real
