@@ -57,66 +57,99 @@ This block fits the diffraction efficiencies n(x)= n_0 + n_1 cos(Gx)
 """
 
 n_diff= 2 #number of peaks for each side, for example: n=2 for 5 diffracted waves
-lam= 3.2e-3 #incoming wavelenght in micrometers
+lam= 0.005 #incoming wavelenght in micrometers
 LAM= 0.5 #grating constant in micrometers
 b=2*pi/lam #beta value 
 G=2*pi/LAM
 bcr1=8.0#scattering lenght x density
-bcr2=1.2
-n_0 =1
+bcr2=1.
+n_0 =1.
 n_1 = bcr1*2*pi/b**2 
+phi=pi
+n_2 = bcr2*2*pi/b**2
 #print(n_1)
 
-def k_jz(theta):
-    k_jz=2*n_0*np.cos(theta)/(pi*lam)
-    return k_jz
-def m (theta):
-    return 2*LAM*n_0*np.sin(theta)/lam
+def k_1(i,theta):
+    k_1=i*G*(np.tan(theta)-i*G/(2*b*n_0*np.cos(theta)))
+    return k_1
+def k_2(theta,n):
+    k_2=b*n/(2*n_0*np.cos(theta))
+    return k_2
 
-d=78
-th=np.linspace(-0.02,0.02, 1000)
+d=500
+th=np.linspace(-0.015,0.015, 1000)
 S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
 sum_diff = np.zeros(len(th)) 
 for t in range(len(th)):
     A = np.zeros((2*n_diff+1,2*n_diff+1), dtype=complex)
     for i in range(len(A[0])):
-        A[i][i]=2*i*(m(t)+i)/(LAM**2*k_jz(th[t]))
+        A[i][i]=k_1(i-n_diff,th[t])
         if(i+1<len(A[0])):
-            A[i][i+1]=n_1**2/(lam**2*k_jz(th[t]))
-            A[i+1][i]=n_1**2/(lam**2*k_jz(th[t]))
+            A[i][i+1]=k_2(th[t],n_1)
+            A[i+1][i]=k_2(th[t],n_1)
+        if(i+2<len(A[0]) and bcr2!=0):
+            A[i][i+2]=k_2(th[t],n_2)*np.exp(-1j*phi)
+            A[i+2][i]=k_2(th[t],n_2)*np.exp(-1j*phi)
     A=-1j*A
-    # print(A)
     w,v = np.linalg.eig(A)
-    # for i in range(len(w)):
-    #     print("AV=wV", np.allclose(np.dot(A,v[:,i]),w[i]*v[:,i]))
-    # print(, )
-    # print(w,v)
     v0=np.zeros(2*n_diff+1)
     v0[n_diff]=1
-    #print(v0)
     c = np.linalg.solve(v,v0)
     for i in range(len(w)):
         v[:,i]=v[:,i]*c[i]*np.exp(w[i]*d)
     for i in range(len(S[:,0])):
         S[i,t] = sum(v[i,:])
-    #print(np.allclose(np.dot(v, c), v0))
+
 eta = S.copy().real
 for t in range(len(th)):
     for i in range(2*n_diff+1):
-        eta[i,t] = abs(S[i,t])**2*k_jz(th[t])/(b*np.cos(th[t]))
+        eta[i,t] = abs(S[i,t])**2
     sum_diff[t]= sum(eta[:,t])
-# print(sum_diff)
-# for i in range(len(S[0,:])): 
-#         S[:,i]=(abs(S[:,i])/sum(abs(S[:,i])**2)**0.5)
-# fig = plt.figure(figsize=(15,15))
-# ax = fig.add_subplot(111)
 fig, ax = plt.subplots(n_diff+2,figsize=(10,10))
-# ax[0].set_title(foldername[k]) 
-ax[0].plot(th,eta[n_diff,:])  
-# ax[0].plot(diff_eff[:,0]*rad,diff_eff[:,2*2+2],'o')
+
+ax[0].plot(th,eta[n_diff,:], ".")  
+
 for i in range(1,n_diff+1):
-    ax[i].plot(th,eta[n_diff-i,:])
-    ax[i].plot(th,eta[n_diff+i,:])   
+    ax[i].plot(th,eta[n_diff-i,:], ".")
+    ax[i].plot(th,eta[n_diff+i,:], ".")   
 ax[n_diff+1].plot(th, sum_diff)
 ax[n_diff+1].set_ylim([0.5,1.5])
-#   plt.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+1],capsize=1)
+
+
+def k_jz(theta, j, G):
+    k_jz=b*(1-(np.sin(theta)-j*G/b)**2)**0.5
+    return k_jz
+def dq_j (theta, j, G):
+    return b*np.cos(theta) - k_jz(theta, j, G)
+
+S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
+sum_diff = np.zeros(len(th)) 
+for t in range(len(th)):
+    A = np.zeros((2*n_diff+1,2*n_diff+1), dtype=complex)
+    for i in range(len(A[0])):
+        A[i][i]=b**2*(n_0**2-1)/(2*k_jz(th[t],i-n_diff,G))-dq_j(th[t],i-n_diff,G)
+        if(i+1<len(A[0])):
+            A[i][i+1]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G))
+            A[i+1][i]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G))
+        if(i+2<len(A[0]) and bcr2!=0):
+            A[i][i+2]=b**2*n_0*n_2*np.exp(-1j*phi)/(2*k_jz(th[t],i-n_diff,G))
+            A[i+2][i]=b**2*n_0*n_2*np.exp(1j*phi)/(2*k_jz(th[t],i-n_diff,G))
+    A=-1j*A
+    w,v = np.linalg.eig(A)
+    v0=np.zeros(2*n_diff+1)
+    v0[n_diff]=1
+    c = np.linalg.solve(v,v0)
+    for i in range(len(w)):
+        v[:,i]=v[:,i]*c[i]*np.exp(w[i]*d)
+    for i in range(len(S[:,0])):
+        S[i,t] = sum(v[i,:])
+eta = S.copy().real
+for t in range(len(th)):
+    for i in range(2*n_diff+1):
+        eta[i,t] = abs(S[i,t])**2*k_jz(th[t],i-n_diff,G)/(b*np.cos(th[t]))
+    sum_diff[t]= sum(eta[:,t])
+
+ax[0].plot(th,eta[n_diff,:],"--")  
+for i in range(1,n_diff+1):
+    ax[i].plot(th,eta[n_diff-i,:], "--")
+    ax[i].plot(th,eta[n_diff+i,:], "--")

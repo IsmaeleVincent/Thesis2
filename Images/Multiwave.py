@@ -31,6 +31,8 @@ import math
 pi=np.pi
 rad=pi/180
 
+
+
 sorted_fold_path="/home/aaa/Desktop/Thesis2/Sorted data/" #insert folder of sorted meausements files
 allmeasurements = sorted_fold_path+"All measurements/"
 allrenamed = allmeasurements +"All renamed/"
@@ -75,18 +77,19 @@ def dq_j (theta, j, G):
 for k in range(1,2):#len(foldername)):
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
     diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff.mpa',skiprows=1)    
-    fig, ax = plt.subplots(n_diff+1,figsize=(9,5),sharex=True)
-    fig.text(0, 0.5, 'Counts', va='center', rotation='vertical')
-    fig.subplots_adjust(hspace=0.1)
+    fig, ax = plt.subplots(n_diff+1,figsize=(7.5,4),sharex=True)
+    plt.rcParams["font.size"] = 11
+    fig.text(0, 0.5, 'Counts', va='center', rotation='vertical', fontsize=11)
+    fig.subplots_adjust(hspace=-1)
     ax[0].tick_params('x', bottom=False)
     ax[1].tick_params('x', bottom=False)
-    ax[0].set_title("Example of diffracted waves intensities")
-    ax[0].plot(diff_eff[:,0]*rad,diff_eff[:,6], "^-k", label="Diff. order 0")
-    ax[0].legend(loc=8)
+    # ax[0].set_title("Example of diffracted waves intensities")
+    ax[0].plot(diff_eff[:,0]*rad,diff_eff[:,6], "^-k", label="Order 0")
+    ax[0].legend(loc=8, framealpha=1)
     for i in range(1,3):
-        ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6-2*i], "^-k", label="Diff. order -"+str(i))
-        ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6+2*i], "^-",  color = (0.8,0,0),  label="Diff. order +"+str(i))
-        ax[i].legend(loc=9)
-    ax[-1].set_xlabel("Incidence angle (rad)")
+        ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6-2*i], "^-k", label="Order -"+str(i))
+        ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6+2*i], "^-",  color = (0.8,0,0),  label="Order +"+str(i))
+        ax[i].legend(loc=9, framealpha=1)
+    ax[-1].set_xlabel("$\\theta$ (rad)")
 plt.tight_layout()
-plt.savefig("Multiwave.eps", format='pdf')
+plt.savefig("Multiwave.eps", format='pdf', bbox_inches='tight')

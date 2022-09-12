@@ -17,6 +17,7 @@ import matplotlib.patches as mpatches
 plt.rcParams['hatch.linewidth'] = 5
 plt.rcParams['hatch.color'] = (0.2,0.7,0.2)#"#33c233"#"#7a7afb"
 plt.rcParams['font.size'] = 15
+# plt.rcParams.update(plt.rcParamsDefault)
 def distr(x,A1,A2,A3,x01,x02,x03, sx1,sx2,sx3,):
     return A1/(sx1)*np.exp(-0.5*(x-x01)**2/sx1**2)+A2/(sx2)*np.exp(-0.5*(x-x02)**2/sx2**2)+A3/(sx3)*np.exp(-0.5*(x-x03)**2/sx3**2)
 
@@ -29,7 +30,7 @@ f="/home/aaa/Desktop/Thesis2/Images/Overlap.csv"
 # data[:,0]*=2
 # ymax = np.amax(data[:,1])
 # ymin = np.amin(data[:,1])
-# P0=[1000,600,100,0,20,30,2,2,3]
+P0=[1000,600,100,0,20,30,2,2,3]
 # print(data[:,0])
 # #data[:,0] = (data[:,0]-xmax+10)*2e-3
 # #data[:,1] = (data[:,1]-ymin)/(ymax-ymin)
@@ -78,28 +79,29 @@ f="/home/aaa/Desktop/Thesis2/Images/Overlap.csv"
 # plt.savefig('Overlap.eps', format='pdf',bbox_inches='tight')
 
 # f="Overlap.csv"
-# data = np.loadtxt(f, skiprows=1, delimiter=",")
-# data[:,0]*=2
-# ymax = np.amax(data[:,1])
-# ymin = np.amin(data[:,1])
+data = np.loadtxt(f, skiprows=1, delimiter=",")
+data[:,0]*=2
+ymax = np.amax(data[:,1])
+ymin = np.amin(data[:,1])
 # P0=[1000, 2,30, 600, 2, 20, 100, 3,10]
-# print(data[:,0])
-# #data[:,0] = (data[:,0]-xmax+10)*2e-3
-# #data[:,1] = (data[:,1]-ymin)/(ymax-ymin)
-# p,cov=fit(distr,data[:,0],data[:,1],p0=P0)
-# print("p=",p)
-# print("cov=", np.diag(cov)**0.5)
-# xplt=np.linspace(data[:,0][0], data[:,0][-1], 1000)
-# xmax = xplt[distr(xplt,*p)==np.amax(distr(xplt,*p))]
-# ax.set_xlabel("mm")
-# ax.set_ylabel("Counts")
-# # ax.plot(xplt-xmax, gauss(xplt,*p[0:3]), "r-", label="0th order")
-# # ax.plot(xplt-xmax, gauss(xplt,*p[3:6]), "g-", label="1st order")
-# # ax.plot(xplt-xmax, gauss(xplt,*p[6:9]), "b-", label="2nd order")
-# ax.plot(data[:,0]-xmax,data[:,1], "k-^", label="Measurement")
-# ax.text(-0.5, 120, "0", fontsize="large",color="k",backgroundcolor="white")
-# ax.text(12, 120, "+1", fontsize="large",color="k",backgroundcolor="white")
-# ax.text(21, 120, "+2", fontsize="large",color="k",backgroundcolor="white")
-# plt.legend(loc=0)
-# ax.set_ylim([0,800])
-# plt.savefig('Overlap_dist.eps', format='pdf',bbox_inches='tight')
+print(data[:,0])
+#data[:,0] = (data[:,0]-xmax+10)*2e-3
+#data[:,1] = (data[:,1]-ymin)/(ymax-ymin)
+p,cov=fit(distr,data[:,0],data[:,1],p0=P0)
+print("p=",p)
+print("cov=", np.diag(cov)**0.5)
+xplt=np.linspace(data[:,0][0], data[:,0][-1], 1000)
+xmax = p[3]
+ax.set_xlabel("mm")
+ax.set_ylabel("Counts")
+# ax.plot(xplt-xmax, gauss(xplt,*p[0::3]), "r-", alpha=0.5, label="0th order")
+# ax.plot(xplt-xmax, gauss(xplt,*p[1::3]), "g-", alpha=0.5, label="1st order")
+# ax.plot(xplt-xmax, gauss(xplt,*p[2::3]), "b-", alpha=0.5, label="2nd order")
+# ax.plot(xplt-xmax, distr(xplt,*p), "k--", alpha=1, label="Profile fit")
+ax.plot(data[:,0]-xmax,data[:,1], "k-^", label="Measurement")
+ax.text(-1, 120, "0", fontsize="large",color="k")
+ax.text(p[4]-p[3]-2, 120, "+1", fontsize="large",color="k")
+ax.text(p[5]-p[3]-2, 120, "+2", fontsize="large",color="k")
+plt.legend(loc=0)
+ax.set_ylim([0,800])
+# plt.savefig('Overlap_no_fit.eps', format='pdf',bbox_inches='tight')

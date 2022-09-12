@@ -15,9 +15,14 @@ from scipy.stats import skewnorm
 from scipy.stats import exponnorm
 from scipy.special import erfc
 
-def rho(x,B,A,x0, sk, sig):
-    g=skewnorm(loc=x0,a=sk,scale=sig)
-    return B+A*g.pdf(x)
+def func(l,A,mu,sig):
+    return A/(2.)*np.exp(A/(2.)*(2.*mu+A*sig**2-2*l))
+def rho(l,B,C,mu,A,sig):
+    return B+C*func(l,A,mu,sig)*erfc((mu+A*sig**2-l)/(np.sqrt(2)*sig))
+
+# def rho(x,B,A,x0, sk, sig):
+#     g=skewnorm(loc=x0,a=sk,scale=sig)
+#     return B+A*g.pdf(x)
 def rho1(x,B,A,x0, sk, sig):
     g=exponnorm(loc=x0,K=sk,scale=sig)
     return B+A*g.pdf(x)
@@ -25,7 +30,7 @@ file_name="/home/aaa/Desktop/Thesis2/Wavelength distribution/measuredVCNSpectr.d
 wl_dist=np.loadtxt(file_name) 
 x=wl_dist[:,0]*1e6
 y=wl_dist[:,1]
-P0 = [30,350,3.6e-3,6, 1e-4]
+P0 = [30,350,3.6e-3,1e3, 1e-4]
 p,cov=fit(rho,x,y, p0=P0)
 P01 = [30,1e-3,3.5e-3,10, 2e-4]
 B=([0,0,2e-3,1,1e-4],[100,1,4e-3,20,1e-3])
@@ -37,8 +42,8 @@ plt.plot(x,rho1(x,*p1), label="EMG")
 # x1=np.linspace(0,10e-3, 1000)
 # plt.plot(x1,rho1(x1,*pp), label="EMG")
 
-print(p1)
-print(1/p1[2])
+print(p)
+print(1/p1[3])
 lmax=x[rho1(x,*p1)==np.amax(rho1(x,*p1))]
 print(lmax)
 plt.vlines(lmax,0,np.amax(rho1(x,*p1)), label="max 1="+str("%.2e"%(lmax,)))

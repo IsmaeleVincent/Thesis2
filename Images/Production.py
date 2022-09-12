@@ -84,4 +84,4 @@ for j in range(n_loop):
         # ax[2].plot(xp,nano[1], "-", color=(0.,0.1,0.2),ms=size, mec="k", lw=3)
         ax[2].plot(xp,nano[1], "wo", ms=size, mec="k")
 # fig.legend(ncol=3, bbox_to_anchor=(0.6, 0.47, 0.1, 0.1))
-plt.savefig('Production.eps', format='pdf',bbox_inches='tight')
+# plt.savefig('Production.eps', format='pdf',bbox_inches='tight')
