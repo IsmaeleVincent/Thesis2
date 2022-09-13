@@ -30,7 +30,7 @@ from scipy.stats import chisquare as cs
 import math
 pi=np.pi
 rad=pi/180
-
+plt.rcParams.update(plt.rcParamsDefault)
 sorted_fold_path="/home/aaa/Desktop/Thesis/Script/Trial/Sorted data/" #insert folder of sorted meausements files
 allmeasurements = sorted_fold_path+"All measurements/"
 allrenamed = allmeasurements +"All renamed/"
@@ -56,16 +56,16 @@ n_pixel = 16384 #number of pixels in one measurement
 This block fits the diffraction efficiencies n(x)= n_0 + n_1 cos(Gx)
 """
 
-n_diff= 2 #number of peaks for each side, for example: n=2 for 5 diffracted waves
-lam= 0.005 #incoming wavelenght in micrometers
+n_diff= 1 #number of peaks for each side, for example: n=2 for 5 diffracted waves
+lam= 0.6 #incoming wavelenght in micrometers
 LAM= 0.5 #grating constant in micrometers
 b=2*pi/lam #beta value 
 G=2*pi/LAM
 bcr1=8.0#scattering lenght x density
-bcr2=1.
+bcr2=0
 n_0 =1.
-n_1 = bcr1*2*pi/b**2 
-phi=pi
+n_1 = 2.3e-3#bcr1*2*pi/b**2 
+phi=0
 n_2 = bcr2*2*pi/b**2
 #print(n_1)
 
@@ -76,8 +76,8 @@ def k_2(theta,n):
     k_2=b*n/(2*n_0*np.cos(theta))
     return k_2
 
-d=500
-th=np.linspace(-0.015,0.015, 1000)
+d=57
+th=np.linspace(-0.25,-0.15, 1000)
 S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
 sum_diff = np.zeros(len(th)) 
 for t in range(len(th)):
@@ -107,18 +107,18 @@ for t in range(len(th)):
     sum_diff[t]= sum(eta[:,t])
 fig, ax = plt.subplots(n_diff+2,figsize=(10,10))
 
-ax[0].plot(th,eta[n_diff,:], ".")  
+ax[0].plot(th,eta[n_diff,:], "-")  
 
 for i in range(1,n_diff+1):
-    ax[i].plot(th,eta[n_diff-i,:], ".")
-    ax[i].plot(th,eta[n_diff+i,:], ".")   
+    ax[i].plot(th,eta[n_diff-i,:], "-")
+    ax[i].plot(th,eta[n_diff+i,:], "-")   
 ax[n_diff+1].plot(th, sum_diff)
 ax[n_diff+1].set_ylim([0.5,1.5])
 
 
 def k_jz(theta, j, G):
-    k_jz=b*(1-(np.sin(theta)-j*G/b)**2)**0.5
-    return k_jz
+    k_jz=b*(1-(np.sin(theta)-j*G/b)**2+1j*0)**0.5
+    return abs(k_jz)
 def dq_j (theta, j, G):
     return b*np.cos(theta) - k_jz(theta, j, G)
 
