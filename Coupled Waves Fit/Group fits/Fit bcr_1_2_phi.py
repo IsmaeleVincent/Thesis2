@@ -34,7 +34,6 @@ fit_name="bcr_1_2_phi"
 p_name=["$(b_c \\rho)_1$","$(b_c \\rho)_2$", "$\mu$", "$\sigma$","$\\tau$", "$x_0$","$\zeta_0$", "$\phi$"]
 p_units=[" $1/\mu m^2$"," $1/\mu m^2$"," nm", " nm", "", " deg", "  deg", "$ \pi$"]
 
-
 pi=np.pi
 rad=pi/180
 
@@ -103,7 +102,6 @@ def ang_gauss(x):
     return g.pdf(x)
 gx = np.arange(norm.ppf(0.001, loc=0, scale=div), norm.ppf(0.999, loc=0, scale=div), 1e-6)
 gauss_conv = ang_gauss(gx)/sum(ang_gauss(gx))
-# plt.plot(gx,ang_gauss(gx))
 
 ##############################################################################
 
@@ -118,9 +116,18 @@ phi=0 #phase shift bcr2
 phi1=0 #phase shift bcr3
 d0=78 #sample thickness
 
+Bi_groups=[[5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0],
+          [5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0],
+          [5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0],
+          [5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0]]
+Bf_groups=[[10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2, 2],
+          [10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2, 2],
+          [10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2, 2],
+          [10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2, 2]]
+
 measur_groups=[[0,2,3,4,5],[9,10,11,12],[1], range(13)]
 
-for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     tilt=[0,40,48,61,69,71,79,80,81,77.88,76.76,75.64,74.52]
     plt.rcParams["font.size"] = 18
     plt.rcParams["lines.markersize"] = 12
@@ -139,7 +146,7 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     save_fit_res=0
     wl_plot=1
     param_ev_plot=1
-    close_fig=1
+    close_fig=0
     wlp=1e-2
     def process_fit(k):
         # print(foldername[k])
@@ -148,21 +155,8 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         diff_eff =  np.loadtxt(data_analysis+foldername[k]+"_diff_eff_new.mpa",skiprows=1)
         # fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
         # diff_eff = diff_eff[diff_eff[:,0]<=0]
-        diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
-        diff_eff_aus=diff_eff[:,2::2].copy()
-        diff_eff_aus_err=diff_eff[:,3::2].copy()
-        diff_eff_aus[diff_eff_aus==0]=1
-        for i in range(len(diff_eff[:,0])):
-            s=sum(diff_eff[i,2::2])
-            diff_eff[i,2:]=diff_eff[i,2:]/s
         diff_eff_fit=diff_eff[:,2::2].copy()
-        diff_eff_err=(diff_eff_fit**2+diff_eff_fit)
-        for i in range(len(diff_eff_err[:,0])):
-            s=sum(diff_eff_aus_err[i,:])
-            for j in range(len(diff_eff_err[0,:])):
-                diff_eff_err[i,j]=diff_eff_err[i,j]*s/diff_eff_aus[i,j]
-        diff_eff_err[diff_eff_err==0]=0.01
-        diff_eff[:,3::2]=diff_eff_err
+        diff_eff_err=diff_eff[:,3::2].copy()
         def fit_func(x, bcr1, bcr2, mu1, sigma, tau, x00, zeta0, phi):
             x=diff_eff[:,0]+x00
             phi=phi*pi
@@ -219,23 +213,15 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             aaa=eta_ang[n_diff-2:n_diff+3].ravel()
             return aaa
         P0= np.zeros(8) #fit_res[0]  # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
-        if (fitting):
-            P0[0]=8
-            P0[1]=1.
-            P0[2]=3.5e-3
-            P0[3]=0.0002
-            P0[4]=5
-            P0[5]=0
-            P0[6]=0
-            P0[7]=1
-            Bi_groups=[[5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0],
-                      [5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0],
-                      [5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0],
-                      [5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0]]
-            Bf_groups=[[10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2, 2],
-                      [10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2, 2],
-                      [10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2, 2],
-                      [10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2, 2]]
+        P0[0]=8
+        P0[1]=1.
+        P0[2]=3.5e-3
+        P0[3]=0.0002
+        P0[4]=5
+        P0[5]=0
+        P0[6]=0
+        P0[7]=1
+        if (fitting):   
             B=(Bi_groups[group],Bf_groups[group])
             for i in range(len(B[0])):
                 if (P0[i]<B[0][i] or P0[i]>B[1][i]):
@@ -252,7 +238,6 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                 for i in range(1):
                     p,cov=fit(fit_func,xx,ff, p0=P0,bounds=B)
                     P0=p
-                    # print(p)
             except RuntimeError:
                 print("Error: fit not found")
             # print(p)
@@ -269,9 +254,11 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         print("Start Time =", current_time)
         if __name__=="__main__":
             pool=Pool()
-            pool.map(process_fit,krange)#len(foldername)))
+            pool.map(process_fit,krange)
         now1=datetime.now()
         print("fit time=",now1-now)
+        
+        
     if (plotting):
         for k in krange:
             if (not fitting):
@@ -280,24 +267,7 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
             diff_eff =  np.loadtxt(data_analysis+foldername[k]+"_diff_eff_new.mpa",skiprows=1)
             fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
-            diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
-            diff_eff_aus=diff_eff[:,2::2].copy()
-            diff_eff_aus_err=diff_eff[:,3::2].copy()
-            diff_eff_aus[diff_eff_aus==0]=1
             p=fit_res[0]
-            # print(p)
-            for i in range(len(diff_eff[:,0])):
-                s=sum(diff_eff[i,2::2])
-                diff_eff[i,2:]=diff_eff[i,2:]/s
-            diff_eff_fit=diff_eff[:,2::2].copy()
-            diff_eff_err=(diff_eff_fit**2+diff_eff_fit)
-            for i in range(len(diff_eff_err[:,0])):
-                s=sum(diff_eff_aus_err[i,:])
-                for j in range(len(diff_eff_err[0,:])):
-                    diff_eff_err[i,j]=diff_eff_err[i,j]*s/diff_eff_aus[i,j]
-            diff_eff_err[diff_eff_err==0]=0.01
-            diff_eff[:,3::2]=diff_eff_err
-            diff_eff_fit=np.transpose(diff_eff_fit)
             def plot_func(x, bcr1, bcr2, mu1, sigma, tau, x00,zeta0, phi):
                 x=diff_eff[:,0]+x00
                 phi*pi
@@ -370,7 +340,7 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                         ax[i].tick_params(axis="y", labelleft=False, left = False)
                 #ax[2].subplots_adjust(wspace=0, hspace=0)
                 ax[0].set_title(foldername[k])
-                ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
+                ax[0].errorbar(diff_eff[:,0]*rad,diff_eff[:,6], fmt="^k",  yerr=diff_eff[:,7], label="Data")
                 ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
                 for i in range(1,3):
                     if i<3:
@@ -401,37 +371,6 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                         text+= "\t"
                     text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
                 ax[-2].text(0.5,0.5,text,va="center", ha="center")
-            else:
-                fig, ax = plt.subplots(3,figsize=(fig_size[0],fig_size[1]))
-                ax[0].set_title(foldername[k])
-                ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
-                ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
-                #ax[0].set_ylim([np.amin(diff_eff_fit[2,:])-0.4,np.amax(diff_eff_fit[2,:])])
-                #ax[0].legend(loc=(5))
-                for i in range(1,3):
-                    if i<3:
-                        #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6-2*i],"o")
-                        ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6-2*i], fmt="^k", yerr=diff_eff[:,7-2*i], label="Data (-"+str(i)+")")
-                        #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6+2*i],"o")
-                        ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6+2*i], fmt="v",  color = (0.8,0,0),  yerr=diff_eff[:,7+2*i],label="Data (+"+str(i)+")")
-                    ax[i].plot(thx,eta[n_diff-i,:],"--k", label="Fit (-"+str(i)+")")
-                    ax[i].plot(thx,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
-                    #ax[i].legend()
-                # ax[n_diff+1].plot(th, sum_diff)
-                # ax[n_diff+1].set_ylim([0.5,1.5])
-                #   plt.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+1],capsize=1)
-                for i in range(2,4):
-                    fit_res[0,i]*=1e3
-                    fit_res[1,i]*=1e3
-                for i in range(len(p)):
-                    if not i%3:
-                        text+= "\n"
-                    else:
-                        text+= "\t"
-                    text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
-                ax[-1].text(diff_eff[0,0]*rad,-np.amax(diff_eff_fit[0,:])*2/3, text,  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
-                #ax[1].text( diff_eff[0,0]*rad,np.amax(diff_eff_fit[3,:]), "p value="+str("%.3f" % (chi[1],)),  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
-            plt.savefig(alldiff_eff_fit[group]+str(tilt[k])+"deg_fit_"+fit_name+"_"+str(tilt[k])+"_deg.png", format="png",bbox_inches="tight")
             if close_fig:
                 plt.close(fig)
             now2=datetime.now()
@@ -453,8 +392,7 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     Merges fit results in a doc
     """
     nmeas_groups=[5,7,1,13]
-    tot_res = np.zeros((nmeas_groups[group], 9))
-    tot_cov=tot_res.copy()
+    tot_res = np.zeros((2*nmeas_groups[group], 9))
     kaus=-1
     for k in krange:
         kaus+=1
@@ -463,61 +401,34 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
         tot_res[kaus,0]=tilt[k]
         tot_res[kaus,1:]=fit_res[0]
-        tot_cov[kaus,0]=tilt[k]
-        tot_cov[kaus,1:]=fit_res[1]
-    tot_res=tot_res[np.argsort(tot_res[:,0])]
-    tot_cov=tot_cov[np.argsort(tot_cov[:,0])]
-    # print(tot_res)
-    
+        tot_res[kaus+1,1:]=fit_res[1]    
     with open(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa", "w") as f:
           np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-    with open(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-          np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
     if group==3:
        with open(sorted_fold_path+"Total results/tot_fit_results_"+fit_name+".mpa", "w") as f:
              np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-       with open(sorted_fold_path+"Total results/tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-             np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:])) 
+
     
     """
     Plot parameters evolution
     """
+    B=[Bi_groups[group],Bf_groups[group]]
     if param_ev_plot:
         if group!=2:
             fit_res =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)
-            fit_cov =  np.loadtxt(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa",skiprows=1)
             fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(fig_size[0],fig_size[1]),sharex=True)
             #plt.subplots_adjust(hspace=0.5)
             plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
             for i in range(len(fit_res[0,1:])):
                 ax[i].set_ylabel(p_name[i])
-                ax[i].errorbar(np.arange(len(fit_res[:,i+1])),fit_res[:,i+1], yerr=fit_cov[:,i+1])
-                ax[i].set_ylim([np.amin(fit_res[:,i+1])-abs(np.amin(fit_res[:,i+1]))*0.1,np.amax(fit_res[:,i+1])*(1.1)])
+                ax[i].errorbar(np.arange(len(fit_res[::2,i+1])),fit_res[::2,i+1], yerr=fit_res[1::2,i+1])
+                ax[i].set_ylim(B[0][i],B[1][i])
             plt.savefig(allfits_plots[group]+"Param_evolution_"+fit_name+".png", format="png",bbox_inches="tight")
             if close_fig:
                 plt.close(fig)
+
     """
-    """
-    # for k in krange:
-    #     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    #     fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
-    #     mu=fit_res[0,2]
-    #     sigma=fit_res[0,3]
-    #     tau=fit_res[0,4]
-    #     wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu, scale=sigma)
-    #     x=np.linspace(wl[0],wl[-1],10000)
-    #     a=rho(wl,tau, mu, sigma)/sum(rho(wl,tau, mu, sigma))
-    #     fig=plt.figure(figsize=(6,3))
-    #     ax=fig.add_subplot(111)
-    #     ax.plot(wl,a/np.amax(a),"k.", label= "WL distribution")
-    #     mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
-    #     ax.vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
-    #     a=rho(x,tau, mu, sigma)/sum(rho(x,tau, mu, sigma))
-    #     ax.plot(x,a/np.amax(a),"k-", label= "WL distribution")
-    #     ax.vlines(x[a==np.amax(a)][0], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (x[a==np.amax(a)]*1e3),)+" nm")
-    #     ax.legend()
-    
-    """
+    This block plots the wl distributions
     """
     plt.rcParams["font.size"] = 11
     plt.rcParams["lines.markersize"] = 6
@@ -528,8 +439,7 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         krange=krange[np.argsort(tilt[krange])]
         # print(krange)
         group_names=["Jürgen's","Martin's","Christian's", "All"]
-        fit_res_meas =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)
-        fit_cov_meas = np.loadtxt(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa",skiprows=1)
+        fit_res_meas =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)[::2,:]
         n_plots=4
         if group==2:
             n_plots=2
