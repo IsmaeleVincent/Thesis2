@@ -23,7 +23,7 @@ from scipy.stats import chisquare as cs
 import math
 pi=np.pi
 rad=pi/180
-
+plt.rcParams["font.size"] = 15
 sorted_fold_path="/home/aaa/Desktop/Thesis/Script/Trial/Sorted data/" #insert folder of sorted meausements files
 allmeasurements = sorted_fold_path+"All measurements/"
 allrenamed = allmeasurements +"All renamed/"
@@ -55,6 +55,7 @@ data = np.loadtxt(f, skiprows=1, delimiter=",")
 print(data[:,0][data[:,1]==np.amin(data[300:310,1])])
 ax.set_xlabel("Meauserement number")
 ax.set_ylabel("Avg counts")
+ax.set_xlim([0,400])
 # ax.plot(xplt-xmax, gauss(xplt,*p[0:3]), "r-", label="0th order")
 # ax.plot(xplt-xmax, gauss(xplt,*p[3:6]), "g-", label="1st order")
 # ax.plot(xplt-xmax, gauss(xplt,*p[6:9]), "b-", label="2nd order")
@@ -68,11 +69,11 @@ a=-1
 for i in range(len(n_theta)):
    s= sum(n_theta[0:i]) +2 #n_theta[i]//4
    if i==10:
-    ax.text(data[s,0], data[s+3,1]-0.05-2*a*0.15, "$\zeta$="+str(tilt[i])+"$^o$", color="k") 
+    ax.text(data[s,0], data[s+3,1]-0.05-2*a*0.15, "$\zeta$="+str(tilt[i])+"$^o$", color="k", fontsize=12) 
    else:
        if (i>6):
            s+=2
-       ax.text(data[s,0], data[s+6,1]-0.05+a*0.15, "$\zeta$="+str(tilt[i])+"$^o$", color="k") 
+       ax.text(data[s,0], data[s+6,1]-0.05+a*0.15, "$\zeta$="+str(tilt[i])+"$^o$", color="k", fontsize=12) 
        a=-a
 
 plt.savefig('Dips.eps', format='eps',bbox_inches='tight')

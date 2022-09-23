@@ -44,11 +44,11 @@ def dq_j (theta, j, G,b):
 n_diff= 3 #number of peaks for each side, for example: n=2 for 5 diffracted waves
 
 P=[10,0,0]
-fig = plt.figure(figsize=(10,3))#constrained_layout=True
+fig = plt.figure(figsize=(9,3))#constrained_layout=True
 gs = GridSpec(1, 2, figure=fig,wspace=0)
 ax = [fig.add_subplot(gs[0,:-1]),
       fig.add_subplot(gs[0,-1])]
-fig.subplots_adjust(top=0.75)
+fig.subplots_adjust(top=0.77)
 ax[1].tick_params(axis="y", labelleft=False, left = False,labelbottom=False, bottom = False)
 
 lam=2.5e-3
@@ -116,15 +116,16 @@ for zeta in tilt:
 #ax[0].plot(eta[2,:])
 P[0]=n_1
 P[1]=n_2
+ax[0].plot(pendol[:,0],pendol[:,3],"--", color=(0.8,0,0),label="Order -1")
 ax[0].plot(pendol[:,0],pendol[:,1],"-k", label="Order 0")   
-ax[0].plot(pendol[:,0],pendol[:,2],"--k", label="Order 1")
-ax[0].plot(pendol[:,0],pendol[:,3],"--", color=(0.8,0,0),label="Order 2")
+ax[0].plot(pendol[:,0],pendol[:,2],"--k", label="Order +1")
+
 # ax[0].plot(pendol[:,0],pendol[:,4],"--", color=(0,0,0.5), label="Order 3")
 fig.legend(ncol=1, framealpha=1, loc=(0.465,0.546))
-fig.suptitle("$\lambda$ = "+str(lam*1e3)+" $nm$   $\Lambda$ = "+str(LAM)+" $\mu m$   $\Delta n_1$ = "+str("%.1f" % (1e6*P[0],)) + "$\cdot 10^{-6}$", bbox=dict(fc=(1,1,1)))
-ax[0].set_title("$\\theta$ = "+str("%.0f"%(-th[0]*1e2,))+" rad", fontsize=font_size)# ax[1].set_title("Parameters", fontsize=15)
-ax[0].set_xlabel("Thickness ($\mu m$)", fontsize=font_size)
-ax[0].set_ylabel("Diff. efficiency", fontsize=font_size)
+fig.suptitle("$\lambda$ = "+str(lam*1e3)+" $nm$   $\Lambda$ = "+str(LAM)+" $\mu m$   $\Delta n_1$ = "+str("%.1f" % (1e6*P[0],)) + "$\cdot 10^{-6}$", bbox=dict(fc=(1,1,1)), fontsize=font_size)
+ax[0].set_title("$\\theta$ = "+str("%.0f"%(-th[0]*1e2,))+" rad")# ax[1].set_title("Parameters", fontsize=15)
+ax[0].set_xlabel("Thickness ($\mu m$)")
+ax[0].set_ylabel("Diff. efficiency")
 p_name=["$\Delta n_1$","$\Delta n_2$", "$\phi$", "$\phi_2$"]
 p_units=["","", " $\pi$", " $\pi$"]
 text = ""
@@ -187,7 +188,7 @@ ax[1].plot(th*1e2, eta[1,:], "k")
 ax[1].plot(th*1e2, eta[0,:], "--k")
 ax[1].plot(th*1e2, eta[2,:], "--", color=(0.8,0,0))
 ax[1].set_xticks([-5,-2.5,0,2.5,5])
-ax[1].set_xlabel("$\\theta$ (rad$\cdot10^{-2}$)", fontsize=font_size)
+ax[1].set_xlabel("$\\theta$ (rad$\cdot10^{-2}$)")
 
 plt.savefig('Triport_simulation.eps', format='pdf',bbox_inches='tight')
 

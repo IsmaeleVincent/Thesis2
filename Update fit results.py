@@ -47,20 +47,22 @@ krange=range(len(foldername))
 #         with open(data_analysis+foldername[k]+"_fit_results_"+name+".mpa", "w") as f:
 #             np.savetxt(f,(p,cov), header="mu sigma tau x_0 zeta_0", fmt="%.6f")
 
-measur_groups=[[0,2,3,4,5,6],[6,7,8,9,10,11,12],[1], range(13)]
+measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13)]
 
-for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+for group in [0,1,2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     krange=measur_groups[group]
-    tot_fit_res = np.loadtxt(sorted_fold_path+"Total results 13 sep/group_"+str(group)+"_multi_fit_results_"+names[4]+".mpa",skiprows=1, dtype=float)
+    tot_fit_res = np.loadtxt(sorted_fold_path+"Total results 14 sep/group_"+str(group)+"_multi_fit_results_"+names[4]+".mpa",skiprows=1, dtype=float)
     print(tot_fit_res)
     c = tot_fit_res**0.5
     p=tot_fit_res
     L=(len(p)-3)//len(krange)
-    # print(L)
+    print(L)
     kaus=0
     for k in krange:
         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
         P=[*p[0:3],*p[3+kaus*L:3+L*(1+kaus)]]
+        if group==0:
+            print(P)
         # c=np.diag(cov)**0.5
         COV=[*c[0:3],*c[3+kaus*L:3+L*(1+kaus)]]
         # print(P)

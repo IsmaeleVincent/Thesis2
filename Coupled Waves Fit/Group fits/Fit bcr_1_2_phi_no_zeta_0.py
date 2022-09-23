@@ -190,7 +190,7 @@ Bi_groups=[B0i, B0i, B0i, B0i]
 Bf_groups=[B0f, B0f, B0f, B0f]
 measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13)]
 
-for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     now=datetime.now()
     current_time = now.strftime("%H:%M:%S")
     print("Start Time group "+str(group)+" = ", current_time)

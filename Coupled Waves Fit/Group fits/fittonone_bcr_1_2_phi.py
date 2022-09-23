@@ -189,7 +189,7 @@ Bi_groups=[B0i, B0i, B0i, B0i]
 Bf_groups=[B0f, B0f, B0f, B0f]
 measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13)]
 
-for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+for group in [0,1,2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     now=datetime.now()
     current_time = now.strftime("%H:%M:%S")
     print("Start Time group "+str(group)+" = ", current_time)
@@ -201,10 +201,10 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     fig_size=[20,18]
     krange=measur_groups[group]
 
-    fitting=1
+    fitting=0
     plotting=1
     extended_plot=1
-    save_fit_res=1
+    save_fit_res=0
     wl_plot=1
     param_ev_plot=1
     close_fig=0
@@ -286,6 +286,8 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         print("fit time=",nowf1-nowf)
         if (save_fit_res):
             L=(len(P0)-n_shared)//len(krange)
+            with open(sorted_fold_path+"Total results 14 sep/group_"+str(group)+"_multi_fit_results_"+fit_name+".mpa", "w") as f:
+                np.savetxt(f,(p,np.diag(cov)**0.5), header="PAR group fit resutls "+fit_name+" in common")
             # print(L)
             kaus=0
             for kf in krange:
@@ -411,18 +413,18 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             now2=datetime.now()
             print("plot time=",now2-now1)
     
-    duration = 0.2  # seconds
-    freq = 440  # Hz
-    for i in range (6):
-        os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+i%3*62))
-        if i%3==2:
-            os.system("play -nq -t alsa synth {} sine {}".format(duration, freq))
-    for i in range (2):
-        os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+2*62))
-        os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+2*62+31))
-        os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+3*62+31))
-        time.sleep(0.2)
-      
+duration = 0.2  # seconds
+freq = 440  # Hz
+for i in range (6):
+    os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+i%3*62))
+    if i%3==2:
+        os.system("play -nq -t alsa synth {} sine {}".format(duration, freq))
+for i in range (2):
+    os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+2*62))
+    os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+2*62+31))
+    os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+3*62+31))
+    time.sleep(0.2)
+  
     # """
     # Merges fit results in a doc
     # """

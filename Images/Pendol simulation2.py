@@ -42,12 +42,12 @@ def dq_j (theta, j, G,b):
 
 n_diff= 4 #number of peaks for each side, for example: n=2 for 5 diffracted waves
 P=[8,0,0]
-fig = plt.figure(figsize=(10,6))#constrained_layout=True
-gs = GridSpec(5, 3, figure=fig,wspace=0, hspace=8)
+fig = plt.figure(figsize=(10,5))#constrained_layout=True
+gs = GridSpec(10, 3, figure=fig,wspace=0, hspace=-0.2, top=0.84)
 ax = [fig.add_subplot(gs[0:2,:]),
-      fig.add_subplot(gs[2:,0]),
-      fig.add_subplot(gs[2:,1]),
-      fig.add_subplot(gs[2:,2])]
+      fig.add_subplot(gs[5:,0]),
+      fig.add_subplot(gs[5:,1]),
+      fig.add_subplot(gs[5:,2])]
 ax[2].tick_params(axis="both", labelleft=False, left = False)
 ax[3].tick_params(axis="both", labelleft=False, left = False)
 fig.subplots_adjust(top=0.85)
@@ -118,11 +118,11 @@ ax[0].plot(pendol[:,0],pendol[:,1],"-k", label="Order 0")
 ax[0].plot(pendol[:,0],pendol[:,2],"--k", label="Order 1")
 # ax[0].plot(pendol[:,0],pendol[:,3],"--", color=(0.8,0,0),label="Order 2")
 # ax[0].plot(pendol[:,0],pendol[:,4],"--", color=(0,0,0.5), label="Order 3")
-ax[0].legend(ncol=1, framealpha=1, loc=1)
-fig.suptitle("$\lambda$ = "+str(lam*1e3)+" $nm$   $\Lambda$ = "+str(LAM)+" $\mu m$   $\Delta n_1$ = "+str("%.1f" % (1e6*P[0],)) + "$\cdot 10^{-6}$", bbox=dict(fc=(1,1,1)))
+ax[0].legend(ncol=1, framealpha=1, loc=5)
+fig.suptitle("$\lambda$ = "+str(lam*1e3)+" $nm$   $\Lambda$ = "+str(LAM)+" $\mu m$   $\Delta n_1$ = "+str("%.1f" % (1e6*P[0],)) + "$\cdot 10^{-6}$", bbox=dict(fc=(1,1,1)), fontsize=font_size)
 ax[0].set_title("$\\theta$ = "+str("%.1f"%(-th[0]*1e2,))+"$\cdot 10^{-2}$ rad", fontsize=font_size)# ax[1].set_title("Parameters", fontsize=15)
-ax[0].set_xlabel("Thickness ($\mu m$)", fontsize=font_size)
-ax[0].set_ylabel("Diff. efficiency", fontsize=font_size)
+ax[0].set_xlabel("Thickness ($\mu m$)")
+ax[0].set_ylabel("Diff. efficiency")
 T=130.88
 tilt=[T/2,T,2*T]
 k=0

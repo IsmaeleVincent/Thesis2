@@ -127,7 +127,7 @@ Bf_groups=[[10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2, 2],
 
 measur_groups=[[0,2,3,4,5],[9,10,11,12],[1], range(13)]
 
-for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     tilt=[0,40,48,61,69,71,79,80,81,77.88,76.76,75.64,74.52]
     plt.rcParams["font.size"] = 18
     plt.rcParams["lines.markersize"] = 12

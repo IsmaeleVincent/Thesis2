@@ -290,6 +290,8 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         print("fit time=",nowf1-nowf)
         if (save_fit_res):
             L=(len(P0)-n_shared)//len(krange)
+            with open(sorted_fold_path+"Total results 14 sep/group_"+str(group)+"_multi_fit_results_"+fit_name+".mpa", "w") as f:
+                np.savetxt(f,(p,np.diag(cov)**0.5), header="PAR group fit resutls "+fit_name+" in common")
             # print(L)
             kaus=0
             for kf in krange:

@@ -34,7 +34,7 @@ xplt=np.linspace(data[:,0][0], data[:,0][-1], 1000)
 xmax = xplt[distr(xplt,*p)==np.amax(distr(xplt,*p))]
 ax.set_xlabel("mm")
 ax.set_ylabel("Avg counts")
-ax.plot(data[:,0]-xmax,data[:,1], "ko", label="Measurement")
+ax.plot(data[:,0]-xmax,data[:,1], "k^", label="Data")
 ax.plot(xplt-xmax, distr(xplt,*p), "k--", label="Gaussian Fit")
 xplt1=np.linspace(0,p[3], 2)
 ax.plot(xplt1, xplt1*0 +distr(p[2]+p[3],*p), "k-|", markersize=10)

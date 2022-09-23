@@ -22,6 +22,7 @@ from multiprocessing import Pool
 pi=np.pi
 rad=pi/180
 plt.rcParams['font.size'] = 12
+font_size=12
 sorted_fold_path="/home/aaa/Desktop/Thesis2/Sorted data/" #insert folder of sorted meausements files
 file_name=sorted_fold_path + "Safety plots/5RCWA_eta_TE_GS__0.5__d_322.4181085662225__e1_15.597184423005746__e2_2.339577663450862__e3_0.0__phi2_0.00__phi3_0.00.dat"
 diff_eff=np.loadtxt(file_name)
@@ -34,8 +35,8 @@ def dq_j (theta, j, G,b):
 n_diff= 7 #number of peaks for each side, for example: n=2 for 5 diffracted waves
 
 Param=[[8,0,0],[8,5,1],[8,5,0.5]]
-fig = plt.figure(figsize=(9,9))#constrained_layout=True
-gs = GridSpec(3, 4, figure=fig,hspace=0,wspace=0)
+fig = plt.figure(figsize=(8,4))#constrained_layout=True
+gs = GridSpec(3, 4, figure=fig,hspace=0,wspace=0,top=0.9)
 ax = [fig.add_subplot(gs[0,:-1]),
       fig.add_subplot(gs[1,:-1]),
       fig.add_subplot(gs[2,:-1]),
@@ -67,7 +68,7 @@ for j in range(3):
         k+=1
         d=zeta#d0/np.cos((zeta*rad))
         # pendol[k,0] = d
-        th=[-0.004]#np.linspace(-0.015,0,50)#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
+        th=[-0.0052]#np.linspace(-0.015,0,50)#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
         S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
         eta=S.copy().real
         eta_aus=eta.copy()
@@ -111,12 +112,13 @@ for j in range(3):
     ax[j].plot(pendol[:,0],pendol[:,1],"-k", label="Order 0")   
     ax[j].plot(pendol[:,0],pendol[:,2],"--k", label="Order 1")
     ax[j].plot(pendol[:,0],pendol[:,3],"--", color=(0.8,0,0),label="Order 2")
+    ax[j].set_ylim([-0.2,1.2])
     # ax[j].plot(pendol[:,0],pendol[:,4],"--", color=(0,0,0.5), label="Order 3")
     ax[0].legend(ncol=1, framealpha=1, loc=1)
-    ax[0].set_title("$\lambda$ ="+str(lam*1e3)+" $nm$   $\Lambda$ ="+str(LAM)+" $\mu m$   $\\theta$ ="+str(-th[0])+" rad", fontsize=15)
-    ax[3].set_title("Parameters", fontsize=15)
-    ax[2].set_xlabel("Thickness ($\mu m$)", fontsize=15)
-    ax[1].set_ylabel("Diff. efficiency", fontsize=15)
+    fig.suptitle("$\lambda$ ="+str(lam*1e3)+" $nm$   $\Lambda$ ="+str(LAM)+" $\mu m$   $\\theta$ ="+str(-th[0])+" rad", fontsize=font_size,bbox=dict(fc=(1,1,1)))
+    ax[3].set_title("Parameters", fontsize=font_size)
+    ax[2].set_xlabel("Thickness ($\mu m$)")
+    ax[1].set_ylabel("Diff. efficiency")
     p_name=["$\Delta n_1$","$\Delta n_2$", "$\phi$", "$\phi_2$"]
     p_units=["","", " $\pi$", " $\pi$"]
     text = ""
@@ -131,5 +133,5 @@ for j in range(3):
             text+= p_name[i] + "=" + str("%.1f" % (1e6*P[i],)) + "$\cdot 10^{-6}$"
         else:
             text+= p_name[i] + "=" + str("%0.1f" % (P[i],)) + p_units[i]
-    ax[j+3].text(0.5,0.5,text,va="center", ha="center", fontsize=15)
+    ax[j+3].text(0.5,0.5,text,va="center", ha="center", fontsize=font_size)
 plt.savefig('Pendel_simulation.eps', format='pdf',bbox_inches='tight')

@@ -41,26 +41,26 @@ def dq_j (theta, j, G,b):
     return b*np.cos(theta) - k_jz(theta, j, G, b)
 
 n_diff= 4 #number of peaks for each side, for example: n=2 for 5 diffracted waves
-lam=4e-3
+lam=4.3e-3
 LAM= 0.5 #grating constant in micrometers
 G=2*pi/LAM
-bcr1=8.0 #scattering lenght x density
-bcr2=1.2
+bcr1=7.98 #scattering lenght x density
+bcr2=1.25
 bcr3=0.
 n_0 =1.
 phi=0
 phi1=0
 d0=78
 tilt=[0,40,48,61,69,71,79,80,81,77.88,76.76,75.64,74.52]
-tilt=np.linspace(60,81,500)#np.sort(tilt)
+tilt=np.linspace(0,81,100)#np.sort(tilt)
 pendol = np.zeros((len(tilt),4))
 pendol[:,0] = tilt
 k=-1
 for zeta in tilt:
     k+=1
-    d=d0/np.cos((zeta*rad))
+    d=d0/np.cos(((zeta-2)*rad))
     # pendol[k,0] = d
-    th=np.linspace(-0.015,0,50)#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
+    th=np.linspace(-0.02,0,50)#[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]
     S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
     eta=S.copy().real
     eta_aus=eta.copy()

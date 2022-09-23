@@ -96,7 +96,7 @@ def diff_eff_calc(k,bcr1, bcr2, phi, d, mu1, sigma, tau, x00):
     diff_eff =  np.loadtxt(data_analysis+foldername[k]+"_diff_eff_new.mpa",skiprows=1)
     x=diff_eff[:,0]+x00
     phi=phi*pi
-    d=d0/np.cos((tilt[k]+zeta0)*rad)
+    d=d/np.cos((tilt[k]+zeta0)*rad)
     wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
     a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
     # plt.plot(a)
@@ -184,14 +184,14 @@ phi=0 #phase shift bcr2
 phi1=0 #phase shift bcr3
 d0=78 #sample thickness
 
-B0i=[5, 0, 0, 70, 1.4e-3, 2e-5, 0.5, -0.0005/rad]
-B0f=[13, 7, 2, 90, 4e-3, 0.65e-3, 10, 0.0005/rad]
+B0i=[5, 0, 0, 70, 2.5e-3, 2e-5, 0.5, -0.0005/rad]
+B0f=[13, 7, 2, 95, 4e-3, 1e-3, 10, 0.0005/rad]
 Bi_groups=[B0i, B0i, B0i, B0i]
 Bf_groups=[B0f, B0f, B0f, B0f]
 
 measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13)]
 
-for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     now=datetime.now()
     current_time = now.strftime("%H:%M:%S")
     print("Start Time group "+str(group)+" = ", current_time)
@@ -203,10 +203,10 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     fig_size=[20,18]
     krange=measur_groups[group]
 
-    fitting=1
+    fitting=0
     plotting=1
     extended_plot=1
-    save_fit_res=1
+    save_fit_res=0
     wl_plot=1
     param_ev_plot=1
     close_fig=0
@@ -273,6 +273,8 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                 BI=np.append(BI,BIaus[n_shared:])
                 BF=np.append(BF,BFaus[n_shared:])
             kaus+=1
+        P0=np.loadtxt(sorted_fold_path+"Total results/group_"+str(group)+"_multi_fit_results_"+fit_name+".mpa")[0]
+        P0[3]=85
         # print(len(P0))
         # plt.plot(FF)
         # print(len(P0))
@@ -289,6 +291,8 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         print("fit time=",nowf1-nowf)
         if (save_fit_res):
             L=(len(P0)-n_shared)//len(krange)
+            with open(sorted_fold_path+"Total results/group_"+str(group)+"_multi_fit_results_"+fit_name+".mpa", "w") as f:
+                np.savetxt(f,(p,np.diag(cov)**0.5), header="PAR group fit resutls "+fit_name+" in common")
             # print(L)
             kaus=0
             for kf in krange:
@@ -313,7 +317,7 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             def plot_func(x, bcr1, bcr2, phi, d, mu1, sigma, tau, x00):
                 x=diff_eff[:,0]+x00
                 phi*pi
-                d=d0/np.cos((tilt[k]+zeta0)*rad)
+                d=d/np.cos((tilt[k]+zeta0)*rad)
                 wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
                 a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
                 th=[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,2*len(x))#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#
@@ -389,9 +393,9 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                 ax[i].plot(thx,eta[n_diff-i,:],"--k", label="Fit (-"+str(i)+")")
                 ax[i].plot(thx,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
                 #ax[i].legend()
-            mu=p[5]
-            sigma=p[6]
-            tau=p[7]
+            mu=p[4]
+            sigma=p[5]
+            tau=p[6]
             wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu, scale=sigma)
             a = rho(wl,tau, mu, sigma)/sum(rho(wl,tau, mu, sigma))
             ax[-1].plot(wl,a/np.amax(a), label= "WL distribution")
@@ -399,7 +403,7 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
             ax[-1].vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
             ax[-1].legend(loc=1)
-            for i in range(5,7):
+            for i in range(4,6):
                 fit_res[0,i]*=1e3
                 fit_res[1,i]*=1e3
             for i in range(len(p)):
