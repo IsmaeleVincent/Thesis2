@@ -33,13 +33,9 @@ def rho2(x, B, A, x0, sk, sig):
     return B+A*g.pdf(x)
 tilt=[0,40,48,61,69,71,79,80,81,77.88,76.76,75.64,74.52]
 
-tau0 = 0.1
-mu0 = 4e-3
-sigma0 = 1.5e-3
-
-mu = 4e-3
-tau = mu0
-sigma = 1.5e-3
+mu = 1.5e-3
+tau = 0.1
+sigma = 1.2e-3
 
 
 x = exponnorm.ppf(np.arange(0.01, 0.992, 1e-2), K=tau, loc=mu, scale=sigma)

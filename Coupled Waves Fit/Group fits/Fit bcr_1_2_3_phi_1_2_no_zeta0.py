@@ -95,6 +95,10 @@ Wavelenght distribution: Exponentially Modified Gaussian
 def rho(l,tau,mu,sig):
     emg=exponnorm(loc=mu,K=tau, scale=sig)
     return emg.pdf(l)
+
+mu0 = 3.37493766e-03 
+tau0=4.15406881e+00
+sigma0 = 1.93789263e-04
 ##############################################################################
 
 """
@@ -120,6 +124,13 @@ n_0 =1.
 phi=0 #phase shift bcr2
 phi1=0 #phase shift bcr3
 d0=78 #sample thickness
+
+B0i0=[5, 0,0, 1.4e-3, 5e-6, 0.5, -0.0005/rad, 0,0]
+B0f0=[13, 7,7, 4e-3, 1.1e-3, 5, 0.0005/rad, 2,2]
+B0i=[5, 0, 0, 1.4e-3, 2e-5, 0.5, -0.0005/rad, 0,0]
+B0f=[13,7,7, 4e-3, 1.1e-3, 15, 0.0005/rad, 2,2]
+Bi_groups=[B0i0, B0i0, B0i0, B0i0]
+Bf_groups=[B0f0, B0f0, B0f0, B0f0]
 
 measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13)]
 
@@ -167,6 +178,7 @@ for group in [0,1,2,3]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             phi=phi*pi
             phi1=phi1*pi
             wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
+            wl=wl[wl>0]
             a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
             plt.plot(a)
             plt.savefig("a.eps", format="eps")
@@ -220,11 +232,11 @@ for group in [0,1,2,3]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         P0= np.zeros(9) # [*fit_res[0],0 
         if (fitting):
             P0[0]=8
-            P0[1]=1.
-            P0[2]=1.
-            P0[3]=3.5e-3
-            P0[4]=0.0002
-            P0[5]=5
+            P0[1]=0
+            P0[2]=0
+            P0[3]=mu0
+            P0[4]=sigma0
+            P0[5]=tau0
             P0[6]=0
             P0[7]=1
             P0[8]=0
@@ -306,6 +318,7 @@ for group in [0,1,2,3]:#0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                 phi1=phi1*pi
                 d=d0/np.cos((tilt[k])*rad)
                 wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
+                wl=wl[wl>0]
                 a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
                 th=[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,2*len(x))#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#
                 S=np.zeros((2*n_diff+1,len(th)),dtype=complex)

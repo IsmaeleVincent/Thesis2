@@ -42,8 +42,9 @@ plt.plot(x,rho1(x,*p1), label="EMG")
 # x1=np.linspace(0,10e-3, 1000)
 # plt.plot(x1,rho1(x1,*pp), label="EMG")
 
-print(p)
-print(1/p1[3])
+print(p1)
+print(1/p[3]*1e3)
+print(1/(p[3]*p[-1]))
 lmax=x[rho1(x,*p1)==np.amax(rho1(x,*p1))]
 print(lmax)
 plt.vlines(lmax,0,np.amax(rho1(x,*p1)), label="max 1="+str("%.2e"%(lmax,)))

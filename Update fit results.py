@@ -49,12 +49,12 @@ krange=range(len(foldername))
 
 measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13)]
 
-for group in [0,1,2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     krange=measur_groups[group]
-    tot_fit_res = np.loadtxt(sorted_fold_path+"Total results 14 sep/group_"+str(group)+"_multi_fit_results_"+names[4]+".mpa",skiprows=1, dtype=float)
+    tot_fit_res = np.loadtxt(sorted_fold_path+"Total results/group_"+str(group)+"_multi_fit_results_"+names[5]+".mpa",skiprows=1, dtype=float)
     print(tot_fit_res)
-    c = tot_fit_res**0.5
-    p=tot_fit_res
+    c = tot_fit_res[1]
+    p=tot_fit_res[0]
     L=(len(p)-3)//len(krange)
     print(L)
     kaus=0
