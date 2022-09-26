@@ -126,10 +126,10 @@ n_0 =1.
 phi=0 #phase shift bcr2
 phi1=0 #phase shift bcr3
 d0=78 #sample thickness
-B0i0=[5, 1.4e-3, 5e-6, 0.5, -0.0005/rad, -2]
-B0f0=[13, 4e-3, 1.1e-3, 5, 0.0005/rad, 2]
-B0i=[5, 1.4e-3, 2e-5, 0.5, -0.0005/rad, -2]
-B0f=[13, 4e-3, 1.1e-3, 15, 0.0005/rad, 2]
+B0i0=[5, 1.4e-3, 5e-6, 0.5, -0.001/rad, -2]
+B0f0=[13, 4e-3, 1.1e-3, 5, 0.001/rad, 2]
+B0i=[5, 1.4e-3, 2e-5, 0.5, -0.001/rad, -2]
+B0f=[13, 4e-3, 1.1e-3, 15, 0.001/rad, 2]
 Bi_groups=[B0i0, B0i0, B0i0, B0i0]
 Bf_groups=[B0f0, B0f0, B0f0, B0f0]
 measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], [0,1,2,3,4,5,6,8,9,10,11,12]]
@@ -258,285 +258,292 @@ for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             pool.map(process_fit,krange)#len(foldername)))
         now1=datetime.now()
         print("fit time=",now1-now)
-    # if (plotting):
-    #     for k in krange:
-    #         if (not fitting):
-    #             now1=datetime.now()
-    #         print(foldername[k])
-    #         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    #         diff_eff =  np.loadtxt(data_analysis+foldername[k]+"_diff_eff_new.mpa",skiprows=1)
-    #         fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
-    #         p=fit_res[0]
-    #         # print(p)
-    #         diff_eff_fit=np.transpose(diff_eff[:,2::2])
-    #         diff_eff_err=diff_eff[:,3::2]
-    #         def plot_func(x, bcr1, mu1, sigma, tau, x00, zeta0):
-    #             x=diff_eff[:,0]+x00
-    #             d=d0/np.cos((tilt[k]+zeta0)*rad)
-    #             wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
-    #             wl=wl[wl>0]
-    #             a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
-    #             th=[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,2*len(x))#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#
-    #             S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
-    #             eta=S.copy().real
-    #             eta_aus=eta.copy()
-    #             sum_diff = np.zeros(len(th))
-    #             for l in range(len(wl)):
-    #                 lam=wl[l] #single wavelenght in micrometers
-    #                 b=2*pi/lam #beta value 
-    #                 n_1 = bcr1*2*pi/b**2
-    #                 n_2 = bcr2*2*pi/b**2
-    #                 n_3 = bcr3*2*pi/b**2
-    #                 for t in range(len(th)):
-    #                     A = np.zeros((2*n_diff+1,2*n_diff+1), dtype=complex)
-    #                     for i in range(len(A[0])):
-    #                         A[i][i]=-dq_j(th[t],i-n_diff,G,b)
-    #                         if(i+1<len(A[0])):
-    #                             A[i][i+1]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G,b))
-    #                             A[i+1][i]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G,b))
-    #                         if(i+2<len(A[0]) and bcr2!=0):
-    #                             A[i][i+2]=-b**2*n_0*n_2*np.exp(-1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
-    #                             A[i+2][i]=-b**2*n_0*n_2*np.exp(1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
-    #                         if(i+3<len(A[0]) and bcr3!=0):
-    #                             A[i][i+3]=b**2*n_0*n_3*np.exp(-1j*phi1)/(2*k_jz(th[t],i-n_diff,G,b))
-    #                             A[i+3][i]=b**2*n_0*n_3*np.exp(1j*phi1)/(2*k_jz(th[t],i-n_diff,G,b))
-    #                     A=-1j*A
-    #                     w,v = np.linalg.eig(A)
-    #                     v0=np.zeros(2*n_diff+1)
-    #                     v0[n_diff]=1
-    #                     c = np.linalg.solve(v,v0)
-    #                     for i in range(len(w)):
-    #                         v[:,i]=v[:,i]*c[i]*np.exp(w[i]*d)
-    #                     for i in range(len(S[:,0])):
-    #                         S[i,t] = sum(v[i,:])
-    #                 for t in range(len(th)):
-    #                     for i in range(2*n_diff+1):
-    #                         eta_aus[i,t] = abs(S[i,t])**2*k_jz(th[t],i-n_diff,G,b)/(b*np.cos(th[t]))
-    #                     sum_diff[t] = sum(eta[:,t])
-    #                 eta+=eta_aus*a[l]
-    #             eta_ang = np.zeros((2*n_diff+1,len(diff_eff[:,0])))
-    #             x_int=np.arange(th[0],th[-1], 1e-6)
-    #             for i in range(n_diff*2+1):
-    #                 f_int = interp1d(th,eta[i,:], kind="cubic")
-    #                 conv=np.convolve(f_int(x_int),gauss_conv,mode="same")
-    #                 f_int = interp1d(x_int,conv, kind="cubic")
-    #                 eta_ang[i,:]=f_int(x*rad)
-    #             return eta_ang
-    #         thx=diff_eff[:,0]*rad
-    #         eta=plot_func(diff_eff[:,0], *p)
-    #         text = "Fit results"
-    #         if(extended_plot):
-    #             p=fit_res[0]
-    #             fig = plt.figure(figsize=(fig_size[0],fig_size[1]))#constrained_layout=True
-    #             gs_t = GridSpec(5, 2, figure=fig,hspace=0, top=0.95)
-    #             gs_b =GridSpec(5, 2, figure=fig, wspace=0)
-    #             ax = [fig.add_subplot(gs_t[0,:]), 
-    #                   fig.add_subplot(gs_t[1,:]),
-    #                   fig.add_subplot(gs_t[2,:]),
-    #                   fig.add_subplot(gs_b[3, 0]),
-    #                   fig.add_subplot(gs_b[3, 1])]
-    #             for i in range(len(ax)):
-    #                 if i!=2 and i!=4:
-    #                     ax[i].tick_params(axis="x", labelbottom=False, bottom = False)
-    #                 if i>2:
-    #                     ax[i].tick_params(axis="y", labelleft=False, left = False)
-    #             #ax[2].subplots_adjust(wspace=0, hspace=0)
-    #             ax[0].set_title(foldername[k])
-    #             ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
-    #             ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
-    #             for i in range(1,3):
-    #                 if i<3:
-    #                     #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6-2*i],"o")
-    #                     ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6-2*i], fmt="^k", yerr=diff_eff[:,7-2*i], label="Data (-"+str(i)+")")
-    #                     #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6+2*i],"o")
-    #                     ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6+2*i], fmt="v",  color = (0.8,0,0),  yerr=diff_eff[:,7+2*i],label="Data (+"+str(i)+")")
-    #                 ax[i].plot(thx,eta[n_diff-i,:],"--k", label="Fit (-"+str(i)+")")
-    #                 ax[i].plot(thx,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
-    #                 #ax[i].legend()
-    #             mu=fit_res[0,1]
-    #             sigma=fit_res[0,2]
-    #             tau=fit_res[0,3]
-    #             wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu, scale=sigma)
-    #             a = rho(wl,tau, mu, sigma)/sum(rho(wl,tau, mu, sigma))
-    #             ax[-1].plot(wl,a/np.amax(a), label= "WL distribution")
-    #             ax[-1].vlines(wl[a==np.amax(a)], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (wl[a==np.amax(a)]*1e3),)+" nm")
-    #             mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
-    #             ax[-1].vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
-    #             ax[-1].legend(loc=1)
-    #             for i in range(1,3):
-    #                 fit_res[0,i]*=1e3
-    #                 fit_res[1,i]*=1e3
-    #             for i in range(len(p)):
-    #                 if not i%2:
-    #                     text+= "\n"
-    #                 else:
-    #                     text+= "\t"
-    #                 text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
-    #             ax[-2].text(0.5,0.5,text,va="center", ha="center")
-    #         else:
-    #             fig, ax = plt.subplots(3,figsize=(fig_size[0],fig_size[1]))
-    #             ax[0].set_title(foldername[k])
-    #             ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
-    #             ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
-    #             #ax[0].set_ylim([np.amin(diff_eff_fit[2,:])-0.4,np.amax(diff_eff_fit[2,:])])
-    #             #ax[0].legend(loc=(5))
-    #             for i in range(1,3):
-    #                 if i<3:
-    #                     #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6-2*i],"o")
-    #                     ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6-2*i], fmt="^k", yerr=diff_eff[:,7-2*i], label="Data (-"+str(i)+")")
-    #                     #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6+2*i],"o")
-    #                     ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6+2*i], fmt="v",  color = (0.8,0,0),  yerr=diff_eff[:,7+2*i],label="Data (+"+str(i)+")")
-    #                 ax[i].plot(thx,eta[n_diff-i,:],"--k", label="Fit (-"+str(i)+")")
-    #                 ax[i].plot(thx,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
-    #                 #ax[i].legend()
-    #             # ax[n_diff+1].plot(th, sum_diff)
-    #             # ax[n_diff+1].set_ylim([0.5,1.5])
-    #             #   plt.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+1],capsize=1)
-    #             for i in range(2,5):
-    #                 fit_res[0,i]*=1e3
-    #                 fit_res[1,i]*=1e3
-    #             for i in range(len(p)):
-    #                 if not i%3:
-    #                     text+= "\n"
-    #                 else:
-    #                     text+= "\t"
-    #                 text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
-    #             ax[-1].text(diff_eff[0,0]*rad,-np.amax(diff_eff_fit[0,:])*2/3, text,  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
-    #             #ax[1].text( diff_eff[0,0]*rad,np.amax(diff_eff_fit[3,:]), "p value="+str("%.3f" % (chi[1],)),  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
-    #         plt.savefig(alldiff_eff_fit[group]+str(tilt[k])+"deg_fit_"+fit_name+"_"+str(tilt[k])+"_deg.png", format="png",bbox_inches="tight")
-    #         if close_fig:
-    #             plt.close(fig)
-    #         now2=datetime.now()
-    #         print("plot time=",now2-now1)
+    if (plotting):
+        for k in krange:
+            if (not fitting):
+                now1=datetime.now()
+            print(foldername[k])
+            data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+            diff_eff =  np.loadtxt(data_analysis+foldername[k]+"_diff_eff_new.mpa",skiprows=1)
+            fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
+            p=fit_res[0]
+            # print(p)
+            diff_eff_fit=np.transpose(diff_eff[:,2::2])
+            diff_eff_err=diff_eff[:,3::2]
+            def plot_func(x, bcr1, mu1, sigma, tau, x00, zeta0):
+                x=diff_eff[:,0]+x00
+                d=d0/np.cos((tilt[k]+zeta0)*rad)
+                wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
+                wl=wl[wl>0]
+                a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
+                th=[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,2*len(x))#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#
+                S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
+                eta=S.copy().real
+                eta_aus=eta.copy()
+                sum_diff = np.zeros(len(th))
+                for l in range(len(wl)):
+                    lam=wl[l] #single wavelenght in micrometers
+                    b=2*pi/lam #beta value 
+                    n_1 = bcr1*2*pi/b**2
+                    n_2 = bcr2*2*pi/b**2
+                    n_3 = bcr3*2*pi/b**2
+                    for t in range(len(th)):
+                        A = np.zeros((2*n_diff+1,2*n_diff+1), dtype=complex)
+                        for i in range(len(A[0])):
+                            A[i][i]=-dq_j(th[t],i-n_diff,G,b)
+                            if(i+1<len(A[0])):
+                                A[i][i+1]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G,b))
+                                A[i+1][i]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G,b))
+                            if(i+2<len(A[0]) and bcr2!=0):
+                                A[i][i+2]=-b**2*n_0*n_2*np.exp(-1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
+                                A[i+2][i]=-b**2*n_0*n_2*np.exp(1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
+                            if(i+3<len(A[0]) and bcr3!=0):
+                                A[i][i+3]=b**2*n_0*n_3*np.exp(-1j*phi1)/(2*k_jz(th[t],i-n_diff,G,b))
+                                A[i+3][i]=b**2*n_0*n_3*np.exp(1j*phi1)/(2*k_jz(th[t],i-n_diff,G,b))
+                        A=-1j*A
+                        w,v = np.linalg.eig(A)
+                        v0=np.zeros(2*n_diff+1)
+                        v0[n_diff]=1
+                        c = np.linalg.solve(v,v0)
+                        for i in range(len(w)):
+                            v[:,i]=v[:,i]*c[i]*np.exp(w[i]*d)
+                        for i in range(len(S[:,0])):
+                            S[i,t] = sum(v[i,:])
+                    for t in range(len(th)):
+                        for i in range(2*n_diff+1):
+                            eta_aus[i,t] = abs(S[i,t])**2*k_jz(th[t],i-n_diff,G,b)/(b*np.cos(th[t]))
+                        sum_diff[t] = sum(eta[:,t])
+                    eta+=eta_aus*a[l]
+                eta_ang = np.zeros((2*n_diff+1,len(diff_eff[:,0])))
+                x_int=np.arange(th[0],th[-1], 1e-6)
+                for i in range(n_diff*2+1):
+                    f_int = interp1d(th,eta[i,:], kind="cubic")
+                    conv=np.convolve(f_int(x_int),gauss_conv,mode="same")
+                    f_int = interp1d(x_int,conv, kind="cubic")
+                    eta_ang[i,:]=f_int(x*rad)
+                return eta_ang
+            thx=diff_eff[:,0]*rad
+            eta=plot_func(diff_eff[:,0], *p)
+            text = "Fit results"
+            if(extended_plot):
+                p=fit_res[0]
+                fig = plt.figure(figsize=(fig_size[0],fig_size[1]))#constrained_layout=True
+                gs_t = GridSpec(5, 2, figure=fig,hspace=0, top=0.95)
+                gs_b =GridSpec(5, 2, figure=fig, wspace=0)
+                ax = [fig.add_subplot(gs_t[0,:]), 
+                      fig.add_subplot(gs_t[1,:]),
+                      fig.add_subplot(gs_t[2,:]),
+                      fig.add_subplot(gs_b[3, 0]),
+                      fig.add_subplot(gs_b[3, 1])]
+                for i in range(len(ax)):
+                    if i!=2 and i!=4:
+                        ax[i].tick_params(axis="x", labelbottom=False, bottom = False)
+                    if i>2:
+                        ax[i].tick_params(axis="y", labelleft=False, left = False)
+                #ax[2].subplots_adjust(wspace=0, hspace=0)
+                ax[0].set_title(foldername[k])
+                ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
+                ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
+                for i in range(1,3):
+                    if i<3:
+                        #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6-2*i],"o")
+                        ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6-2*i], fmt="^k", yerr=diff_eff[:,7-2*i], label="Data (-"+str(i)+")")
+                        #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6+2*i],"o")
+                        ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6+2*i], fmt="v",  color = (0.8,0,0),  yerr=diff_eff[:,7+2*i],label="Data (+"+str(i)+")")
+                    ax[i].plot(thx,eta[n_diff-i,:],"--k", label="Fit (-"+str(i)+")")
+                    ax[i].plot(thx,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
+                    #ax[i].legend()
+                mu=fit_res[0,1]
+                sigma=fit_res[0,2]
+                tau=fit_res[0,3]
+                wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu, scale=sigma)
+                a = rho(wl,tau, mu, sigma)/sum(rho(wl,tau, mu, sigma))
+                ax[-1].plot(wl,a/np.amax(a), label= "WL distribution")
+                ax[-1].vlines(wl[a==np.amax(a)], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (wl[a==np.amax(a)]*1e3),)+" nm")
+                mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
+                ax[-1].vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
+                ax[-1].legend(loc=1)
+                for i in range(1,3):
+                    fit_res[0,i]*=1e3
+                    fit_res[1,i]*=1e3
+                for i in range(len(p)):
+                    if not i%2:
+                        text+= "\n"
+                    else:
+                        text+= "\t"
+                    text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
+                ax[-2].text(0.5,0.5,text,va="center", ha="center")
+            else:
+                fig, ax = plt.subplots(3,figsize=(fig_size[0],fig_size[1]))
+                ax[0].set_title(foldername[k])
+                ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
+                ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
+                #ax[0].set_ylim([np.amin(diff_eff_fit[2,:])-0.4,np.amax(diff_eff_fit[2,:])])
+                #ax[0].legend(loc=(5))
+                for i in range(1,3):
+                    if i<3:
+                        #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6-2*i],"o")
+                        ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6-2*i], fmt="^k", yerr=diff_eff[:,7-2*i], label="Data (-"+str(i)+")")
+                        #ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6+2*i],"o")
+                        ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6+2*i], fmt="v",  color = (0.8,0,0),  yerr=diff_eff[:,7+2*i],label="Data (+"+str(i)+")")
+                    ax[i].plot(thx,eta[n_diff-i,:],"--k", label="Fit (-"+str(i)+")")
+                    ax[i].plot(thx,eta[n_diff+i,:],"--",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
+                    #ax[i].legend()
+                # ax[n_diff+1].plot(th, sum_diff)
+                # ax[n_diff+1].set_ylim([0.5,1.5])
+                #   plt.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+1],capsize=1)
+                for i in range(2,5):
+                    fit_res[0,i]*=1e3
+                    fit_res[1,i]*=1e3
+                for i in range(len(p)):
+                    if not i%3:
+                        text+= "\n"
+                    else:
+                        text+= "\t"
+                    text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
+                ax[-1].text(diff_eff[0,0]*rad,-np.amax(diff_eff_fit[0,:])*2/3, text,  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
+                #ax[1].text( diff_eff[0,0]*rad,np.amax(diff_eff_fit[3,:]), "p value="+str("%.3f" % (chi[1],)),  bbox=dict(boxstyle="square", ec=(0, 0, 0), fc=(1,1,1)))
+            plt.savefig(alldiff_eff_fit[group]+str(tilt[k])+"deg_fit_"+fit_name+"_"+str(tilt[k])+"_deg.png", format="png",bbox_inches="tight")
+            if close_fig:
+                plt.close(fig)
+            now2=datetime.now()
+            print("plot time=",now2-now1)
     
-    # duration = 0.2  # seconds
-    # freq = 440  # Hz
-    # for i in range (6):
-    #     os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+i%3*62))
-    #     if i%3==2:
-    #         os.system("play -nq -t alsa synth {} sine {}".format(duration, freq))
-    # for i in range (2):
-    #     os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+2*62))
-    #     os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+2*62+31))
-    #     os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+3*62+31))
-    #     time.sleep(0.2)
+    duration = 0.2  # seconds
+    freq = 440  # Hz
+    for i in range (6):
+        os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+i%3*62))
+        if i%3==2:
+            os.system("play -nq -t alsa synth {} sine {}".format(duration, freq))
+    for i in range (2):
+        os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+2*62))
+        os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+2*62+31))
+        os.system("play -nq -t alsa synth {} sine {}".format(duration, freq+3*62+31))
+        time.sleep(0.2)
       
     
     
-    # """
-    # Merges fit results in a doc
-    # """
-    # nmeas_groups=[5,7,1,13]
-    # tot_res = np.zeros((nmeas_groups[group], 7))
-    # tot_cov=tot_res.copy()
-    # kaus=-1
+    """
+    Merges fit results in a doc
+    """
+    nmeas_groups=[5,7,1,13]
+    tot_res = np.zeros((nmeas_groups[group], 7))
+    tot_cov=tot_res.copy()
+    kaus=-1
+    for k in krange:
+        kaus+=1
+        #print(foldername[k])
+        data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+        fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
+        tot_res[kaus,0]=tilt[k]
+        tot_res[kaus,1:]=fit_res[0]
+        tot_cov[kaus,0]=tilt[k]
+        tot_cov[kaus,1:]=fit_res[1]
+    tot_res=tot_res[np.argsort(tot_res[:,0])]
+    tot_cov=tot_cov[np.argsort(tot_cov[:,0])]
+    # print(tot_res)
+    
+    with open(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa", "w") as f:
+          np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
+    with open(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa", "w") as f:
+          np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
+    if group==3:
+        with open(sorted_fold_path+"Total results/tot_fit_results_"+fit_name+".mpa", "w") as f:
+              np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
+        with open(sorted_fold_path+"Total results/tot_fit_covariances_"+fit_name+".mpa", "w") as f:
+              np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:])) 
+    
+    """
+    Plot parameters evolution
+    """
+    B=(Bi_groups[group],Bf_groups[group])
+    if param_ev_plot:
+        if group!=2:
+            fit_res =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)
+            fit_cov =  np.loadtxt(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa",skiprows=1)
+            fig = plt.figure(figsize=(15,10))
+            gs= GridSpec(len(fit_res[0,1:]), 1, figure=fig,hspace=0, top=0.95)
+            ax=np.array([])
+            for i in range(len(fit_res[0,1:])):
+                ax = np.append(ax, fig.add_subplot(gs[i,:]))
+            for axs in ax[:-1]:
+                axs.tick_params(axis="x", labelbottom=False, bottom = False)
+            #plt.subplots_adjust(hspace=0.5)
+            plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
+            for i in range(len(fit_res[0,1:])):
+                ax[i].set_ylabel(p_name[i])
+                ax[i].errorbar(np.arange(len(fit_res[:,i+1])),fit_res[:,i+1], yerr=fit_cov[:,i+1])
+                ax[i].set_ylim([B[0][i],B[1][i]])
+            plt.savefig(allfits_plots[group]+"Param_evolution_"+fit_name+".png", format="png",bbox_inches="tight")
+            if close_fig:
+                plt.close(fig)
+    """
+    """
     # for k in krange:
-    #     kaus+=1
-    #     #print(foldername[k])
     #     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
     #     fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
-    #     tot_res[kaus,0]=tilt[k]
-    #     tot_res[kaus,1:]=fit_res[0]
-    #     tot_cov[kaus,0]=tilt[k]
-    #     tot_cov[kaus,1:]=fit_res[1]
-    # tot_res=tot_res[np.argsort(tot_res[:,0])]
-    # tot_cov=tot_cov[np.argsort(tot_cov[:,0])]
-    # # print(tot_res)
+    #     mu=fit_res[0,2]
+    #     sigma=fit_res[0,3]
+    #     tau=fit_res[0,4]
+    #     wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu, scale=sigma)
+    #     x=np.linspace(wl[0],wl[-1],10000)
+    #     a=rho(wl,tau, mu, sigma)/sum(rho(wl,tau, mu, sigma))
+    #     fig=plt.figure(figsize=(6,3))
+    #     ax=fig.add_subplot(111)
+    #     ax.plot(wl,a/np.amax(a),"k.", label= "WL distribution")
+    #     mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
+    #     ax.vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
+    #     a=rho(x,tau, mu, sigma)/sum(rho(x,tau, mu, sigma))
+    #     ax.plot(x,a/np.amax(a),"k-", label= "WL distribution")
+    #     ax.vlines(x[a==np.amax(a)][0], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (x[a==np.amax(a)]*1e3),)+" nm")
+    #     ax.legend()
     
-    # with open(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa", "w") as f:
-    #       np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-    # with open(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-    #       np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-    # if group==3:
-    #    with open(sorted_fold_path+"Total results/tot_fit_results_"+fit_name+".mpa", "w") as f:
-    #          np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-    #    with open(sorted_fold_path+"Total results/tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-    #          np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:])) 
-    
-    # """
-    # Plot parameters evolution
-    # """
-    # if param_ev_plot:
-    #     if group!=2:
-    #         fit_res =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)
-    #         fit_cov =  np.loadtxt(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa",skiprows=1)
-    #         fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(fig_size[0],fig_size[1]),sharex=True)
-    #         #plt.subplots_adjust(hspace=0.5)
-    #         plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
-    #         for i in range(len(fit_res[0,1:])):
-    #             ax[i].set_ylabel(p_name[i],fontsize=13)
-    #             ax[i].errorbar(np.arange(len(fit_res[:,i+1])),fit_res[:,i+1], yerr=fit_cov[:,i+1])
-    #             ax[i].set_ylim([np.amin(fit_res[:,i+1])*(0.9),np.amax(fit_res[:,i+1])*(1.1)])
-    #         plt.savefig(allfits_plots[group]+"Param_evolution_"+fit_name+".png", format="png",bbox_inches="tight")
-    #         if close_fig:
-    #             plt.close(fig)
-    # """
-    # """
-    # # for k in krange:
-    # #     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    # #     fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
-    # #     mu=fit_res[0,2]
-    # #     sigma=fit_res[0,3]
-    # #     tau=fit_res[0,4]
-    # #     wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu, scale=sigma)
-    # #     x=np.linspace(wl[0],wl[-1],10000)
-    # #     a=rho(wl,tau, mu, sigma)/sum(rho(wl,tau, mu, sigma))
-    # #     fig=plt.figure(figsize=(6,3))
-    # #     ax=fig.add_subplot(111)
-    # #     ax.plot(wl,a/np.amax(a),"k.", label= "WL distribution")
-    # #     mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
-    # #     ax.vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
-    # #     a=rho(x,tau, mu, sigma)/sum(rho(x,tau, mu, sigma))
-    # #     ax.plot(x,a/np.amax(a),"k-", label= "WL distribution")
-    # #     ax.vlines(x[a==np.amax(a)][0], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (x[a==np.amax(a)]*1e3),)+" nm")
-    # #     ax.legend()
-    
-    # """
-    # """
-    # plt.rcParams["font.size"] = 11
-    # plt.rcParams["lines.markersize"] = 6
-    # plt.rcParams["lines.linewidth"] = 1
-    # if (wl_plot):
-    #     tilt=np.array(tilt)
-    #     krange=np.array(krange)
-    #     krange=krange[np.argsort(tilt[krange])]
-    #     # print(krange)
-    #     group_names=["Jürgen's","Martin's","Christian's", "All"]
-    #     fit_res_meas =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)
-    #     fit_cov_meas = np.loadtxt(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa",skiprows=1)
-    #     n_plots=4
-    #     if group==2:
-    #         n_plots=2
-    #     kaus=-1
-    #     tilt0=str(tilt[krange[0]])
-    #     for k in krange:
-    #         kaus+=1
-    #         if kaus%n_plots==0:
-    #             tilt1=str(tilt[krange[kaus-1]])
-    #             if kaus>0:
-    #                 plt.savefig(allwl_plots[group]+tilt0+"deg-"+tilt1+"deg_wl.png", format="png",bbox_inches="tight")
-    #                 if close_fig:
-    #                     plt.close(fig)
-    #                 tilt0=str(tilt[k])
-    #             fig, ax = plt.subplots(n_plots,figsize=(8.27,11.69), dpi=100, sharex=False)
-    #             ax[0].set_title(group_names[group]+" measurements")
-    #         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    #         fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
-    #         mu=fit_res[0,2]
-    #         sigma=fit_res[0,3]
-    #         tau=fit_res[0,4]
-    #         wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu, scale=sigma)
-    #         x=np.linspace(wl[0],wl[-1],10000)
-    #         a=rho(wl,tau, mu, sigma)/sum(rho(wl,tau, mu, sigma))
-    #         # ax[kaus%n_plots].plot(wl,a/np.amax(a),"k.", label= "WL distribution")
-    #         mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
-    #         ax[kaus%n_plots].vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
-    #         a=rho(x,tau, mu, sigma)/sum(rho(x,tau, mu, sigma))
-    #         ax[kaus%n_plots].plot(x,a/np.amax(a),"k-", label= "WL distribution\n$\zeta = $"+str(tilt[k])+" deg")
-    #         ax[kaus%n_plots].vlines(x[a==np.amax(a)][0], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (x[a==np.amax(a)]*1e3),)+" nm")
-    #         ax[kaus%n_plots].legend(loc=1, fontsize=13)
-    #         ax[kaus%n_plots].set_xlim([0,12e-3])
-    #         if k==krange[-1]:
-    #             plt.savefig(allwl_plots[group]+tilt0+"deg-"+str(tilt[k])+"deg_wl.png", format="png",bbox_inches="tight")
-    #             if close_fig:
-    #                 plt.close(fig)
+    """
+    """
+    plt.rcParams["font.size"] = 11
+    plt.rcParams["lines.markersize"] = 6
+    plt.rcParams["lines.linewidth"] = 1
+    if (wl_plot):
+        tilt=np.array(tilt)
+        krange=np.array(krange)
+        krange=krange[np.argsort(tilt[krange])]
+        # print(krange)
+        group_names=["Jürgen's","Martin's","Christian's", "All"]
+        fit_res_meas =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)
+        fit_cov_meas = np.loadtxt(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa",skiprows=1)
+        n_plots=4
+        if group==2:
+            n_plots=2
+        kaus=-1
+        tilt0=str(tilt[krange[0]])
+        for k in krange:
+            kaus+=1
+            if kaus%n_plots==0:
+                tilt1=str(tilt[krange[kaus-1]])
+                if kaus>0:
+                    plt.savefig(allwl_plots[group]+tilt0+"deg-"+tilt1+"deg_wl.png", format="png",bbox_inches="tight")
+                    if close_fig:
+                        plt.close(fig)
+                    tilt0=str(tilt[k])
+                fig, ax = plt.subplots(n_plots,figsize=(8.27,11.69), dpi=100, sharex=False)
+                ax[0].set_title(group_names[group]+" measurements")
+            data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+            fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
+            mu=fit_res[0,2]
+            sigma=fit_res[0,3]
+            tau=fit_res[0,4]
+            wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu, scale=sigma)
+            x=np.linspace(wl[0],wl[-1],10000)
+            a=rho(wl,tau, mu, sigma)/sum(rho(wl,tau, mu, sigma))
+            # ax[kaus%n_plots].plot(wl,a/np.amax(a),"k.", label= "WL distribution")
+            mean=exponnorm.ppf(0.5,K=tau, loc=mu, scale=sigma)
+            ax[kaus%n_plots].vlines(mean, 0,a[abs(wl-mean)==np.amin(abs(wl-mean))]/np.amax(a), ls="dashdot", label="$\lambda_{mean}=$"+str("%.3f" % (mean*1e3),)+" nm")
+            a=rho(x,tau, mu, sigma)/sum(rho(x,tau, mu, sigma))
+            ax[kaus%n_plots].plot(x,a/np.amax(a),"k-", label= "WL distribution\n$\zeta = $"+str(tilt[k])+" deg")
+            ax[kaus%n_plots].vlines(x[a==np.amax(a)][0], 0,1, ls="dashed", label="$\lambda_{max}=$"+str("%.3f" % (x[a==np.amax(a)]*1e3),)+" nm")
+            ax[kaus%n_plots].legend(loc=1, fontsize=13)
+            ax[kaus%n_plots].set_xlim([0,12e-3])
+            if k==krange[-1]:
+                plt.savefig(allwl_plots[group]+tilt0+"deg-"+str(tilt[k])+"deg_wl.png", format="png",bbox_inches="tight")
+                if close_fig:
+                    plt.close(fig)

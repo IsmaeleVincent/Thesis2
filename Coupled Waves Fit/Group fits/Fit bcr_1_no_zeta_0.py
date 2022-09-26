@@ -39,6 +39,7 @@ pi=np.pi
 rad=pi/180
 
 fit_name="bcr_1_no_zeta_0"
+fit_name_aus="bcr_1_wl_mono_no_zeta_0"
 p_name=["$(b_c \\rho)_1$", "$\mu$", "$\sigma$","$\\tau$", "$x_0$"]
 p_units=[" $1/\mu m^2$"," nm", " nm", "", " deg"]
 
@@ -149,13 +150,13 @@ for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     wl_plot=0
     param_ev_plot=1
     close_fig=0
-    wlp=5e-2
+    wlp=1e-2
     def process_fit(k):
         print(foldername[k])
         nowf=datetime.now()
         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
         diff_eff =  np.loadtxt(data_analysis+foldername[k]+"_diff_eff_new.mpa",skiprows=1)
-        fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+"bcr_1"+".mpa",skiprows=1)
+        fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name_aus+".mpa",skiprows=1)
         # diff_eff = diff_eff[diff_eff[:,0]<=0]
         diff_eff_fit=diff_eff[:,2::2]
         diff_eff_err=diff_eff[:,3::2]
@@ -214,7 +215,7 @@ for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                 eta_ang[i,:]=f_int(x*rad)
             aaa=eta_ang[n_diff-2:n_diff+3].ravel()
             return aaa
-        P0= fit_res[0,:-1] #  [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
+        P0= [fit_res[0,0],fit_res[0,-1],0,0,0] #  [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
         if (fitting):
             # P0[0]=8
             # P0[1]=mu0
