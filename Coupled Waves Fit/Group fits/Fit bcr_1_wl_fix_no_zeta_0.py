@@ -139,8 +139,8 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         return k_jz
     def dq_j (theta, j, G,b):
         return b*np.cos(theta) - k_jz(theta, j, G, b)
-    fitting=1
-    plotting=1
+    fitting=0
+    plotting=0
     extended_plot=1
     save_fit_res=1
     wl_plot=0
@@ -414,53 +414,38 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     Merges fit results in a doc
     """
     nmeas_groups=[5,7,1,13]
-    tot_res = np.zeros((nmeas_groups[group], 3))
-    tot_cov=tot_res.copy()
-    kaus=-1
+    tot_res = np.zeros((2*nmeas_groups[group], 3))
+    kaus=-2
     for k in krange:
-        kaus+=1
+        kaus+=2
         #print(foldername[k])
         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
         fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
         tot_res[kaus,0]=tilt[k]
+        tot_res[kaus+1,0]=tilt[k]
         tot_res[kaus,1:]=fit_res[0]
-        tot_cov[kaus,0]=tilt[k]
-        tot_cov[kaus,1:]=fit_res[1]
-    tot_res=tot_res[np.argsort(tot_res[:,0])]
-    tot_cov=tot_cov[np.argsort(tot_cov[:,0])]
-    # print(tot_res)
-    
+        tot_res[kaus+1,1:]=fit_res[1]    
     with open(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa", "w") as f:
           np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-    with open(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-          np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
     if group==3:
        with open(sorted_fold_path+"Total results/tot_fit_results_"+fit_name+".mpa", "w") as f:
              np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-       with open(sorted_fold_path+"Total results/tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-             np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:])) 
+
     
     """
     Plot parameters evolution
     """
-    B=(Bi_groups[group],Bf_groups[group])
+    B=[Bi_groups[group],Bf_groups[group]]
     if param_ev_plot:
         if group!=2:
             fit_res =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)
-            fit_cov =  np.loadtxt(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa",skiprows=1)
-            fig = plt.figure(figsize=(15,7))
-            gs= GridSpec(len(fit_res[0,1:]), 1, figure=fig,hspace=0, top=0.95)
-            ax=np.array([])
-            for i in range(len(fit_res[0,1:])):
-                ax = np.append(ax, fig.add_subplot(gs[i,:]))
-            for axs in ax[:-1]:
-                axs.tick_params(axis="x", labelbottom=False, bottom = False)
+            fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(fig_size[0],fig_size[1]),sharex=True)
             #plt.subplots_adjust(hspace=0.5)
             plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
             for i in range(len(fit_res[0,1:])):
                 ax[i].set_ylabel(p_name[i])
-                ax[i].errorbar(np.arange(len(fit_res[:,i+1])),fit_res[:,i+1], yerr=fit_cov[:,i+1])
-                ax[i].set_ylim([B[0][i],B[1][i]])
+                ax[i].errorbar(np.arange(len(fit_res[::2,i+1])),fit_res[::2,i+1], yerr=fit_res[1::2,i+1])
+                ax[i].set_ylim(B[0][i],B[1][i])
             plt.savefig(allfits_plots[group]+"Param_evolution_"+fit_name+".png", format="png",bbox_inches="tight")
             if close_fig:
                 plt.close(fig)

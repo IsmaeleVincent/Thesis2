@@ -64,17 +64,17 @@ allwl_plots=allfits_plots.copy()
 for g in range(4):
     alldiff_eff_fit[g]+="Diff. effs + fits/"
     allwl_plots[g]+="WL distributions/"
-    # if os.path.exists(allfits_plots[g]):
-    #         shutil.rmtree(allfits_plots[g])
-    # os.makedirs(allfits_plots[g])
+    if os.path.exists(allfits_plots[g]):
+            shutil.rmtree(allfits_plots[g])
+    os.makedirs(allfits_plots[g])
    
-    # if os.path.exists(alldiff_eff_fit[g]):
-    #         shutil.rmtree(alldiff_eff_fit[g])
-    # os.makedirs(alldiff_eff_fit[g])
+    if os.path.exists(alldiff_eff_fit[g]):
+            shutil.rmtree(alldiff_eff_fit[g])
+    os.makedirs(alldiff_eff_fit[g])
 
-    # if os.path.exists(allwl_plots[g]):
-    #         shutil.rmtree(allwl_plots[g])
-    # os.makedirs(allwl_plots[g])
+    if os.path.exists(allwl_plots[g]):
+            shutil.rmtree(allwl_plots[g])
+    os.makedirs(allwl_plots[g])
 
 tiltangles=[0,40,48,61,69,71,79,80,81]
 foldername=[]
@@ -125,18 +125,14 @@ phi=0 #phase shift bcr2
 phi1=0 #phase shift bcr3
 d0=78 #sample thickness
 
-Bi_groups=[[5, 0, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0, 0],
-          [5, 0, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0, 0],
-          [5, 0, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0, 0],
-          [5, 0, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0, 0]]
-Bf_groups=[[10, 5, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2,2,2],
-          [10, 5, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2,2,2],
-          [10, 5, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2,2,2],
-          [10, 5, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2,2,2]]
+Bi=[5, 0, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2, 0, 0]
+Bf=[10, 5, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2,2,2]
+Bi_groups=[Bi,Bi,Bi,Bi]
+Bf_groups=[Bf,Bf,Bf,Bf]
 
 measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13)]
 
-for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     tilt=[0,40,48,61,69,71,79,80,81,77.88,76.76,75.64,74.52]
     plt.rcParams["font.size"] = 18
     plt.rcParams["lines.markersize"] = 12
@@ -150,10 +146,10 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     def dq_j (theta, j, G,b):
         return b*np.cos(theta) - k_jz(theta, j, G, b)
     fitting=0
-    plotting=1
+    plotting=0
     extended_plot=1
-    save_fit_res=0
-    wl_plot=1
+    save_fit_res=1
+    wl_plot=0
     param_ev_plot=1
     close_fig=0
     wlp=1e-2
@@ -173,6 +169,7 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             phi=phi*pi
             phi1=phi1*pi
             wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
+            wl=wl[wl>0]
             a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
             plt.plot(a)
             plt.savefig("a.eps", format="eps")
@@ -442,46 +439,38 @@ for group in [0]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     Merges fit results in a doc
     """
     nmeas_groups=[5,7,1,13]
-    tot_res = np.zeros((nmeas_groups[group], 11))
-    tot_cov=tot_res.copy()
-    kaus=-1
+    tot_res = np.zeros((2*nmeas_groups[group], 11))
+    kaus=-2
     for k in krange:
-        kaus+=1
+        kaus+=2
         #print(foldername[k])
         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
         fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
         tot_res[kaus,0]=tilt[k]
+        tot_res[kaus+1,0]=tilt[k]
         tot_res[kaus,1:]=fit_res[0]
-        tot_cov[kaus,0]=tilt[k]
-        tot_cov[kaus,1:]=fit_res[1]
-    tot_res=tot_res[np.argsort(tot_res[:,0])]
-    tot_cov=tot_cov[np.argsort(tot_cov[:,0])]
-    # print(tot_res)
-    
+        tot_res[kaus+1,1:]=fit_res[1]    
     with open(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa", "w") as f:
           np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-    with open(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-          np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
     if group==3:
        with open(sorted_fold_path+"Total results/tot_fit_results_"+fit_name+".mpa", "w") as f:
              np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-       with open(sorted_fold_path+"Total results/tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-             np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:])) 
+
     
     """
     Plot parameters evolution
     """
+    B=[Bi_groups[group],Bf_groups[group]]
     if param_ev_plot:
         if group!=2:
             fit_res =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)
-            fit_cov =  np.loadtxt(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa",skiprows=1)
             fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(fig_size[0],fig_size[1]),sharex=True)
             #plt.subplots_adjust(hspace=0.5)
             plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
             for i in range(len(fit_res[0,1:])):
                 ax[i].set_ylabel(p_name[i])
-                ax[i].errorbar(np.arange(len(fit_res[:,i+1])),fit_res[:,i+1], yerr=fit_cov[:,i+1])
-                ax[i].set_ylim(Bi_groups[group][i],Bf_groups[group][i])
+                ax[i].errorbar(np.arange(len(fit_res[::2,i+1])),fit_res[::2,i+1], yerr=fit_res[1::2,i+1])
+                ax[i].set_ylim(B[0][i],B[1][i])
             plt.savefig(allfits_plots[group]+"Param_evolution_"+fit_name+".png", format="png",bbox_inches="tight")
             if close_fig:
                 plt.close(fig)

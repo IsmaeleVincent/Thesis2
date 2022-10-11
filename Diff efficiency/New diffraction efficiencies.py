@@ -37,82 +37,82 @@ foldername.append("79-16U_74c52deg")
 n_theta=[26,46,28,17,16,20,21,20,19,48,43,59,24]  #number of measurements files for each folder (no flat, no compromised data)
 step_theta=[0.03,0.03,0.05,0.05,0.05,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03]
 n_pixel = 16384 #number of pixels in one measurement
-
-krange=range(0,len(foldername))
+tilt=[0,40,48,61,69,71,79,80,81,77.88,76.76,75.64,74.52]
+krange=range(8,len(foldername))
 
 """
 This block calculates the diffraction intensities, first part estimates theta=0
 and second part the diff eff for each theta
 """
 plot=1
-def gauss(x, A, x0,sx):
-      return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
-for k in krange:#range(11,len(foldername)):#range(8,10):#
-    print(k)
-    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    controldiff = data_analysis + "Control Diff/" 
-    if os.path.exists(controldiff):
-        shutil.rmtree(controldiff)
-    os.makedirs(controldiff)
-    matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
-    stack = np.stack(matrixes,axis=2)
-    xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
-    yabsmax = xyzabsmax[0][0]
-    xabsmax = xyzabsmax[1][0]
-    zabsmax = xyzabsmax[2][0]
-    roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI+Peaks.mpa',skiprows=1).astype(int)
-    npeaks=roi[:,3:5]
-    xpeaks=roi[:,5:7]
-    data_and_fit  =  np.loadtxt(data_analysis+foldername[k]+'_fit+data.mpa',skiprows=1)
-    diff_eff = np.zeros((len(stack[0,0,:]),12))
-    #print(foldername[k])
-    for z in range(len(stack[0,0,:])):
-        zprofile0 = np.zeros(len(stack[0,0,:]))
-        zprofile0 += stack[yabsmax,xabsmax,:]
-        # for i in range(3):
-        #     for j in range(3):
-        #         zprofile0 += stack[yabsmax+i-1,xabsmax+j-1,:].copy()/6
-    zmin1=roi[:,7][roi[:,0]==yabsmax]
-    zmin2=roi[:,8][roi[:,0]==yabsmax]
-    f2 = interp1d(np.where(zprofile0)[0], zprofile0, kind='cubic')
-    zplt=np.linspace(0,len(zprofile0)-1, 10000)
-    # if (k==6):
-    #     zplt=np.linspace(4,len(zprofile0)-1, 10000)
-    zplt1=np.linspace(zmin1,zmin2, 1000)
-    zmax= zplt1[f2(zplt1)==np.amax(f2(zplt1))]
-    if(zmin1>0 and zmin2<len(stack[0,0,:])-1):
-        zplt1=np.linspace(0,zmax, 1000)
-        z1=zplt1[f2(zplt1)==np.amin(f2(zplt1))]
-        zplt1=np.linspace(zmax,len(stack[0,0,:])-1, 1000)
-        z2=zplt1[f2(zplt1)==np.amin(f2(zplt1))]
-        c=(z1+z2)*0.5
-    else:
-        c= zplt1[f2(zplt1)==np.amax(f2(zplt1))]
-        z1=zmin1
-        z2=zmin2
-    if (k==0):
-        c=19 #for the ones in which there are not enough measurements I inserted the value manually
-    if (k==4):
-        c=12
-    if (k==6):
-        c=19.1
-    if (k==7):
-        c=16
-    if (k==8):
-        c=18
-    if (k==12):
-        c=23
-    if(plot):    
-        fig = plt.figure(figsize=(15,15))
-        ax = fig.add_subplot(111)
-        # ax.set_title(foldername[k])
-        ax.set_ylabel
-        ax.axvline(zmax, color="b")
-        ax.plot(np.where(zprofile0)[0],zprofile0, "ko")
-        ax.plot(zplt,f2(zplt), "b-")
-        ax.axvline(z1, color="r")
-        ax.axvline(z2, color="g")
-        ax.axvline(c, color="k")
+# def gauss(x, A, x0,sx):
+#       return A/sx*np.exp(-(x-x0)**2/(2*(sx)**2))
+# for k in krange:#range(11,len(foldername)):#range(8,10):#
+#     print(k)
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     controldiff = data_analysis + "Control Diff/" 
+#     if os.path.exists(controldiff):
+#         shutil.rmtree(controldiff)
+#     os.makedirs(controldiff)
+#     matrixes = [np.loadtxt(sorted_fold_path+foldername[k]+"/Matrixes/"+foldername[k]+"_"+str("%03d" % (j,))+".mpa") for j in range (1,n_theta[k]+1)]
+#     stack = np.stack(matrixes,axis=2)
+#     xyzabsmax = np.where(stack[:,:,:]==np.amax(stack[:,:,:]))
+#     yabsmax = xyzabsmax[0][0]
+#     xabsmax = xyzabsmax[1][0]
+#     zabsmax = xyzabsmax[2][0]
+#     roi =  np.loadtxt(data_analysis+foldername[k]+'_ROI+Peaks.mpa',skiprows=1).astype(int)
+#     npeaks=roi[:,3:5]
+#     xpeaks=roi[:,5:7]
+#     data_and_fit  =  np.loadtxt(data_analysis+foldername[k]+'_fit+data.mpa',skiprows=1)
+#     diff_eff = np.zeros((len(stack[0,0,:]),12))
+#     #print(foldername[k])
+#     for z in range(len(stack[0,0,:])):
+#         zprofile0 = np.zeros(len(stack[0,0,:]))
+#         zprofile0 += stack[yabsmax,xabsmax,:]
+#         # for i in range(3):
+#         #     for j in range(3):
+#         #         zprofile0 += stack[yabsmax+i-1,xabsmax+j-1,:].copy()/6
+#     zmin1=roi[:,7][roi[:,0]==yabsmax]
+#     zmin2=roi[:,8][roi[:,0]==yabsmax]
+#     f2 = interp1d(np.where(zprofile0)[0], zprofile0, kind='cubic')
+#     zplt=np.linspace(0,len(zprofile0)-1, 10000)
+#     # if (k==6):
+#     #     zplt=np.linspace(4,len(zprofile0)-1, 10000)
+#     zplt1=np.linspace(zmin1,zmin2, 1000)
+#     zmax= zplt1[f2(zplt1)==np.amax(f2(zplt1))]
+#     if(zmin1>0 and zmin2<len(stack[0,0,:])-1):
+#         zplt1=np.linspace(0,zmax, 1000)
+#         z1=zplt1[f2(zplt1)==np.amin(f2(zplt1))]
+#         zplt1=np.linspace(zmax,len(stack[0,0,:])-1, 1000)
+#         z2=zplt1[f2(zplt1)==np.amin(f2(zplt1))]
+#         c=(z1+z2)*0.5
+#     else:
+#         c= zplt1[f2(zplt1)==np.amax(f2(zplt1))]
+#         z1=zmin1
+#         z2=zmin2
+#     if (k==0):
+#         c=19 #for the ones in which there are not enough measurements I inserted the value manually
+#     if (k==4):
+#         c=12
+#     if (k==6):
+#         c=19.1
+#     if (k==7):
+#         c=16
+#     if (k==8):
+#         c=18
+#     if (k==12):
+#         c=23
+#     if(plot):    
+#         fig = plt.figure(figsize=(15,15))
+#         ax = fig.add_subplot(111)
+#         # ax.set_title(foldername[k])
+#         ax.set_ylabel
+#         ax.axvline(zmax, color="b")
+#         ax.plot(np.where(zprofile0)[0],zprofile0, "ko")
+#         ax.plot(zplt,f2(zplt), "b-")
+#         ax.axvline(z1, color="r")
+#         ax.axvline(z2, color="g")
+#         ax.axvline(c, color="k")
 #     P0m = np.zeros(9)
 #     P0p = np.zeros(9)
 #     #print(foldername[k])
@@ -331,16 +331,22 @@ for k in krange:#range(11,len(foldername)):#range(8,10):#
 # This block plots the diffraction intensities
 """
 
-# for k in krange:#range(6,len(foldername)):#
-#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-#     diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_int_new.mpa',skiprows=1)
-    # fig = plt.figure(figsize=(15,15))
-    # ax = fig.add_subplot(111)
-    # ax.set_title(foldername[k])
-    # for j in range(5):
-    #     ax.plot(diff_eff[:,0],diff_eff[:,2*j+2],'o')
-    #     ax.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+3],capsize=1)
-
+for k in [11]:#range(6,len(foldername)):#
+    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+    diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_int_new.mpa',skiprows=1)
+    fig = plt.figure(figsize=(7,2))
+    rad=np.pi/180
+    ax = fig.add_subplot(111)
+    ax.set_title("$\zeta=$"+str(tilt[k])+" deg")
+    ax.yaxis.set_label_position("right")
+    ax.set_ylabel("Order 0")
+    fig.text(0.03, 0.5, 'Neutron counts', va='center', rotation='vertical')
+    ax.set_xlabel("$\\theta$ (rad)")
+    ax.plot(diff_eff[:,0]*rad,diff_eff[:,6],"-vk", label="Data")
+    ax.legend(loc=5)
+    # ax.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+3],capsize=1)
+    plt.savefig("asymmetry.pdf", format="pdf",bbox_inches="tight")
+    plt.show()
 """
 # This block calculates the diffraction efficiencies
 """

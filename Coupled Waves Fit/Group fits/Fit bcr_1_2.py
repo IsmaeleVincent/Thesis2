@@ -99,7 +99,7 @@ def rho(l,tau,mu,sig):
 """
 Angular distribution: Gaussian
 """
-div=0.00035
+div=0.0006
 def ang_gauss(x):
     g=norm(loc=0,scale=div)
     return g.pdf(x)
@@ -116,13 +116,16 @@ bcr1=5.0 #scattering lenght x density
 bcr2=0. 
 bcr3=0.
 n_0 =1.
-phi=0 #phase shift bcr2
+phi=pi #phase shift bcr2
 phi1=0 #phase shift bcr3
 d0=78 #sample thickness
-
+B0i0=[5, 0, 1.4e-3, 5e-6, 0.5, -0.0005/rad, -2]
+B0f0=[13, 7, 4e-3, 1.5e-3, 6, 0.0005/rad, 2]
+Bi_groups=[B0i0, B0i0, B0i0, B0i0]
+Bf_groups=[B0f0, B0f0, B0f0, B0f0]
 measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13)]
 
-for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     krange=measur_groups[group]
     
     def k_jz(theta, j, G,b):
@@ -134,9 +137,9 @@ for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     plotting=1
     extended_plot=1
     save_fit_res=0
-    wl_plot=1
+    wl_plot=0
     param_ev_plot=1
-    close_fig=1
+    close_fig=0
     wlp=1e-2
     def process_fit(k):
         # print(foldername[k])
@@ -145,25 +148,13 @@ for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         diff_eff =  np.loadtxt(data_analysis+foldername[k]+"_diff_eff_new.mpa",skiprows=1)
         # fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
         # diff_eff = diff_eff[diff_eff[:,0]<=0]
-        diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
-        diff_eff_aus=diff_eff[:,2::2].copy()
-        diff_eff_aus_err=diff_eff[:,3::2].copy()
-        diff_eff_aus[diff_eff_aus==0]=1
-        for i in range(len(diff_eff[:,0])):
-            s=sum(diff_eff[i,2::2])
-            diff_eff[i,2:]=diff_eff[i,2:]/s
         diff_eff_fit=diff_eff[:,2::2].copy()
-        diff_eff_err=(diff_eff_fit**2+diff_eff_fit)
-        for i in range(len(diff_eff_err[:,0])):
-            s=sum(diff_eff_aus_err[i,:])
-            for j in range(len(diff_eff_err[0,:])):
-                diff_eff_err[i,j]=diff_eff_err[i,j]*s/diff_eff_aus[i,j]
-        diff_eff_err[diff_eff_err==0]=0.01
-        diff_eff[:,3::2]=diff_eff_err
+        diff_eff_err=diff_eff[:,3::2].copy()
         def fit_func(x, bcr1, bcr2, mu1, sigma, tau, x00, zeta0):
             x=diff_eff[:,0]+x00
             d=d0/np.cos((tilt[k]+zeta0)*rad)
             wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
+            wl=wl[wl>0]
             a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
             # plt.plot(a)
             # plt.savefig("a.eps", format="eps")
@@ -186,8 +177,8 @@ for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                             A[i][i+1]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G,b))
                             A[i+1][i]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G,b))
                         if(i+2<len(A[0]) and bcr2!=0):
-                            A[i][i+2]=-b**2*n_0*n_2*np.exp(-1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
-                            A[i+2][i]=-b**2*n_0*n_2*np.exp(1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
+                            A[i][i+2]=b**2*n_0*n_2*np.exp(-1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
+                            A[i+2][i]=b**2*n_0*n_2*np.exp(1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
                         if(i+3<len(A[0]) and bcr3!=0):
                             A[i][i+3]=b**2*n_0*n_3*np.exp(-1j*phi1)/(2*k_jz(th[t],i-n_diff,G,b))
                             A[i+3][i]=b**2*n_0*n_3*np.exp(1j*phi1)/(2*k_jz(th[t],i-n_diff,G,b))
@@ -223,14 +214,6 @@ for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             P0[4]=5
             P0[5]=0
             P0[6]=0
-            Bi_groups=[[5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2],
-                      [5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2],
-                      [5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2],
-                      [5, 0, 2.5e-3, 2e-5, 0.1, -0.0005/rad, -2]]
-            Bf_groups=[[10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2],
-                      [10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2],
-                      [10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2],
-                      [10, 5, 4e-3, 1.5e-3, 10, 0.0005/rad, 2]]
             B=(Bi_groups[group],Bf_groups[group])
             for i in range(len(B[0])):
                 if (P0[i]<B[0][i] or P0[i]>B[1][i]):
@@ -275,28 +258,14 @@ for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
             diff_eff =  np.loadtxt(data_analysis+foldername[k]+"_diff_eff_new.mpa",skiprows=1)
             fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
-            diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
-            diff_eff_aus=diff_eff[:,2::2].copy()
-            diff_eff_aus_err=diff_eff[:,3::2].copy()
-            diff_eff_aus[diff_eff_aus==0]=1
             p=fit_res[0]
             # print(p)
-            for i in range(len(diff_eff[:,0])):
-                s=sum(diff_eff[i,2::2])
-                diff_eff[i,2:]=diff_eff[i,2:]/s
-            diff_eff_fit=diff_eff[:,2::2].copy()
-            diff_eff_err=(diff_eff_fit**2+diff_eff_fit)
-            for i in range(len(diff_eff_err[:,0])):
-                s=sum(diff_eff_aus_err[i,:])
-                for j in range(len(diff_eff_err[0,:])):
-                    diff_eff_err[i,j]=diff_eff_err[i,j]*s/diff_eff_aus[i,j]
-            diff_eff_err[diff_eff_err==0]=0.01
-            diff_eff[:,3::2]=diff_eff_err
-            diff_eff_fit=np.transpose(diff_eff_fit)
+
             def plot_func(x, bcr1, bcr2, mu1, sigma, tau, x00,zeta0):
                 x=diff_eff[:,0]+x00
                 d=d0/np.cos((tilt[k]+zeta0)*rad)
                 wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
+                wl=wl[wl>0]
                 a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
                 th=[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,2*len(x))#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#
                 S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
@@ -317,8 +286,8 @@ for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                                 A[i][i+1]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G,b))
                                 A[i+1][i]=b**2*n_0*n_1/(2*k_jz(th[t],i-n_diff,G,b))
                             if(i+2<len(A[0]) and bcr2!=0):
-                                A[i][i+2]=-b**2*n_0*n_2*np.exp(-1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
-                                A[i+2][i]=-b**2*n_0*n_2*np.exp(1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
+                                A[i][i+2]=b**2*n_0*n_2*np.exp(-1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
+                                A[i+2][i]=b**2*n_0*n_2*np.exp(1j*phi)/(2*k_jz(th[t],i-n_diff,G,b))
                             if(i+3<len(A[0]) and bcr3!=0):
                                 A[i][i+3]=b**2*n_0*n_3*np.exp(-1j*phi1)/(2*k_jz(th[t],i-n_diff,G,b))
                                 A[i+3][i]=b**2*n_0*n_3*np.exp(1j*phi1)/(2*k_jz(th[t],i-n_diff,G,b))
@@ -364,7 +333,7 @@ for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                         ax[i].tick_params(axis="y", labelleft=False, left = False)
                 #ax[2].subplots_adjust(wspace=0, hspace=0)
                 ax[0].set_title(foldername[k])
-                ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
+                ax[0].errorbar(diff_eff[:,0]*rad,diff_eff[:,6], fmt="^k",  yerr=diff_eff[:,7], label="Data")
                 ax[0].plot(thx,eta[n_diff,:],"--k", label="Fit")
                 for i in range(1,3):
                     if i<3:
@@ -449,46 +418,38 @@ for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     Merges fit results in a doc
     """
     nmeas_groups=[5,7,1,13]
-    tot_res = np.zeros((nmeas_groups[group], 8))
-    tot_cov=tot_res.copy()
-    kaus=-1
+    tot_res = np.zeros((2*nmeas_groups[group], 8))
+    kaus=-2
     for k in krange:
-        kaus+=1
+        kaus+=2
         #print(foldername[k])
         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
         fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
         tot_res[kaus,0]=tilt[k]
+        tot_res[kaus+1,0]=tilt[k]
         tot_res[kaus,1:]=fit_res[0]
-        tot_cov[kaus,0]=tilt[k]
-        tot_cov[kaus,1:]=fit_res[1]
-    tot_res=tot_res[np.argsort(tot_res[:,0])]
-    tot_cov=tot_cov[np.argsort(tot_cov[:,0])]
-    # print(tot_res)
-    
+        tot_res[kaus+1,1:]=fit_res[1]    
     with open(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa", "w") as f:
           np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-    with open(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-          np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
     if group==3:
        with open(sorted_fold_path+"Total results/tot_fit_results_"+fit_name+".mpa", "w") as f:
              np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-       with open(sorted_fold_path+"Total results/tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-             np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:])) 
+
     
     """
     Plot parameters evolution
     """
+    B=[Bi_groups[group],Bf_groups[group]]
     if param_ev_plot:
         if group!=2:
             fit_res =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)
-            fit_cov =  np.loadtxt(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa",skiprows=1)
             fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(fig_size[0],fig_size[1]),sharex=True)
             #plt.subplots_adjust(hspace=0.5)
             plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
             for i in range(len(fit_res[0,1:])):
-                ax[i].set_ylabel(p_name[i],fontsize=13)
-                ax[i].errorbar(np.arange(len(fit_res[:,i+1])),fit_res[:,i+1], yerr=fit_cov[:,i+1])
-                ax[i].set_ylim([np.amin(fit_res[:,i+1])*(0.9),np.amax(fit_res[:,i+1])*(1.1)])
+                ax[i].set_ylabel(p_name[i])
+                ax[i].errorbar(np.arange(len(fit_res[::2,i+1])),fit_res[::2,i+1], yerr=fit_res[1::2,i+1])
+                ax[i].set_ylim(B[0][i],B[1][i])
             plt.savefig(allfits_plots[group]+"Param_evolution_"+fit_name+".png", format="png",bbox_inches="tight")
             if close_fig:
                 plt.close(fig)
@@ -525,7 +486,6 @@ for group in [0,1,2,3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         # print(krange)
         group_names=["Jürgen's","Martin's","Christian's", "All"]
         fit_res_meas =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)
-        fit_cov_meas = np.loadtxt(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa",skiprows=1)
         n_plots=4
         if group==2:
             n_plots=2

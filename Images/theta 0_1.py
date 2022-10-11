@@ -128,4 +128,5 @@ for k in krange:#range(11,len(foldername)):#range(8,10):#
         ax.axvline(c, color="k", ls="dashed")
         ax.plot(zprofile0, "k^", label="Data")
         ax.legend(loc=3)
+
 # plt.savefig("Theta0_1.pdf", format="pdf",bbox_inches="tight")

@@ -211,4 +211,4 @@ pendol_sim=pendol_sim[np.argsort(pendol_sim[:,0])]
 ax.plot(pendol_sim[:,0],pendol_sim[:,1],"--k", label="theory")
 ax.plot(pendol_sim[:,0],pendol_sim[:,2],"--", color=(0.8,0,0))
 ax.legend(fontsize=11)
-plt.savefig('Pendell (different wl distr).pdf', format='pdf', bbox_inches='tight')
+# plt.savefig('Pendell (different wl distr).pdf', format='pdf', bbox_inches='tight')

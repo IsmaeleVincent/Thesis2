@@ -48,7 +48,7 @@ n_pixel = 16384 #number of pixels in one measureme0nt
 foldername=np.array(foldername)
 foldername=foldername[np.argsort(foldername)]
 mins=[117,204,307,335,339]
-fig = plt.figure(figsize=(10,7))
+fig = plt.figure(figsize=(10,5))
 ax = fig.add_subplot(111)
 f="Zprofile.csv"
 data = np.loadtxt(f, skiprows=1, delimiter=",")
@@ -67,13 +67,14 @@ for i in mins:
     ax.arrow(data[i,0], 0.1, 0, data[i,1]-0.35, head_width=5, head_length=0.1, color="k")
 a=-1
 for i in range(len(n_theta)):
-   s= sum(n_theta[0:i]) +2 #n_theta[i]//4
+   s= sum(n_theta[0:i]) +1 #n_theta[i]//4
    if i==10:
-    ax.text(data[s,0], data[s+3,1]-0.05-2*a*0.15, "$\zeta$="+str(tilt[i])+"$^o$", color="k", fontsize=12) 
+    ax.text(data[s+6,0], data[s+3,1]-0.05-0.1*a*0.15, "$\zeta$="+str(tilt[i])+"$^o$", color="k", fontsize=12) 
    else:
        if (i>6):
-           s+=2
+           s+=1
        ax.text(data[s,0], data[s+6,1]-0.05+a*0.15, "$\zeta$="+str(tilt[i])+"$^o$", color="k", fontsize=12) 
        a=-a
 
 plt.savefig('Dips.eps', format='eps',bbox_inches='tight')
+plt.show()

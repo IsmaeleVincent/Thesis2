@@ -38,9 +38,9 @@ fig_size=[20,18]
 pi=np.pi
 rad=pi/180
 
-fit_name="bcr_1_wl_fix_div"
-p_name=["$(b_c \\rho)_1$", "$x_0$", " z","$\Delta \\theta$"]
-p_units=[" $1/\mu m^2$", " nm", "  deg",""]
+fit_name="bcr_1_wl_fix_no_zeta0_div"
+p_name=["$(b_c \\rho)_1$", "$x_0$","$\Delta \\theta$"]
+p_units=[" $1/\mu m^2$", " deg", " rad"]
 
 sorted_fold_path="/home/aaa/Desktop/Thesis2/Sorted data/" #insert folder of sorted meausements files
 allmeasurements = sorted_fold_path+"All measurements/"
@@ -124,11 +124,11 @@ n_0 =1.
 phi=0 #phase shift bcr2
 phi1=0 #phase shift bcr3
 d0=78 #sample thickness
-B0i=[0, -0.0005/rad, -10, 0.0001]
-B0f=[13,  0.0005/rad, 10, 0.0015]
+B0i=[0, -0.0001/rad, 0.0001]
+B0f=[13,  0.0001/rad, 0.002]
 Bi_groups=[B0i, B0i, B0i, B0i]
 Bf_groups=[B0f, B0f, B0f, B0f]
-measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13)]
+measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], [1,9]]
 
 for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     krange=measur_groups[group]
@@ -138,14 +138,14 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         return k_jz
     def dq_j (theta, j, G,b):
         return b*np.cos(theta) - k_jz(theta, j, G, b)
-    fitting=0
-    plotting=1
+    fitting=1
+    plotting=0
     extended_plot=1
     save_fit_res=1
     wl_plot=0
     param_ev_plot=1
     close_fig=0
-    wlp=2e-2
+    wlp=1e-2
     def process_fit(k):
         print(foldername[k])
         nowf=datetime.now()
@@ -155,9 +155,9 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
         # diff_eff = diff_eff[diff_eff[:,0]<=0]
         diff_eff_fit=diff_eff[:,2::2]
         diff_eff_err=diff_eff[:,3::2]
-        def fit_func(x, bcr1, x00, zeta0, div):
+        def fit_func(x, bcr1, x00, div):
             x=diff_eff[:,0]+x00
-            d=d0/np.cos((tilt[k]+zeta0)*rad)
+            d=d0/np.cos((tilt[k])*rad)
             wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
             a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
             # plt.plot(a)
@@ -211,12 +211,11 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                 eta_ang[i,:]=f_int(x*rad)
             aaa=eta_ang[n_diff-2:n_diff+3].ravel()
             return aaa
-        P0= np.zeros(4) #fit_res[0] #  [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
+        P0= np.zeros(3) #fit_res[0] #  [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
         if (fitting):
             P0[0]=8
             P0[1]=0
-            P0[2]=0
-            P0[3]=div
+            P0[2]=div
             B=(Bi_groups[group],Bf_groups[group])
             for i in range(len(B[0])):
                 if (P0[i]<B[0][i] or P0[i]>B[1][i]):
@@ -265,9 +264,9 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             # print(p)
             diff_eff_fit=np.transpose(diff_eff[:,2::2])
             diff_eff_err=diff_eff[:,3::2]
-            def plot_func(x, bcr1, x00,zeta0, div):
+            def plot_func(x, bcr1, x00, div):
                 x=diff_eff[:,0]+x00
-                d=d0/np.cos((tilt[k]+zeta0)*rad)
+                d=d0/np.cos((tilt[k])*rad)
                 wl=exponnorm.ppf(np.arange(0.01,0.99,wlp),K=tau, loc=mu1, scale=sigma)
                 a=rho(wl,tau, mu1, sigma)/sum(rho(wl,tau, mu1, sigma))
                 th=[x[0]*rad-3*div,*x*rad,x[-1]*rad+3*div]#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,2*len(x))#np.linspace(x[0]*rad-3*div,x[-1]*rad+3*div,3*len(x))#
@@ -418,46 +417,38 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     Merges fit results in a doc
     """
     nmeas_groups=[5,7,1,13]
-    tot_res = np.zeros((nmeas_groups[group], 5))
-    tot_cov=tot_res.copy()
-    kaus=-1
+    tot_res = np.zeros((2*nmeas_groups[group], 5))
+    kaus=-2
     for k in krange:
-        kaus+=1
+        kaus+=2
         #print(foldername[k])
         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
         fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
         tot_res[kaus,0]=tilt[k]
+        tot_res[kaus+1,0]=tilt[k]
         tot_res[kaus,1:]=fit_res[0]
-        tot_cov[kaus,0]=tilt[k]
-        tot_cov[kaus,1:]=fit_res[1]
-    tot_res=tot_res[np.argsort(tot_res[:,0])]
-    tot_cov=tot_cov[np.argsort(tot_cov[:,0])]
-    # print(tot_res)
-    
+        tot_res[kaus+1,1:]=fit_res[1]    
     with open(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa", "w") as f:
           np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-    with open(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-          np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
     if group==3:
        with open(sorted_fold_path+"Total results/tot_fit_results_"+fit_name+".mpa", "w") as f:
              np.savetxt(f,tot_res, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:]))
-       with open(sorted_fold_path+"Total results/tot_fit_covariances_"+fit_name+".mpa", "w") as f:
-             np.savetxt(f,tot_cov, header="tilt bcr1 bcr2 mu sigma tau x0 d", fmt="%.2f "+"%.6f "*len(fit_res[0,:])) 
+
     
     """
     Plot parameters evolution
     """
+    B=[Bi_groups[group],Bf_groups[group]]
     if param_ev_plot:
         if group!=2:
             fit_res =  np.loadtxt(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa",skiprows=1)
-            fit_cov =  np.loadtxt(allfits_plots[group]+"tot_fit_covariances_"+fit_name+".mpa",skiprows=1)
             fig, ax = plt.subplots(len(fit_res[0,1:]),figsize=(fig_size[0],fig_size[1]),sharex=True)
             #plt.subplots_adjust(hspace=0.5)
             plt.xticks(range(len(fit_res[:,0])),fit_res[:,0]) 
             for i in range(len(fit_res[0,1:])):
-                ax[i].set_ylabel(p_name[i],fontsize=13)
-                ax[i].errorbar(np.arange(len(fit_res[:,i+1])),fit_res[:,i+1], yerr=fit_cov[:,i+1])
-                ax[i].set_ylim([np.amin(fit_res[:,i+1])*(0.9),np.amax(fit_res[:,i+1])*(1.1)])
+                ax[i].set_ylabel(p_name[i])
+                ax[i].errorbar(np.arange(len(fit_res[::2,i+1])),fit_res[::2,i+1], yerr=fit_res[1::2,i+1])
+                ax[i].set_ylim(B[0][i],B[1][i])
             plt.savefig(allfits_plots[group]+"Param_evolution_"+fit_name+".png", format="png",bbox_inches="tight")
             if close_fig:
                 plt.close(fig)

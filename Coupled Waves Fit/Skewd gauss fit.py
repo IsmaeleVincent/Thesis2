@@ -14,6 +14,8 @@ from scipy.optimize import curve_fit as fit
 from scipy.stats import skewnorm
 from scipy.stats import exponnorm
 from scipy.special import erfc
+from scipy.interpolate import UnivariateSpline
+
 
 def func(l,A,mu,sig):
     return A/(2.)*np.exp(A/(2.)*(2.*mu+A*sig**2-2*l))
@@ -38,6 +40,13 @@ p1,cov1=fit(rho1,x,y, p0=P01, bounds=B)
 plt.plot(x,y,".")
 # plt.plot(x,rho(x,*p), label="Skewed gaussian")
 plt.plot(x,rho1(x,*p1), label="EMG")
+spline = UnivariateSpline(x, rho1(x,*p1)-np.amax(rho1(x,*p1))/2, s=0)
+r1, r2 = spline.roots()
+fwhm=abs(r2-r1)
+plt.vlines([r1,r2],0,300)
+plt.vlines(exponnorm.ppf(0.5,loc=p1[2],K=p1[3],scale=p1[4]),0,300)
+print(fwhm)
+print("dl/l=",fwhm/exponnorm.ppf(0.5,loc=p1[2],K=p1[3],scale=p1[4]))
 # pp=[8.43918354e+00, 4.65054398e-01, 1.0e-04, 3.6e-03, 1e-05]
 # x1=np.linspace(0,10e-3, 1000)
 # plt.plot(x1,rho1(x1,*pp), label="EMG")

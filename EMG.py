@@ -34,13 +34,13 @@ def rho2(x, B, A, x0, sk, sig):
 tilt=[0,40,48,61,69,71,79,80,81,77.88,76.76,75.64,74.52]
 
 mu = 1.5e-3
-tau = 0.1
+tau = 0.0001
 sigma = 1.2e-3
 
 
 x = exponnorm.ppf(np.arange(0.01, 0.992, 1e-2), K=tau, loc=mu, scale=sigma)
 print("x[0] = ",x[0])
-plt.plot(x, rho1(x, 0, 1, mu, tau, sigma), "k.-")
-# plt.plot(x, rho2(x, 0, 1, mu,0, sigma), "k.-")
+plt.plot(x, rho1(x, 0, 1, mu, tau, sigma), "k.")
+plt.plot(x, rho2(x, 0, 1, mu,0, sigma), "r-")
 Dx = x[1:]-x[:-1]
 print("Dx avg=",np.average(Dx),"; Dx min=", np.amin(Dx),"; Dx max=", np.amax(Dx))

@@ -57,17 +57,17 @@ allwl_plots=allfits_plots.copy()
 for g in range(4):
     alldiff_eff_fit[g]+="Diff. effs + fits/"
     allwl_plots[g]+="WL distributions/"
-    # if os.path.exists(allfits_plots[g]):
-    #         shutil.rmtree(allfits_plots[g])
-    # os.makedirs(allfits_plots[g])
+    if os.path.exists(allfits_plots[g]):
+            shutil.rmtree(allfits_plots[g])
+    os.makedirs(allfits_plots[g])
 
-    # if os.path.exists(alldiff_eff_fit[g]):
-    #         shutil.rmtree(alldiff_eff_fit[g])
-    # os.makedirs(alldiff_eff_fit[g])
+    if os.path.exists(alldiff_eff_fit[g]):
+            shutil.rmtree(alldiff_eff_fit[g])
+    os.makedirs(alldiff_eff_fit[g])
 
-    # if os.path.exists(allwl_plots[g]):
-    #         shutil.rmtree(allwl_plots[g])
-    # os.makedirs(allwl_plots[g])
+    if os.path.exists(allwl_plots[g]):
+            shutil.rmtree(allwl_plots[g])
+    os.makedirs(allwl_plots[g])
 
 tiltangles=[0,40,48,61,69,71,79,80,81]
 foldername=[]
@@ -99,7 +99,7 @@ sigma0 = 1.93789263e-04
 """
 Angular distribution: Gaussian
 """
-div=0.00035
+div=0.0006
 def ang_gauss(x):
     g=norm(loc=0,scale=div)
     return g.pdf(x)
@@ -119,16 +119,16 @@ phi=0 #phase shift bcr2
 phi1=0 #phase shift bcr3
 d0=78 #sample thickness
 
-B0i0=[5, 0, 1.4e-3, 5e-6, 0.5, -0.0005/rad,0]
-B0f0=[13, 7, 4e-3, 1.1e-3, 5, 0.0005/rad, 2]
+B0i0=[5, 0, 1.4e-3, 5e-6, 0.5, -0.0008/rad,0]
+B0f0=[13, 7, 4e-3, 1.4e-3, 5, 0.0008/rad, 1]
 B0i=[5, 0, 1.4e-3, 2e-5, 0.5, -0.0005/rad, 0]
 B0f=[13, 7, 4e-3, 1.1e-3, 15, 0.0005/rad, 2]
 Bi_groups=[B0i0, B0i0, B0i0, B0i0]
 Bf_groups=[B0f0, B0f0, B0f0, B0f0]
 
-measur_groups=[[0,2,3,4,5],[9,10,11,12],[1], range(13)]
+measur_groups=[[0,2,3,4,5],[9,10,11,12],[1], [9,10,11]]
 
-for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     tilt=[0,40,48,61,69,71,79,80,81,77.88,76.76,75.64,74.52]
     plt.rcParams["font.size"] = 18
     plt.rcParams["lines.markersize"] = 12
@@ -145,17 +145,17 @@ for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     plotting=1
     extended_plot=1
     save_fit_res=1
-    wl_plot=1
+    wl_plot=0
     param_ev_plot=1
     close_fig=0
-    wlp=5e-2
+    wlp=1e-2
     def process_fit(k):
         print(foldername[k])
         nowf=datetime.now()
         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
         diff_eff =  np.loadtxt(data_analysis+foldername[k]+"_diff_eff_new.mpa",skiprows=1)
-        # fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
-        # diff_eff = diff_eff[diff_eff[:,0]<=0]
+        fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
+        diff_eff = diff_eff[diff_eff[:,0]*rad>=-0.0025]
         diff_eff_fit=diff_eff[:,2::2].copy()
         diff_eff_err=diff_eff[:,3::2].copy()
         def fit_func(x, bcr1, bcr2, mu1, sigma, tau, x00, phi):
@@ -215,13 +215,13 @@ for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             aaa=eta_ang[n_diff-2:n_diff+3].ravel()
             return aaa
         P0= np.zeros(7) #fit_res[0]  # [*fit_res[0],0  # fit_res[0] # [*fit_res[0,:-1],0,0]  # fit_res[0] #  [8, 2,0, 2.01e-3, pi,0, 75, 1000, 0.0004] #    [5,0,2.6e-3] # 
-        P0[0]=8
-        P0[1]=0
-        P0[2]=mu0
-        P0[3]=sigma0
-        P0[4]=tau0
-        P0[5]=0
-        P0[6]=1
+        # P0[0]=8
+        # P0[1]=0
+        # P0[2]=mu0
+        # P0[3]=sigma0
+        # P0[4]=tau0
+        # P0[5]=0
+        # P0[6]=0.5
         if (fitting):   
             B=(Bi_groups[group],Bf_groups[group])
             for i in range(len(B[0])):
@@ -394,13 +394,14 @@ for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     """
     nmeas_groups=[5,7,1,13]
     tot_res = np.zeros((2*nmeas_groups[group], 8))
-    kaus=-1
+    kaus=-2
     for k in krange:
-        kaus+=1
+        kaus+=2
         #print(foldername[k])
         data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
         fit_res =  np.loadtxt(data_analysis+foldername[k]+"_fit_results_"+fit_name+".mpa",skiprows=1)
         tot_res[kaus,0]=tilt[k]
+        tot_res[kaus+1,0]=tilt[k]
         tot_res[kaus,1:]=fit_res[0]
         tot_res[kaus+1,1:]=fit_res[1]    
     with open(allfits_plots[group]+"tot_fit_results_"+fit_name+".mpa", "w") as f:
@@ -427,7 +428,6 @@ for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
             plt.savefig(allfits_plots[group]+"Param_evolution_"+fit_name+".png", format="png",bbox_inches="tight")
             if close_fig:
                 plt.close(fig)
-
     """
     This block plots the wl distributions
     """
