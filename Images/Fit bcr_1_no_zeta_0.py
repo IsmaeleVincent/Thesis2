@@ -41,7 +41,7 @@ rad=pi/180
 fit_name="bcr_1_no_zeta_0"
 fit_name_aus="bcr_1_wl_mono_no_zeta_0"
 p_name=["$b_c \Delta\\rho_1$", "$\mu$", "$\sigma$","$\\tau$", "$\\theta_0$"]
-p_units=["( $1/\mu m^2$)"," nm", " nm", "", " deg"]
+p_units=[" ($1/\mu m^2$)"," nm", " nm", "", " deg"]
 
 
 sorted_fold_path="/home/aaa/Desktop/Thesis2/Sorted data/" #insert folder of sorted meausements files
@@ -137,7 +137,7 @@ Bi_groups=[B0i0, B0i0, B0i0, B0i0]
 Bf_groups=[B0f0, B0f0, B0f0, B0f0]
 measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[9], range(13)]#range(13)]
 
-for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
+for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     krange=measur_groups[group]
     
     def k_jz(theta, j, G,b):
@@ -146,7 +146,7 @@ for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     def dq_j (theta, j, G,b):
         return b*np.cos(theta) - k_jz(theta, j, G, b)
     fitting=0
-    plotting=1
+    plotting=0
     extended_plot=0
     save_fit_res=0
     wl_plot=0
@@ -347,7 +347,7 @@ for group in [2]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                 ax.set_ylim(B[0][i],B[1][i])
                 print(p_name[i],np.average(fit_par[:,i+1]),np.average(fit_cov[:,i+1]))
             ax.set_xlabel("$\zeta$ (deg)")
-            # plt.savefig("Param_evolution_bcr1_"+fit_name+".pdf", format="pdf",bbox_inches="tight")
+            plt.savefig("Param_evolution_bcr1_"+fit_name+".pdf", format="pdf",bbox_inches="tight")
             if close_fig:
                 plt.close(fig)
     """

@@ -118,7 +118,7 @@ B0i=[0, -0.0005/rad, 2e-3]
 B0f=[13,  0.0005/rad, 5e-3]
 Bi_groups=[B0i, B0i, B0i, B0i]
 Bf_groups=[B0f, B0f, B0f, B0f]
-measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13), [1,2,9]]
+measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], range(13), [1]]
 
 for group in [4]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     krange=measur_groups[group]
@@ -239,7 +239,7 @@ for group in [4]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                     text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
                 ax[-2].text(0.5,0.5,text,va="center", ha="center")
             else:
-                fig = plt.figure(figsize=(8,3))#constrained_layout=True
+                fig = plt.figure(figsize=(8,5))#constrained_layout=True
                 gs_t = GridSpec(3, 1, figure=fig,hspace=0)
                 ax = [fig.add_subplot(gs_t[0,:]), 
                       fig.add_subplot(gs_t[1,:]),
@@ -248,9 +248,9 @@ for group in [4]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                         ax[i].tick_params(axis="x", labelbottom=False, bottom = False)
                         ax[i].yaxis.set_label_position("right")
                 ax[-1].yaxis.set_label_position("right")
-                ax[0].set_title("$\zeta=$"+str(tilt[k])+" deg")
+                # ax[0].set_title("$\zeta=$"+str(tilt[k])+" deg")
                 ax[0].set_ylabel("Order 0")
-                ax[0].plot(thx,eta[n_diff,:],"-k", label="Fit")
+                # ax[0].plot(thx,eta[n_diff,:],"-k", label="Fit")
                 ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
                 ax[0].set_yticks([round(np.amin(diff_eff[:,6]),2),round(np.amax(diff_eff[:,6]),2)])
                 ax[0].legend()
@@ -260,12 +260,12 @@ for group in [4]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                         ax[i].set_ylabel("Order $\pm$"+str(i))
                         ax[i].set_yticks([round(np.amin(diff_eff[:,6-2*i]),2),round(np.amax(diff_eff[:,6-2*i]),2)])
                         ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6+2*i], fmt="v",  color = (0.8,0,0),  yerr=diff_eff[:,7+2*i],  label="Data (-"+str(i)+")")
-                    ax[i].plot(thx,eta[n_diff-i,:],"-k", label="Fit (-"+str(i)+")")
-                    ax[i].plot(thx,eta[n_diff+i,:],"-",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
-                    # ax[i].legend()
+                    # ax[i].plot(thx,eta[n_diff-i,:],"-k", label="Fit (-"+str(i)+")")
+                    # ax[i].plot(thx,eta[n_diff+i,:],"-",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
+                    # # ax[i].legend()
                 ax[-1].set_xlabel("$\\theta$ (rad)")
                 fig.text(0.05, 0.5, 'Diff. efficiency', va='center', rotation='vertical', fontsize=11)
-            plt.savefig("Fit_"+str(tilt[k])+"_deg_"+fit_name+".pdf", format="pdf",bbox_inches="tight")
+            # plt.savefig("Diff_eff_"+str(tilt[k])+"_deg_"+fit_name+".pdf", format="pdf",bbox_inches="tight")
             now2=datetime.now()
             print("plot time=",now2-now1)
     # """

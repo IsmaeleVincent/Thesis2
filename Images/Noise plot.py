@@ -94,7 +94,7 @@ for k in [len(foldername)-1,1,10]:#range(len(foldername)):
     #print(chi)
     # print(cov,p)
     p1, cov1 = fit(normal, x, entries, p0=[np.sum(noise)/len(noise),100])
-    chi1=chisquare(entries,norm.pdf(x,*p1))
+    # chi1=chisquare(entries,norm.pdf(x,*p1))
     W=bin_mid[1]-bin_mid[0]
     title=["Measurement time = 30 min","Measurement time = 1 hour","Measurement time = 1.5 hours"]
     axs[i].hist(noise,bins=b,label="Data",density=True)#,histtype='stepfilled')
@@ -118,5 +118,5 @@ for k in [len(foldername)-1,1,10]:#range(len(foldername)):
     # im=ax.imshow(matrix,cmap='plasma')
     # ax1.plot(((noise-np.sum(noise)/len(noise))**2/(len(noise)-1))**0.5)
 plt.tight_layout()
-plt.savefig("Noise.eps", format="pdf")
+# plt.savefig("Noise.eps", format="pdf")
 plt.show()
