@@ -135,7 +135,7 @@ B0i=[5, 1.4e-3, 2e-5, 0.5, -0.0005/rad]
 B0f=[13, 4e-3, 1.1e-3, 15, 0.0005/rad]
 Bi_groups=[B0i0, B0i0, B0i0, B0i0]
 Bf_groups=[B0f0, B0f0, B0f0, B0f0]
-measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[9], range(13)]#range(13)]
+measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[9], [1,2,6,9,10]]#range(13)]
 
 for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     krange=measur_groups[group]
@@ -146,11 +146,11 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     def dq_j (theta, j, G,b):
         return b*np.cos(theta) - k_jz(theta, j, G, b)
     fitting=0
-    plotting=0
+    plotting=1
     extended_plot=0
     save_fit_res=0
     wl_plot=0
-    param_ev_plot=1
+    param_ev_plot=0
     close_fig=0
     wlp=1e-2
     if (plotting):
@@ -267,7 +267,7 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                     text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
                 ax[-2].text(0.5,0.5,text,va="center", ha="center")
             else:
-                fig = plt.figure(figsize=(7,3.5))#constrained_layout=True
+                fig = plt.figure(figsize=(7,3.5), dpi=300)#constrained_layout=True
                 gs_t = GridSpec(3, 1, figure=fig,hspace=0)
                 ax = [fig.add_subplot(gs_t[0,:]), 
                       fig.add_subplot(gs_t[1,:]),
@@ -292,8 +292,8 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                     ax[i].plot(thx,eta[n_diff+i,:],"-",color = (0.8,0,0), label="Fit (+"+str(i)+")")   
                     # ax[i].legend()
                 ax[-1].set_xlabel("$\\theta$ (rad)")
-                fig.text(0.03, 0.5, 'Diff. efficiency', va='center', rotation='vertical', fontsize=11)
-            plt.savefig("Fit_"+str(tilt[k])+"_deg_"+fit_name+".pdf", format="pdf",bbox_inches="tight")
+                fig.text(0.03, 0.5, 'Diff. efficiency', va='center', rotation='vertical')
+            plt.savefig("Fit_"+str(tilt[k])+"_deg_"+fit_name+".png", format="png",bbox_inches="tight")
             now2=datetime.now()
             print("plot time=",now2-now1)
     

@@ -128,7 +128,7 @@ B0i=[0, -0.0005/rad, -10, 0.0001]
 B0f=[13,  0.0005/rad, 10, 0.0015]
 Bi_groups=[B0i, B0i, B0i, B0i]
 Bf_groups=[B0f, B0f, B0f, B0f]
-measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], [1,9]]
+measur_groups=[[0,2,3,4,5],[6,7,8,9,10,11,12],[1], [1,9,10]]
 
 for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     krange=measur_groups[group]
@@ -141,9 +141,9 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
     fitting=0
     plotting=1
     extended_plot=0
-    save_fit_res=1
+    save_fit_res=0
     wl_plot=0
-    param_ev_plot=1
+    param_ev_plot=0
     close_fig=0
     wlp=1e-2
     if (plotting):
@@ -259,7 +259,7 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                     text+= p_name[i] + "=" + str("%.3f" % (fit_res[0,i],)) + "$\pm$" + str("%.3f" % (fit_res[1,i],)) + p_units[i]
                 ax[-2].text(0.5,0.5,text,va="center", ha="center")
             else:
-                fig = plt.figure(figsize=(8,4))#constrained_layout=True
+                fig = plt.figure(figsize=(7,3.5),dpi=300)#constrained_layout=True
                 gs_t = GridSpec(3, 1, figure=fig,hspace=0)
                 ax = [fig.add_subplot(gs_t[0,:]), 
                       fig.add_subplot(gs_t[1,:]),
@@ -285,7 +285,7 @@ for group in [3]: #0 for Juergen, 1 for Martin, 2 for Christian, 3 for all
                     # ax[i].legend()
                 ax[-1].set_xlabel("$\\theta$ (rad)")
                 fig.text(0.05, 0.5, 'Diff. efficiency', va='center', rotation='vertical', fontsize=11)
-            plt.savefig("Fit_"+str(tilt[k])+"_deg_"+fit_name+".pdf", format="pdf",bbox_inches="tight")
+            plt.savefig("Fit_"+str(tilt[k])+"_deg_"+fit_name+".png", format="png",bbox_inches="tight")
             now2=datetime.now()
             print("plot time=",now2-now1)
     
