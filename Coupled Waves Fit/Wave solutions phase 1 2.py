@@ -38,7 +38,7 @@ def dq_j (theta, j, G):#phase mismatch
 
 phirange=np.linspace(0,4*pi,100)
 num=0
-for phi in phirange:
+for phi1 in phirange:
     num+=1
     th=np.linspace(-0.015,0.015, 150) #incident angle theta
     S=np.zeros((2*n_diff+1,len(th)),dtype=complex)
@@ -137,7 +137,7 @@ for phi in phirange:
 def make_gif(frame_folder):
     frames = [Image.open('Phase/Phase'+str(j+1)+'.png') for j in range(len(phirange))]
     frame_one = frames[0]
-    frame_one.save("my_awesome.gif", format="GIF", append_images=frames,
+    frame_one.save("my_awesome_2.gif", format="GIF", append_images=frames,
                save_all=True, duration=50, loop=0)
     
 if __name__ == "__main__":

@@ -107,11 +107,11 @@ for k in krange:#range(11,len(foldername)):#range(8,10):#
         for z in range(len(stack[0,0,:])):
             theta[z]=(z-c)*step_theta[k]
         tplt=zplt#np.linspace(theta[0],theta[-1], 10000)*rad
-        fig = plt.figure(figsize=(7,2))
+        fig = plt.figure(figsize=(7,2), dpi=200)
         ax = fig.add_subplot(111)
         # ax.set_title(foldername[k])
         ax.set_ylabel("Counts (0th order)")
-        ax.set_xlabel("z (measurement number)")
+        ax.set_xlabel("Measurement number")
         # ax.axvline(zmax, color="b")
         ax.plot(tplt,f2(zplt), "k-", label="Splines\ninterpolation")
         zmax=np.arange(10000)[tplt==np.amin(abs(tplt))][0]
@@ -120,12 +120,13 @@ for k in krange:#range(11,len(foldername)):#range(8,10):#
         ax.axvline(z1, color=(0.8,0,0))
         # z2=tplt[f2(zplt)==np.amin(f2(zplt[zmax:]))]
         ax.axvline(z2, color=(0,0.5,0))
-        ax.text(z2, np.amax(zprofile0)," $z_+$", va="top",  color=(0,0.5,0))
-        ax.text(z1, np.amax(zprofile0)," $z_-$",  va="top", color=(0.8,0,0))
-        ax.text(c, np.amax(zprofile0)," $z_0$",  va="top", color=(0,0,0))
+        # ax.text(z2, np.amax(zprofile0)," $z_+$", va="top",  color=(0,0.5,0))
+        # ax.text(z1, np.amax(zprofile0)," $z_-$",  va="top", color=(0.8,0,0))
+        ax.text(c, np.amax(zprofile0)," $\\theta=0$",  va="top", color=(0,0,0))
         # ax.text(z2, np.amax(zprofile0)," Second\n min. ", va="top",  color=(0,0.5,0))
         # ax.text(z1, np.amax(zprofile0)," First\n min.",  va="top", color=(0.8,0,0))
         ax.axvline(c, color="k", ls="dashed")
         ax.plot(zprofile0, "k^", label="Data")
         ax.legend(loc=4)
-plt.savefig("Theta0.pdf", format="pdf",bbox_inches="tight")
+plt.show()
+# plt.savefig("Theta0.pdf", format="pdf",bbox_inches="tight")
