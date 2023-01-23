@@ -113,16 +113,20 @@ stack_err = np.stack(err,axis=2)
 lines= np.loadtxt(data_analysis+fold_name+'_ROI.mpa',dtype=int,skiprows=1,max_rows=2)
 rows= np.loadtxt(data_analysis+fold_name+'_ROI.mpa',dtype=int,skiprows=3)
 print(lines)
-diff_eff= np.zeros((len(stack[0,0,:]),12))
-diff_eff[:,0]=np.linspace(-3.999,4.7495, len(stack[0,0,:]))
-print()
-diff_eff[:,1]=0.01
+diff_int= np.zeros((len(stack[0,0,:]),12))
+diff_int[:,0]=np.linspace(-3.999,4.7495, len(stack[0,0,:]))
+diff_int[:,1]=0.01
 for i in range(len(stack[0,0,:])):
     for j in range(5):
-        diff_eff[i,2*j+2]=np.sum(stack[lines[0]:lines[1],rows[j,0]:rows[j,1],i])
-        diff_eff[i,2*j+3]=np.sum((stack_err[lines[0]:lines[1],rows[j,0]:rows[j,1],i]))
-# err=diff_eff[:,2::2]**0.5+1
-# diff_eff[:,3::2]=err
+        diff_int[i,2*j+2]=np.sum(stack[lines[0]:lines[1],rows[j,0]:rows[j,1],i])
+        # diff_eff[i,2*j+3]=np.sum((stack_err[lines[0]:lines[1],rows[j,0]:rows[j,1],i]))
+diff_int[:,2::2][diff_int[:,2::2]==0]=1
+diff_eff=diff_int.copy()
+sum_int = np.sum(diff_int[:,2::2],axis=1)
+for i in range(len(diff_eff[:,0])):
+    diff_eff[i,2::2] = diff_int[i,2::2]/sum_int[i]
+diff_eff[:,3::2]=diff_eff[:,2::2]**2-diff_eff[:,2::2]**3
+diff_eff[:,3::2]=np.divide(diff_eff[:,3::2],diff_int[:,2::2])
 fig = plt.figure(figsize=(15,15))
 ax = fig.add_subplot(111)
 ax.set_title(fold_name)

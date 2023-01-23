@@ -38,9 +38,9 @@ from scipy.stats import chisquare
 pi=np.pi
 rad=pi/180
 
-orig_fold_path="/home/aaa/Desktop/thesis_L1/Data from PSI/"
+orig_fold_path="/home/aaa/Desktop/Thesis2/Data from PSI/"
 fold_name = "NP829"
-sorted_fold_path="/home/aaa/Desktop/thesis_L1/Data from PSI/Sorted data/" #insert folder of sorted meausements files
+sorted_fold_path="/home/aaa/Desktop/Thesis2/Data from PSI/Sorted data/" #insert folder of sorted meausements files
 renamed = sorted_fold_path+fold_name+"/Renamed/"
 matrixes = sorted_fold_path+fold_name+"/Matrixes/"
 pictures = sorted_fold_path+fold_name+"/Pictures/"
@@ -114,9 +114,6 @@ wlp=1e-5
 nowf=datetime.now()
 diff_eff =  np.loadtxt(data_analysis+fold_name+'_diff_eff.mpa',skiprows=1)
 diff_eff_aus=diff_eff.copy()
-for i in range(len(diff_eff[:,0])): 
-    s=sum(diff_eff[i,2::2])
-    diff_eff[i,2:]=diff_eff[i,2:]/s
 diff_eff_fit=diff_eff[:,2::2].copy()
 diff_eff_fit=np.transpose(diff_eff_fit)
 def fit_func(x, bcr1, bcr2, x00,d):
@@ -183,7 +180,7 @@ if (fitting):
     ff=diff_eff_fit.ravel()
     fferr=np.transpose(diff_eff[:,3::2])
     fferr=fferr.ravel()
-    fferr[fferr==0]=1e-8
+    # fferr[fferr==0]=1e-8
     xx=np.zeros(len(diff_eff[:,0])*5)
     xx[0:len(diff_eff[:,0])]=diff_eff[:,0]
     #plt.plot(ff,"k")
@@ -209,19 +206,6 @@ if (plotting):
     diff_eff =  np.loadtxt(data_analysis+fold_name+'_diff_eff.mpa',skiprows=1)
     fit_res =  np.loadtxt(data_analysis+fold_name+'_fit_results_mono_mu_fix.mpa',skiprows=1)
     p=fit_res[0]
-    #print(p)
-    for i in range(len(diff_eff[:,0])): 
-        s=sum(diff_eff[i,2::2])
-        diff_eff[i,2:]=diff_eff[i,2:]/s
-    # diff_eff_err= diff_eff[:,3::2]
-    # diff_eff_err=np.divide(diff_eff_err,diff_eff[:,2::2])
-    # diff_eff_err[np.isnan(diff_eff_err)]=0
-    diff_eff[:,3::2]=diff_eff[:,3::2]/3
-    diff_eff_fit=np.zeros((5, len(diff_eff[:,5])))
-    diff_eff_fit[2,:]=diff_eff[:,2*2+2].copy()
-    for i in range(1,3):
-        diff_eff_fit[2-i,:]=diff_eff[:,6-2*i].copy()
-        diff_eff_fit[2+i,:]=diff_eff[:,6+2*i].copy()
     def plot_func(x, bcr1, bcr2, x00,d):
         d=d/np.cos(45*rad)
         x=diff_eff[:,0]+x00
@@ -280,7 +264,7 @@ if (plotting):
     fig, ax = plt.subplots(n_diff+1,figsize=(10,10))
     ax[0].set_title(fold_name)
     #ax[0].plot(diff_eff[:,0]*rad,diff_eff_fit[2,:], 'ro')
-    ax[0].errorbar(diff_eff[:,0]*rad,diff_eff_fit[2,:], fmt="^k",  yerr=diff_eff[:,7], label="Data")
+    ax[0].errorbar(diff_eff[:,0]*rad,diff_eff[:,6], fmt="^k",  yerr=diff_eff[:,7], label="Data")
     ax[0].plot(thx,eta[n_diff,:],"1--k", label="Fit")
     ax[0].legend(loc=(5))
     for i in range(1,n_diff+1):

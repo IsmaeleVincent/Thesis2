@@ -38,7 +38,7 @@ n_theta=[26,46,28,17,16,20,21,20,19,48,43,59,24]  #number of measurements files 
 step_theta=[0.03,0.03,0.05,0.05,0.05,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03]
 n_pixel = 16384 #number of pixels in one measurement
 tilt=[0,40,48,61,69,71,79,80,81,77.88,76.76,75.64,74.52]
-krange=range(8,len(foldername))
+krange=range(0,len(foldername))
 
 """
 This block calculates the diffraction intensities, first part estimates theta=0
@@ -331,49 +331,42 @@ plot=1
 # This block plots the diffraction intensities
 """
 
-for k in [11]:#range(6,len(foldername)):#
-    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_int_new.mpa',skiprows=1)
-    fig = plt.figure(figsize=(7,2))
-    rad=np.pi/180
-    ax = fig.add_subplot(111)
-    ax.set_title("$\zeta=$"+str(tilt[k])+" deg")
-    ax.yaxis.set_label_position("right")
-    ax.set_ylabel("Order 0")
-    fig.text(0.03, 0.5, 'Neutron counts', va='center', rotation='vertical')
-    ax.set_xlabel("$\\theta$ (rad)")
-    ax.plot(diff_eff[:,0]*rad,diff_eff[:,6],"-vk", label="Data")
-    ax.legend(loc=5)
-    # ax.errorbar(diff_eff[:,0],diff_eff[:,2*j+2],yerr=diff_eff[:,2*j+3],capsize=1)
-    plt.savefig("asymmetry.pdf", format="pdf",bbox_inches="tight")
-    plt.show()
+# for k in [11]:#range(6,len(foldername)):#
+#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+#     diff_int =  np.loadtxt(data_analysis+foldername[k]+'_diff_int_new.mpa',skiprows=1)
+#     fig = plt.figure(figsize=(7,2))
+#     rad=np.pi/180
+#     ax = fig.add_subplot(111)
+#     ax.set_title("$\zeta=$"+str(tilt[k])+" deg")
+#     ax.yaxis.set_label_position("right")
+#     ax.set_ylabel("Order 0")
+#     fig.text(0.03, 0.5, 'Neutron counts', va='center', rotation='vertical')
+#     ax.set_xlabel("$\\theta$ (rad)")
+#     ax.plot(diff_int[:,0]*rad,diff_int[:,6],"-vk", label="Data")
+#     ax.legend(loc=5)
+#     # ax.errorbar(diff_int[:,0],diff_int[:,2*j+2],yerr=diff_int[:,2*j+3],capsize=1)
+#     plt.savefig("asymmetry.pdf", format="pdf",bbox_inches="tight")
+#     plt.show()
 """
 # This block calculates the diffraction efficiencies
 """
 
-# for k in krange:#range(6,len(foldername)):#
-#     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-#     diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_int_new.mpa',skiprows=1)
-#     diff_eff[:,3::2]=diff_eff[:,2::2]**0.5
-#     diff_eff_aus=diff_eff[:,2::2].copy()
-#     diff_eff_aus_err=diff_eff[:,3::2].copy()
-#     diff_eff_aus[diff_eff_aus==0]=1
-#     for i in range(len(diff_eff[:,0])):
-#         s=sum(diff_eff[i,2::2])
-#         diff_eff[i,2:]=diff_eff[i,2:]/s
-#     diff_eff_fit=diff_eff[:,2::2].copy()
-#     diff_eff_err=(diff_eff_fit**2+diff_eff_fit)
-#     for i in range(len(diff_eff_err[:,0])):
-#         s=sum(diff_eff_aus_err[i,:])
-#         for j in range(len(diff_eff_err[0,:])):
-#             diff_eff_err[i,j]=diff_eff_err[i,j]*s/diff_eff_aus[i,j]
-#     diff_eff_err[diff_eff_err==0]=0.01
-#     diff_eff[:,3::2]=diff_eff_err
-#     with open(data_analysis+foldername[k]+'_diff_eff_new.mpa', 'w') as f:
-#             np.savetxt(f,diff_eff, header="theta err counts-2 err counts-1 err counts-0 err counts1 err counts1 err", fmt="%.6f")
-   
+for k in krange:#range(6,len(foldername)):#
+    print(tilt[k])
+    data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
+    diff_int =  np.loadtxt(data_analysis+foldername[k]+'_diff_int_new.mpa',skiprows=1)
+    diff_int[:,2::2][diff_int[:,2::2]==0]=1
+    diff_eff=diff_int.copy()
+    sum_int = np.sum(diff_int[:,2::2],axis=1)
+    for i in range(len(diff_eff[:,0])):
+        diff_eff[i,2::2] = diff_int[i,2::2]/sum_int[i]
+    diff_eff[:,3::2]=diff_eff[:,2::2]**2-diff_eff[:,2::2]**3
+    diff_eff[:,3::2]=np.divide(diff_eff[:,3::2],diff_int[:,2::2])
+    diff_eff[:,3::2]=diff_eff[:,3::2]**0.5
+    with open(data_analysis+foldername[k]+'_diff_eff_new.mpa', 'w') as f:
+        np.savetxt(f,diff_eff, header="theta err counts-2 err counts-1 err counts-0 err counts1 err counts1 err", fmt="%.6f")
 """
-# This block copies the plots in a common folder
+This block copies the plots in a common folder
 """
 
 # if os.path.exists(allcontroldiff):

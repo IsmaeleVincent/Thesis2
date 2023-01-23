@@ -74,9 +74,9 @@ def k_jz(theta, j, G):
     return k_jz
 def dq_j (theta, j, G):
     return b*np.cos(theta) - k_jz(theta, j, G)
-for k in range(1,2):#len(foldername)):
+for k in [1]:#range(len(foldername)):
     data_analysis = sorted_fold_path+foldername[k]+"/Data Analysis/"
-    diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff.mpa',skiprows=1)    
+    diff_eff =  np.loadtxt(data_analysis+foldername[k]+'_diff_eff_new.mpa',skiprows=1)    
     fig, ax = plt.subplots(n_diff+1,figsize=(7.5,4),sharex=True)
     plt.rcParams["font.size"] = 11
     fig.text(0, 0.5, 'Counts', va='center', rotation='vertical', fontsize=11)
@@ -84,12 +84,13 @@ for k in range(1,2):#len(foldername)):
     ax[0].tick_params('x', bottom=False)
     ax[1].tick_params('x', bottom=False)
     # ax[0].set_title("Example of diffracted waves intensities")
-    ax[0].plot(diff_eff[:,0]*rad,diff_eff[:,6], "^-k", label="Order 0")
+    ax[0].errorbar(diff_eff[:,0]*rad,diff_eff[:,6], fmt="^-k", yerr=diff_eff[:,7],label="Order 0")
     ax[0].legend(loc=8, framealpha=1)
     for i in range(1,3):
-        ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6-2*i], "^-k", label="Order -"+str(i))
-        ax[i].plot(diff_eff[:,0]*rad,diff_eff[:,6+2*i], "^-",  color = (0.8,0,0),  label="Order +"+str(i))
+        ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6-2*i], fmt="^-k",yerr=diff_eff[:,7-2*i], label="Order -"+str(i))
+        ax[i].errorbar(diff_eff[:,0]*rad,diff_eff[:,6+2*i], fmt="^-", yerr=diff_eff[:,7+2*i], color = (0.8,0,0),  label="Order +"+str(i))
         ax[i].legend(loc=9, framealpha=1)
     ax[-1].set_xlabel("$\\theta$ (rad)")
-plt.tight_layout()
-plt.savefig("Multiwave.eps", format='pdf', bbox_inches='tight')
+    plt.tight_layout()
+    plt.show()
+# plt.savefig("Multiwave.eps", format='pdf', bbox_inches='tight')
